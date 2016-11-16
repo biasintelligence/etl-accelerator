@@ -190,7 +190,7 @@ union all select 7,@BatchID,'ARG','&"
 $query = ''delete ETLStepRunCounter where BatchId = <@BatchId> and RunId = <@RunId> and CounterName = ''''sqlps'''';'';
 invoke-sqlcmd -serverinstance <Control.Server> -database <Control.Database> -query $query -ErrorLevel 1 -AbortOnError;"' 
 -- query parameter can also be embedded without using a $query object like this:
--- invoke-sqlcmd -Query ''delete ETLStepRunCounter where BatchId = <@BatchId> and CounterName = ''''SQLPS'''' and RunId = <@RunId>'' -Server V-CCOLIE1-11 -Database etl_controller"'
+-- invoke-sqlcmd -Query ''delete ETLStepRunCounter where BatchId = <@BatchId> and CounterName = ''''SQLPS'''' and RunId = <@RunId>'' -Server <MY_SERVER> -Database etl_controller"'
  
  
 end try
