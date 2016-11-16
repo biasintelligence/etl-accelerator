@@ -1,0 +1,677 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ParametersXSD" xml:space="preserve">
+    <value>&lt;?xml version="1.0"?&gt;
+&lt;xsd:schema xmlns="DeltaExtractor.XSD" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="DeltaExtractor.XSD"  elementFormDefault="qualified"&gt;
+	&lt;!-- Guid Pattern definition --&gt;
+	&lt;xsd:simpleType name="GUID"&gt;
+		&lt;xsd:restriction base="xsd:string"&gt;
+			&lt;xsd:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" /&gt;
+		&lt;/xsd:restriction&gt;
+	&lt;/xsd:simpleType&gt;
+  
+	&lt;!-- List of possible actions --&gt;
+	&lt;xsd:simpleType name="Actions"&gt;
+		&lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="MoveData" /&gt;
+    &lt;/xsd:restriction&gt;
+	&lt;/xsd:simpleType&gt;
+
+
+  &lt;!-- Sharepoint Destination Action --&gt;
+  &lt;xsd:simpleType name="SPAction"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="Modification" /&gt;
+      &lt;xsd:enumeration value="Deletion" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;!-- AccessMode --&gt;
+  &lt;xsd:simpleType name="AccessMode"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="OpenRowset" /&gt;
+      &lt;xsd:enumeration value="OpenRowset From Variable" /&gt;
+      &lt;xsd:enumeration value="SQL Command" /&gt;
+      &lt;xsd:enumeration value="SQL Command From Variable" /&gt;
+      &lt;xsd:enumeration value="Table or view" /&gt;
+      &lt;xsd:enumeration value="Table Name" /&gt;
+      &lt;xsd:enumeration value="OpenRowset Using FastLoad" /&gt;
+      &lt;xsd:enumeration value="OpenRowset Using FastLoad From Variable" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;!-- BindNumericMode --&gt;
+  &lt;xsd:simpleType name="NumericMode"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="Char" /&gt;
+      &lt;xsd:enumeration value="Numeric" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;!-- BindCharMode --&gt;
+  &lt;xsd:simpleType name="CharMode"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="ANSI" /&gt;
+      &lt;xsd:enumeration value="Unicode" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;!-- FetchMode --&gt;
+  &lt;xsd:simpleType name="FetchMode"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="Batch" /&gt;
+      &lt;xsd:enumeration value="Row by row" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;xsd:simpleType name="CompressionMethod"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="GZIP" /&gt;
+      &lt;xsd:enumeration value="XPRESS" /&gt;
+      &lt;xsd:enumeration value="ZIP" /&gt;
+      &lt;xsd:enumeration value="NONE" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+  
+	&lt;xsd:simpleType name="ExcelVersion"&gt;
+		&lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="Microsoft Excel 97-2003" /&gt;
+      &lt;xsd:enumeration value="Microsoft Excel 2007" /&gt;
+      &lt;xsd:enumeration value="Microsoft Excel 2010" /&gt;
+      &lt;xsd:enumeration value="Microsoft Excel 2013" /&gt;
+    &lt;/xsd:restriction&gt;
+	&lt;/xsd:simpleType&gt;
+
+  &lt;xsd:simpleType name="FlatFileFormat"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="Delimited" /&gt;
+      &lt;xsd:enumeration value="FixedWidth" /&gt;
+      &lt;xsd:enumeration value="RaggedRight" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;xsd:simpleType name="QueryType"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="SQL" /&gt;
+      &lt;xsd:enumeration value="MDX" /&gt;
+      &lt;xsd:enumeration value="XMLA" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;xsd:simpleType name="PartitionFunction"&gt;
+    &lt;xsd:restriction base="xsd:string"&gt;
+      &lt;xsd:enumeration value="UPS" /&gt;
+      &lt;xsd:enumeration value="SRC" /&gt;
+      &lt;xsd:enumeration value="NONE" /&gt;
+    &lt;/xsd:restriction&gt;
+  &lt;/xsd:simpleType&gt;
+
+  &lt;!-- Partition block properties --&gt;
+  &lt;xsd:complexType name="PartitionBlock"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="Input" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="Output" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+    &lt;/xsd:sequence&gt;
+    &lt;xsd:attribute name="Function" type="PartitionFunction" use="required"/&gt;
+  &lt;/xsd:complexType&gt;
+
+
+  &lt;!-- Partition range properties --&gt;
+  &lt;xsd:complexType name="PartitionRange"&gt;
+    &lt;xsd:attribute name="Min" type="xsd:int" use="optional"/&gt;
+    &lt;xsd:attribute name="Max" type="xsd:int" use="optional"/&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- SharePointSource --&gt;
+  &lt;xsd:complexType name="SharePointSource"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="CamlQuery" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="IncludeFolders" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="IsRecursive" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SharePointCulture" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SiteListName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SiteListViewName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SiteUrl" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- SharePointDestination --&gt;
+  &lt;xsd:complexType name="SharePointDestination"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BatchType" type="SPAction" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SharePointCulture" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SiteListName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SiteListViewName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SiteUrl" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- FlatFileSource --&gt;
+  &lt;xsd:complexType name="FlatFileSource"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="CodePage" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="DataRowsToSkip" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Format" type="FlatFileFormat" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ColumnNamesInFirstDataRow" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="HeaderRowDelimiter" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="HeaderRowsToSkip" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="TextQualifier" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Unicode" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ColumnDelimiter" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="RecordDelimiter" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="FileNameColumnName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="RetainNulls" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="DataCompression" type="CompressionMethod" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="StagingAreaTableName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- FlatFileDestination --&gt;
+  &lt;xsd:complexType name="FlatFileDestination"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="CodePage" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="DataRowsToSkip" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Format" type="FlatFileFormat" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ColumnNamesInFirstDataRow" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="HeaderRowDelimiter" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="HeaderRowsToSkip" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="TextQualifier" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Unicode" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ColumnDelimiter" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="RecordDelimiter" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Header" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Override" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="DataCompression" type="CompressionMethod" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="StagingAreaTableName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+
+  &lt;!-- ExcelSource --&gt;
+  &lt;xsd:complexType name="ExcelSource"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="FilePath" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="Header" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="ExcelVersion" type="ExcelVersion" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SqlCommand" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataCompression" type="CompressionMethod" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="StagingAreaTableName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- ExcelDestination --&gt;
+  &lt;xsd:complexType name="ExcelDestination"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="FilePath" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="Header" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="ExcelVersion" type="ExcelVersion" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="OpenRowset" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="1" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataCompression" type="CompressionMethod" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="StagingAreaTableName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+
+  &lt;!-- Database Connection --&gt;
+	&lt;xsd:complexType name="DBConnection"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:choice&gt;
+        &lt;xsd:sequence&gt;
+          &lt;xsd:element name="Server" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+          &lt;xsd:element name="Database" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+        &lt;/xsd:sequence&gt;
+        &lt;xsd:sequence&gt;
+          &lt;xsd:element name="ConnectionString" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+          &lt;xsd:element name="Qualifier" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+        &lt;/xsd:sequence&gt;
+      &lt;/xsd:choice&gt;
+      &lt;xsd:element name="QueryTimeout" type="xsd:integer" maxOccurs="1" minOccurs="0" /&gt;
+    &lt;/xsd:sequence&gt;
+	&lt;/xsd:complexType&gt;
+
+	&lt;!-- OLEDB Source --&gt;
+	&lt;xsd:complexType name="OleDbSource"&gt;
+		&lt;xsd:sequence&gt;
+			&lt;xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/&gt;
+      &lt;xsd:element name="QueryType" type="QueryType" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+				&lt;xsd:complexType&gt;
+					&lt;xsd:sequence&gt;
+						&lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+						&lt;xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+						&lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+					&lt;/xsd:sequence&gt;
+				&lt;/xsd:complexType&gt;
+			&lt;/xsd:element&gt;
+		&lt;/xsd:sequence&gt;
+	&lt;/xsd:complexType&gt;
+
+  &lt;!-- ADONET Source --&gt;
+  &lt;xsd:complexType name="AdoNetSource"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="AllowImplicitStringConversion" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- ODBC Source --&gt;
+  &lt;xsd:complexType name="OdbcSource"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xsd:element name="StatementTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="LobChunkSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ExposeCharColumnsAsUnicode" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="FetchMethod" type="FetchMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="DefaultCodePage" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BindNumericAs" type="NumericMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BindCharColumnsAs" type="CharMode" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+
+  &lt;!-- Staging block properties --&gt;
+  &lt;xsd:complexType name="StagingBlock"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="StagingTableName" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="StagingTablePrepare" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="StagingTableUpload" type="xsd:string" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="UserOptions" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+    &lt;/xsd:sequence&gt;
+    &lt;xsd:attribute name="Staging" type="xsd:boolean" use="required"/&gt;
+  &lt;/xsd:complexType&gt;
+
+
+  &lt;!-- OLEDB Destination --&gt;
+	&lt;xsd:complexType name="OleDbDestination"&gt;
+		&lt;xsd:sequence&gt;
+			&lt;xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/&gt;
+			&lt;xsd:element name="StagingBlock" type="StagingBlock" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+				&lt;xsd:complexType&gt;
+					&lt;xsd:sequence&gt;
+						&lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="OpenRowset" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xsd:element name="FastLoadOptions" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="FastLoadKeepIdentity" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="FastLoadKeepNulls" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="FastLoadMaxInsertCommitSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+					&lt;/xsd:sequence&gt;
+				&lt;/xsd:complexType&gt;
+			&lt;/xsd:element&gt;
+		&lt;/xsd:sequence&gt;
+	&lt;/xsd:complexType&gt;
+
+  &lt;!-- ADONET Destination --&gt;
+  &lt;xsd:complexType name="AdoNetDestination"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/&gt;
+      &lt;xsd:element name="StagingBlock" type="StagingBlock" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="TableOrViewName" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="UseBulkInsertWhenPossible" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- ODBC Destination --&gt;
+  &lt;xsd:complexType name="OdbcDestination"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/&gt;
+      &lt;xsd:element name="StagingBlock" type="StagingBlock" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="InsertMethod" type="FetchMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BindCharColumnsAs" type="CharMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BindNumericAs" type="NumericMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="TableName" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="TransactionSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="LobChunkSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="StatementTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="DefaultCodePage" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- SQLBULK Destination --&gt;
+  &lt;xsd:complexType name="SqlBulkDestination"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/&gt;
+      &lt;xsd:element name="StagingBlock" type="StagingBlock" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="DefaultCodePage" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="AlwaysUseDefaultCodePage" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertTableName" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertCheckConstraints" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertFirstRow" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertFireTriggers" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertKeepIdentity" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertKeepNulls" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertLastRow" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertMaxErrors" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertOrder" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="BulkInsertTablock" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Timeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="MaxInsertCommitSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+
+  &lt;!-- Complex type for destinations --&gt;
+	&lt;xsd:complexType name="DataDestination"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="OleDbDestination" type="OleDbDestination" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;xsd:element name="FlatFileDestination" type="FlatFileDestination" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;xsd:element name="ExcelDestination" type="ExcelDestination" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;xsd:element name="SharePointDestination" type="SharePointDestination" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;xsd:element name="AdoNetDestination" type="AdoNetDestination" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;xsd:element name="OdbcDestination" type="OdbcDestination" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;xsd:element name="SqlBulkDestination" type="SqlBulkDestination" minOccurs="0" maxOccurs="unbounded"/&gt;
+    &lt;/xsd:sequence&gt;
+	&lt;/xsd:complexType&gt;
+
+
+	&lt;!-- Complex type for sources --&gt;
+	&lt;xsd:complexType name="DataSource"&gt;
+		&lt;xsd:choice&gt;
+			&lt;xsd:sequence&gt;
+				&lt;xsd:element name="OleDbSource" type="OleDbSource" minOccurs="0" maxOccurs="1"/&gt;
+			&lt;/xsd:sequence&gt;
+			&lt;xsd:sequence&gt;
+        &lt;xsd:element name="FlatFileSource" type="FlatFileSource" minOccurs="0" maxOccurs="1" /&gt;
+      &lt;/xsd:sequence&gt;
+      &lt;xsd:sequence&gt;
+        &lt;xsd:element name="ExcelSource" type="ExcelSource" minOccurs="0" maxOccurs="1" /&gt;
+      &lt;/xsd:sequence&gt;
+      &lt;xsd:sequence&gt;
+        &lt;xsd:element name="SharePointSource" type="SharePointSource" minOccurs="0" maxOccurs="1" /&gt;
+      &lt;/xsd:sequence&gt;
+      &lt;xsd:sequence&gt;
+        &lt;xsd:element name="AdoNetSource" type="AdoNetSource" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;/xsd:sequence&gt;
+      &lt;xsd:sequence&gt;
+        &lt;xsd:element name="OdbcSource" type="OdbcSource" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;/xsd:sequence&gt;
+    &lt;/xsd:choice&gt;
+  &lt;/xsd:complexType&gt;
+
+
+	&lt;xsd:complexType name="MoveData"&gt;
+		&lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+			&lt;xsd:element name="DataSource" type="DataSource" maxOccurs="1" minOccurs="1" /&gt;
+			&lt;xsd:element name="DataDestination" type="DataDestination" minOccurs="1" maxOccurs="1" /&gt;
+			&lt;xsd:element name="StagingAreaRoot" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="Partition" type="PartitionBlock" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="SavePackage" maxOccurs="1" minOccurs="0"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:simpleContent&gt;
+            &lt;xsd:extension base="xsd:string"&gt;
+              &lt;xsd:attribute name="Save" type="xsd:boolean"  use="required"/&gt;
+              &lt;xsd:attribute name="Load" type="xsd:boolean"  use="optional"/&gt;
+            &lt;/xsd:extension&gt;
+          &lt;/xsd:simpleContent&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+	&lt;/xsd:complexType&gt;
+
+  &lt;xsd:complexType name="RunPackage"&gt;
+    &lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+      &lt;xsd:element name="File" type="xsd:string" maxOccurs="1" minOccurs="1" /&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- ETL_Controller Header --&gt;
+  &lt;xsd:complexType name="ETLHeader"&gt;
+    &lt;xsd:sequence maxOccurs="1" minOccurs="1"&gt;
+      &lt;xsd:element name="BatchID" type="xsd:int" maxOccurs="1" minOccurs="1" /&gt;
+      &lt;xsd:element name="StepID" type="xsd:int" maxOccurs="1" minOccurs="1" /&gt;
+      &lt;xsd:element name="RunID" type="xsd:int" maxOccurs="1" minOccurs="1" /&gt;
+      &lt;xsd:element name="Controller" type="DBConnection" maxOccurs="1" minOccurs="1" /&gt;
+      &lt;xsd:element name="Node" type="DBConnection" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="Conversation" type="GUID" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="ConversationGrp" type="GUID" maxOccurs="1" minOccurs="0" /&gt;
+      &lt;xsd:element name="Options" type="xsd:int" maxOccurs="1" minOccurs="0" /&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
+  &lt;!-- BIAS Workflow header --&gt;
+  &lt;xsd:complexType name="BIASHeader"&gt;
+    &lt;xsd:complexContent&gt;
+      &lt;xsd:restriction base="xsd:anyType"&gt;
+        &lt;xsd:sequence /&gt;
+        &lt;xsd:attribute name="RunID" type="xsd:int" use="required" /&gt;
+        &lt;xsd:attribute name="UserOptions" type="xsd:string" /&gt;
+      &lt;/xsd:restriction&gt;
+    &lt;/xsd:complexContent&gt;
+  &lt;/xsd:complexType&gt;
+
+
+  &lt;!-- Parameters to be passed --&gt;
+	&lt;xsd:complexType name="Parameters"&gt;
+		&lt;xsd:sequence minOccurs="1" maxOccurs="1"&gt;
+      &lt;xsd:choice&gt;
+        &lt;xsd:sequence&gt;
+          &lt;xsd:element name="ETLHeader" type="ETLHeader" maxOccurs="1" minOccurs="0" /&gt;
+        &lt;/xsd:sequence&gt;
+        &lt;xsd:sequence&gt;
+          &lt;xsd:element name="BIASHeader" type="BIASHeader" maxOccurs="1" minOccurs="0" /&gt;
+        &lt;/xsd:sequence&gt;
+      &lt;/xsd:choice&gt;
+      &lt;xsd:choice&gt;
+				&lt;xsd:sequence&gt;
+					&lt;xsd:element name="MoveData" type="MoveData"  maxOccurs="1" minOccurs="0"/&gt;
+				&lt;/xsd:sequence&gt;
+        &lt;xsd:sequence&gt;
+          &lt;xsd:element name="RunPackage" type="RunPackage"  maxOccurs="1" minOccurs="0"/&gt;
+        &lt;/xsd:sequence&gt;
+      &lt;/xsd:choice&gt;
+    &lt;/xsd:sequence&gt;
+	&lt;/xsd:complexType&gt;
+	&lt;xsd:element name="Parameters" type="Parameters" /&gt;
+&lt;/xsd:schema&gt;</value>
+  </data>
+</root>

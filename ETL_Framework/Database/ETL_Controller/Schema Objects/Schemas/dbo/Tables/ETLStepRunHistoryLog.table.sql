@@ -1,0 +1,12 @@
+﻿CREATE TABLE [dbo].[ETLStepRunHistoryLog] (
+    [LogID]      INT            IDENTITY (1, 1) NOT NULL,
+    [RunID]      INT            NOT NULL,
+    [BatchID]    INT            NOT NULL,
+    [StepID]     INT            NOT NULL,
+    [Err]        INT            NOT NULL,
+    [LogDT]      DATETIME       NULL,
+    [LogMessage] NVARCHAR (MAX) NULL,
+    PRIMARY KEY CLUSTERED ([RunID] ASC, [LogID] ASC) WITH (ALLOW_PAGE_LOCKS = ON, ALLOW_ROW_LOCKS = ON, PAD_INDEX = OFF, IGNORE_DUP_KEY = OFF, STATISTICS_NORECOMPUTE = OFF),
+    UNIQUE NONCLUSTERED ([BatchID] ASC, [StepID] ASC, [LogID] ASC) WITH (ALLOW_PAGE_LOCKS = ON, ALLOW_ROW_LOCKS = ON, PAD_INDEX = OFF, IGNORE_DUP_KEY = OFF, STATISTICS_NORECOMPUTE = OFF) ON [PRIMARY]
+);
+
