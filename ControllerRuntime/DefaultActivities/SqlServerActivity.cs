@@ -98,10 +98,6 @@ namespace DefaultActivities
             }
             return result;
         }
-        public virtual void Cancel()
-        {
-            return;
-        }
 
     }
 }

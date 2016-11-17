@@ -64,8 +64,8 @@ namespace DefaultActivities
 
         private IWorkflowLogger _logger;
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        //private List<string> _required_attributes = new List<string>() { CONNECTION_STRING, BATCH_ID, STEP_ID, RUN_ID };
-        private List<string> _required_attributes = new List<string>() { BATCH_ID, STEP_ID, RUN_ID };
+        private List<string> _required_attributes = new List<string>() { CONNECTION_STRING, BATCH_ID, STEP_ID, RUN_ID };
+        //private List<string> _required_attributes = new List<string>() { BATCH_ID, STEP_ID, RUN_ID };
 
         #region IWorkflowActivity
         public string[] RequiredAttributes
@@ -88,19 +88,8 @@ namespace DefaultActivities
 
             foreach (WorkflowAttribute attribute in args.RequiredAttributes)
             {
-                _attributes.Add(attribute.Name, attribute.Value);
                 if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
-                {
-                    switch (attribute.Name)
-                    {
-                        case CONNECTION_STRING:
-                            _connection_string = attribute.Value;
-
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                    _attributes.Add(attribute.Name, attribute.Value);
             }
 
             DeParameters();
@@ -134,7 +123,7 @@ namespace DefaultActivities
         private void DeParameters()
         {
             var settings = ConfigurationManager.AppSettings;
-            _connection_string = settings["Controller"];
+            _connection_string = _attributes[CONNECTION_STRING]; //settings["Controller"];
 
             StringBuilder sb = new StringBuilder(XML_HEADER);
             SqlConnection cn = new SqlConnection(_connection_string);
