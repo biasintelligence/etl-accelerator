@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
@@ -22,17 +23,17 @@ using ControllerRuntime;
 
 namespace DefaultActivities
 {
- /// <summary>
- /// Exceute SqlClient ExecuteNonQuery function 
- /// </summary>
+    /// <summary>
+    /// Exceute SqlClient ExecuteNonQuery function 
+    /// </summary>
     public class SqlServerActivity : IWorkflowActivity
     {
         protected const string CONNECTION_STRING = "ConnectionString";
         protected const string QUERY_STRING = "Query";
         protected const string TIMEOUT = "Timeout";
 
-        
-        protected Dictionary<string,string> _attributes = new Dictionary<string,string>();
+
+        protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         protected IWorkflowLogger _logger;
         protected List<string> _required_attributes = new List<string>() { QUERY_STRING, CONNECTION_STRING, TIMEOUT };
 
@@ -52,19 +53,19 @@ namespace DefaultActivities
                 throw new Exception("Not all required attributes are provided");
             }
 
-            
-            foreach(WorkflowAttribute attribute in args.RequiredAttributes)
+
+            foreach (WorkflowAttribute attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Name))
+                if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
             _logger.Write(String.Format("SqlServer: {0}", _attributes[CONNECTION_STRING]));
-            _logger.WriteDebug(String.Format("Query: {0}", _attributes[CONNECTION_STRING]));
+            _logger.WriteDebug(String.Format("Query: {0}", _attributes[QUERY_STRING]));
 
         }
 
-        public virtual WfResult Run()
+        public virtual WfResult Run(CancellationToken token)
         {
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
@@ -73,11 +74,14 @@ namespace DefaultActivities
             try
             {
                 cn.Open();
-                using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING],cn))
+                using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
                 {
-                    cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                    cmd.ExecuteNonQuery();
-                    result = WfResult.Succeeded;
+                    using (token.Register(cmd.Cancel))
+                    {
+                        cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
+                        cmd.ExecuteNonQuery();
+                        result = WfResult.Succeeded;
+                    }
                 }
             }
             catch (SqlException ex)

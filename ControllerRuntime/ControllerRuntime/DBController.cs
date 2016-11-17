@@ -93,12 +93,14 @@ namespace ControllerRuntime
     {
 
         private const string WORKFLOW_METADATA_QUERY = @"
+
+declare @batchName varchar(100) = '{0}';
 declare @wfid int;
 declare @pHeader xml;
 declare @pContext xml;
-select top 1 @wfid = batchid from ETLBatch where BatchName = '{0}';
+select top 1 @wfid = batchid from ETLBatch where BatchName = @batchName;
 if (@wfid is null)
-    raiserror ('Workflow {0} is not found',11,11);
+    raiserror ('Workflow %s is not found',11,11,@batchName);
 
 exec dbo.prc_CreateHeader @pHeader out,@wfid,null,null,0,{1},15;
 exec dbo.prc_CreateContext @pContext out,@pHeader;
@@ -106,9 +108,10 @@ select cast(@pContext as nvarchar(max));";
 
         //successfull steps from the previous unsuccessful run
         private const string WORKFLOW_STATUS_QUERY = @"
+declare @batchName varchar(100) = '{0}';
 declare @BatchId int;
 declare @LastStatusID tinyint;
-select top 1 @BatchId = BatchId from dbo.ETLBatch where BatchName = '{0}';
+select top 1 @BatchId = BatchId from dbo.ETLBatch where BatchName = @batchName;
 set @LastStatusID = isnull((select top 1 StatusID from dbo.ETLBatchRun
 where RunID = (select MAX(RunID) from dbo.ETLBatchRun where BatchID = @BatchID)),2);
 
@@ -119,13 +122,18 @@ and (@LastStatusID <> 2
 and isnull(s.StatusID,0) = 2);
 ";
         private const string WORKFLOW_INITIALIZE_QUERY = @"
+declare @processorName varchar(100) = '{0}';
+declare @batchName varchar(100) = '{1}';
+declare @options int = {2} + 2 * {3};
+declare @forcestart bit = {3};
+
 declare @BatchId int;
 declare @LastStatusID tinyint;
 declare @LastRunID int;
 declare @RunId int;
 declare @BatchHeader xml;
 begin try
-	select top 1 @BatchId = BatchId from dbo.ETLBatch where BatchName = '{1}';
+	select top 1 @BatchId = BatchId from dbo.ETLBatch where BatchName = @batchName;
 
 --cleanup part	
     SELECT @LastStatusID = StatusID
@@ -135,12 +143,12 @@ begin try
 					 WHERE BatchID = @BatchID)
 
     --abort if running and forcestart is not set
-    if({3} = 0 and @LastStatusID = 1)
-        raiserror ('Workflow {1} is already running, Use forestart option to cleanup',11,11);
+    if(@forcestart = 0 and @LastStatusID = 1)
+        raiserror ('Workflow %s is already running, Use forestart option to cleanup',11,11,@batchName);
 
 	if (@LastRunId is not null)
 	begin
-		exec dbo.prc_CreateHeader @BatchHeader out,@BatchID,null,null,@LastRunID,{2},1--batch
+		exec dbo.prc_CreateHeader @BatchHeader out,@BatchID,null,null,@LastRunID,@options,1--batch
 		exec dbo.prc_Finalize @BatchHeader,null,4;
 	end
 
@@ -167,7 +175,7 @@ SELECT @RunID,s.BatchID,s.StepID
       ,getdate(),0
       ,null,s.StepOrder,ISNULL(NULLIF(b.IgnoreErr,0),NULLIF(s.IgnoreErr,0))
       ,null,null,null,sg.AttributeValue,isnull(pg.AttributeValue,'zzz')
-      ,'{0}'
+      ,@processorName
   FROM dbo.ETLStep s
   JOIN dbo.ETLBatch b ON s.BatchID = b.BatchID
   LEFT JOIN dbo.ETLStepAttribute a ON s.BatchID = a.BatchID AND s.StepID = a.StepID
@@ -188,7 +196,7 @@ SELECT @RunID,s.BatchID,s.StepID
 
 	if (@@ROWCOUNT = 0)
 	begin
-		exec dbo.prc_CreateHeader @BatchHeader out,@BatchID,null,null,@RunID,{1},1--batch
+		exec dbo.prc_CreateHeader @BatchHeader out,@BatchID,null,null,@RunID,@options,1--batch
 		exec dbo.prc_Finalize @BatchHeader,null,4;
 	end
 
@@ -201,7 +209,7 @@ end try
 begin catch
 	declare @msg nvarchar(1000);
 	declare @ProcessInfo xml;
-	SET @msg = 'Failed to ititialize new run for the Workflow {0}: ' + error_message();
+	SET @msg = 'Failed to ititialize new run for the Workflow ' + @batchName + ': ' + error_message();
 	exec dbo.prc_CreateProcessInfo @ProcessInfo out,@BatchHeader,@msg;
 	exec dbo.prc_Print @ProcessInfo;
 	raiserror (@msg,11,11);
@@ -212,10 +220,12 @@ declare @BatchId int = {0};
 declare @RunId int = {1};
 declare @StatusId smallint = {2};
 declare @HistRet int = {3};
+declare @options int = {4};
+
 declare @BatchHeader xml;
 declare @CleanupRunID int;
 
-exec dbo.prc_CreateHeader @BatchHeader out,@BatchID,null,null,@RunId,{4},1--batch
+exec dbo.prc_CreateHeader @BatchHeader out,@BatchID,null,null,@RunId,@options,1--batch
 exec dbo.prc_Finalize @BatchHeader,null,@StatusID;
 
 --processing history clean up
@@ -329,33 +339,33 @@ ELSE
 ";
 
 
-        
-        private string connection_string;
+
+        private string _connection_string;
         private bool _debug = false;
         private bool _verbose = false;
-        
+
         protected DBController(string connectionString, bool debug, bool verbose)
         {
-            connection_string = connectionString;
+            _connection_string = connectionString;
             _debug = debug;
             _verbose = verbose;
         }
 
-        public static DBController Create(string connectionString,bool debug,bool verbose)
+        public static DBController Create(string connectionString, bool debug, bool verbose)
         {
-           return new DBController(connectionString,debug,verbose);
+            return new DBController(connectionString, debug, verbose);
         }
 
         public static DBController Create(string connectionString)
         {
-            return new DBController(connectionString, false,false);
+            return new DBController(connectionString, false, false);
         }
 
-/// <summary>
-/// Reads the xml Workflow definition from DB 
-/// </summary>
-/// <param name="WorkflowName"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Reads the xml Workflow definition from DB 
+        /// </summary>
+        /// <param name="WorkflowName"></param>
+        /// <returns></returns>
         public Workflow WorkflowMetadataGet(string WorkflowName)
         {
 
@@ -363,13 +373,13 @@ ELSE
             string xml_string;
             using (SqlConnection cn = new SqlConnection())
             {
-                cn.ConnectionString = connection_string;
+                cn.ConnectionString = _connection_string;
                 try
                 {
                     cn.Open();
                     string cmd_text = String.Format(WORKFLOW_METADATA_QUERY,
                         WorkflowName,
-                        ((_debug)? 1 : 0));
+                        ((_debug) ? 1 : 0));
                     using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
                     {
                         cmd.CommandTimeout = 30;
@@ -391,18 +401,18 @@ ELSE
                         cn.Close();
                 }
             }
-            
+
             return wf;
         }
-/// <summary>
-/// Initialize new Workflow Instance
-/// forcestart finctionality is not supported
-/// make sure another instance of the same workflow is not running
-/// before starting new instance 
-/// </summary>
-/// <param name="Processor"></param>
-/// <param name="wf"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Initialize new Workflow Instance
+        /// forcestart finctionality is not supported
+        /// make sure another instance of the same workflow is not running
+        /// before starting new instance 
+        /// </summary>
+        /// <param name="Processor"></param>
+        /// <param name="wf"></param>
+        /// <returns></returns>
         public bool WorkflowInitialize(string Processor, Workflow wf, bool forcestart)
         {
             if (wf == null || String.IsNullOrEmpty(wf.WorkflowName))
@@ -412,7 +422,7 @@ ELSE
 
             using (SqlConnection cn = new SqlConnection())
             {
-                cn.ConnectionString = connection_string;
+                cn.ConnectionString = _connection_string;
                 try
                 {
                     cn.Open();
@@ -463,13 +473,13 @@ ELSE
 
             return true;
         }
-/// <summary>
-/// Finilizes the Workflow completion with backend.
-/// Perform Workflow History Cleanup based on retention policy.
-/// </summary>
-/// <param name="wf"></param>
-/// <param name="Result"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Finilizes the Workflow completion with backend.
+        /// Perform Workflow History Cleanup based on retention policy.
+        /// </summary>
+        /// <param name="wf"></param>
+        /// <param name="Result"></param>
+        /// <returns></returns>
         public bool WorkflowFinalize(Workflow wf, WfResult Result)
         {
             if (wf == null || wf.RunId == 0)
@@ -489,12 +499,12 @@ ELSE
 
             return true;
         }
-/// <summary>
-/// Reports execution results to the backend
-/// </summary>
-/// <param name="wfs"></param>
-/// <param name="Result"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Reports execution results to the backend
+        /// </summary>
+        /// <param name="wfs"></param>
+        /// <param name="Result"></param>
+        /// <returns></returns>
         public bool WorkflowStepStatusSet(WorkflowStep wfs, WfResult Result)
         {
             if (wfs == null || wfs.RunId == 0)
@@ -515,13 +525,13 @@ ELSE
             return true;
         }
 
-/// <summary>
-/// Reset all LoopGroup Step statuses to NotStarted to reinitinialize the steps for the next cycle
-/// </summary>
-/// <param name="WfId"></param>
-/// <param name="RunId"></param>
-/// <param name="LoopGroup"></param>
-        public void WorkflowLoopStepsReset(int WfId,int RunId, string LoopGroup)
+        /// <summary>
+        /// Reset all LoopGroup Step statuses to NotStarted to reinitinialize the steps for the next cycle
+        /// </summary>
+        /// <param name="WfId"></param>
+        /// <param name="RunId"></param>
+        /// <param name="LoopGroup"></param>
+        public void WorkflowLoopStepsReset(int WfId, int RunId, string LoopGroup)
         {
 
             string cmd_text = String.Format(WORKFLOW_LOOP_STEPS_RESET_QUERY,
@@ -531,12 +541,12 @@ ELSE
             ExecuteNonQuery(cmd_text);
         }
 
-/// <summary>
-/// Finilize all Loop Steps on Loop Break Event 
-/// </summary>
-/// <param name="WfId"></param>
-/// <param name="RunId"></param>
-/// <param name="LoopGroup"></param>
+        /// <summary>
+        /// Finilize all Loop Steps on Loop Break Event 
+        /// </summary>
+        /// <param name="WfId"></param>
+        /// <param name="RunId"></param>
+        /// <param name="LoopGroup"></param>
         public WfStatus WorkflowLoopBreak(int WfId, int RunId, string LoopGroup)
         {
 
@@ -577,7 +587,7 @@ ELSE
                     result = WfResult.Started;
                     break;
                 case WfStatus.Failed:
-                    result = WfResult.Create(WfStatus.Failed,"Canceled",0);
+                    result = WfResult.Create(WfStatus.Failed, "Canceled", 0);
                     break;
                 case WfStatus.Succeeded:
                     result = WfResult.Create(WfStatus.Succeeded, "Canceled", 0);
@@ -591,14 +601,14 @@ ELSE
         }
 
 
-/// <summary>
-/// Returns resolved Attribute Collection set based on the request scope. 
-/// </summary>
-/// <param name="WfId"></param>
-/// <param name="StepId"></param>
-/// <param name="ConstId"></param>
-/// <param name="RunId"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Returns resolved Attribute Collection set based on the request scope. 
+        /// </summary>
+        /// <param name="WfId"></param>
+        /// <param name="StepId"></param>
+        /// <param name="ConstId"></param>
+        /// <param name="RunId"></param>
+        /// <returns></returns>
         public WorkflowAttribute[] WorkflowAttributeCollectionGet(int WfId, int StepId, int ConstId, int RunId)
         {
 
@@ -606,7 +616,7 @@ ELSE
             string xml_string;
             using (SqlConnection cn = new SqlConnection())
             {
-                cn.ConnectionString = connection_string;
+                cn.ConnectionString = _connection_string;
                 try
                 {
                     cn.Open();
@@ -642,24 +652,24 @@ ELSE
             return attributes.Attributes;
         }
 
-/// <summary>
-/// Provide unified Logger Interface to all modules
-/// </summary>
-/// <param name="WfId"></param>
-/// <param name="StepId"></param>
-/// <param name="ConstId"></param>
-/// <param name="RunId"></param>
-/// <returns></returns>
+        /// <summary>
+        /// Provide unified Logger Interface to all modules
+        /// </summary>
+        /// <param name="WfId"></param>
+        /// <param name="StepId"></param>
+        /// <param name="ConstId"></param>
+        /// <param name="RunId"></param>
+        /// <returns></returns>
         public IWorkflowLogger GetLogger(int WfId, int StepId, int ConstId, int RunId)
         {
-            return new WorkflowControllerLogger(WfId, StepId, ConstId, RunId, connection_string, _debug,_verbose);
+            return new WorkflowControllerLogger(WfId, StepId, ConstId, RunId, _connection_string, _debug, _verbose);
         }
 
         private void ExecuteNonQuery(string cmd_text)
         {
             using (SqlConnection cn = new SqlConnection())
             {
-                cn.ConnectionString = connection_string;
+                cn.ConnectionString = _connection_string;
                 try
                 {
                     cn.Open();
@@ -689,7 +699,7 @@ ELSE
         {
             using (SqlConnection cn = new SqlConnection())
             {
-                cn.ConnectionString = connection_string;
+                cn.ConnectionString = _connection_string;
                 try
                 {
                     cn.Open();

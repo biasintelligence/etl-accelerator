@@ -58,7 +58,7 @@
       <Project>{236758d4-9381-4ac9-87de-909f89dfba73}</Project>
       <Name>ControllerRuntime</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DefaultDevices\DefaultActivities.csproj">
+    <ProjectReference Include="..\DefaultActivities\DefaultActivities.csproj">
       <Project>{b358b4bf-3f25-4d1e-8f89-594a8437aa73}</Project>
       <Name>DefaultActivities</Name>
     </ProjectReference>

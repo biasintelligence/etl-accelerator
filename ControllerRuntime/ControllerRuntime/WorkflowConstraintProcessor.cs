@@ -39,8 +39,8 @@ namespace ControllerRuntime
 
             WfResult result = WfResult.Unknown;
             var cts = new CancellationTokenSource();
-            WorkflowAttribute[] attributes = _db.WorkflowAttributeCollectionGet(_item.WorkflowId,_item.StepId,_item.ConstId,_item.RunId);
-            WorkflowActivity activity = new WorkflowActivity(_item.Process,attributes,logger);
+            WorkflowAttribute[] attributes = _db.WorkflowAttributeCollectionGet(_item.WorkflowId, _item.StepId, _item.ConstId, _item.RunId);
+            WorkflowActivity activity = new WorkflowActivity(_item.Process, attributes, logger);
 
             TimeSpan timeout = TimeSpan.FromSeconds((_item.WaitPeriod <= 0) ? 7200 : _item.WaitPeriod);
             TimeSpan sleep = TimeSpan.FromSeconds((_item.Ping <= 0) ? 30 : _item.Ping);
@@ -63,17 +63,13 @@ namespace ControllerRuntime
                                 {
                                     //do thread hard abort if it is stuck on Run
                                     //constraint logic should never allow this to happen thou
-                                    const_result = runner.Run();
+                                    const_result = runner.Run(linkedCts.Token);
                                     if (const_result.StatusCode == WfStatus.Succeeded)
                                         break;
                                 }
                                 catch (ThreadAbortException ex)
                                 {
                                     throw ex;
-                                }
-                                finally
-                                {
-                                    runner.Cancel();
                                 }
                             }
 
@@ -83,10 +79,10 @@ namespace ControllerRuntime
                         return const_result;
                     }, linkedCts.Token);
 
-                    int id = Task.WaitAny(new Task[] { task, Task.Delay(timeout,linkedCts.Token) });
+                    int id = Task.WaitAny(new Task[] { task, Task.Delay(timeout, linkedCts.Token) });
                     if (id == 1)
                         cts.Cancel();
-            
+
                     result = task.Result;
                 }
             }
@@ -99,8 +95,8 @@ namespace ControllerRuntime
             {
                 cts.Dispose();
             }
-           
-            logger.Write(String.Format("Finish Processing Workflow Constraint {0} with result - {1}", _item.Key,result.StatusCode.ToString()));
+
+            logger.Write(String.Format("Finish Processing Workflow Constraint {0} with result - {1}", _item.Key, result.StatusCode.ToString()));
             return result;
         }
 

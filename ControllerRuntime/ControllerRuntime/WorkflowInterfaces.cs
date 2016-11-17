@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.ServiceModel;
 
@@ -32,7 +33,7 @@ namespace ControllerRuntime
         WfResult Pause();
         [OperationContract]
         WfResult Resume();
-        WfResult Status { get;}
+        WfResult Status { get; }
     }
 
     // Workflow Logger interface.
@@ -42,7 +43,7 @@ namespace ControllerRuntime
         void Write(string Message);
         void WriteDebug(string Message);
         void WriteError(string Message, int ErrorCode);
-        bool Mode {get;}
+        bool Mode { get; }
 
     }
 
@@ -54,9 +55,13 @@ namespace ControllerRuntime
         { get; }
 
         void Configure(WorkflowActivityArgs args);
-        WfResult Run();
-        void Cancel();
+        WfResult Run(CancellationToken token);
 
+    }
+
+    public interface IWorkflowRunner
+    {
+        WfResult Start(WorkflowActivityParameters args, IWorkflowLogger logger);
     }
 
 

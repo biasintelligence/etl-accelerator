@@ -47,7 +47,7 @@ namespace ControllerRuntime
 
         public virtual void WriteError(string Message, int ErrorCode)
         {
-            Console.WriteLine(String.Format("Error: {0} {1}",ErrorCode,Message));
+            Console.WriteLine(String.Format("Error: {0} {1}", ErrorCode, Message));
         }
 
     }
@@ -57,8 +57,8 @@ namespace ControllerRuntime
     /// </summary>
     public class WorkflowConsoleLogger : WorkflowLogger
     {
-        public WorkflowConsoleLogger(bool Debug,bool Verbose)
-            : base (Debug, Verbose)
+        public WorkflowConsoleLogger(bool Debug, bool Verbose)
+            : base(Debug, Verbose)
         {
         }
     }
@@ -69,15 +69,16 @@ namespace ControllerRuntime
     public class WorkflowControllerLogger : WorkflowLogger, IDisposable
     {
 
-        SqlConnection conn = new SqlConnection();
-        SqlCommand cmd = new SqlCommand();
-        int wf_id = 0;
-        int step_id = 0;
-        int const_id = 0;
-        int run_id = 0;
+        private bool disposed = false;
+        private SqlConnection conn = new SqlConnection();
+        private SqlCommand cmd = new SqlCommand();
+        private int wf_id = 0;
+        private int step_id = 0;
+        private int const_id = 0;
+        private int run_id = 0;
 
-        public WorkflowControllerLogger(int WorkflowId, int StepId, int ConstId, int RunId, string ConnectionString,bool Debug,bool Verbose)
-            : base (Debug, Verbose)
+        public WorkflowControllerLogger(int WorkflowId, int StepId, int ConstId, int RunId, string ConnectionString, bool Debug, bool Verbose)
+            : base(Debug, Verbose)
         {
             conn.ConnectionString = ConnectionString;
             wf_id = WorkflowId;
@@ -90,8 +91,8 @@ namespace ControllerRuntime
         }
 
         public override void WriteError(string Message, int ErrorCode)
-        {            
-            LogToController(Message,ErrorCode);
+        {
+            LogToController(Message, ErrorCode);
             base.WriteError(Message, ErrorCode);
         }
 
@@ -114,14 +115,30 @@ namespace ControllerRuntime
         private void LogToController(string Message, int ErrorCode)
         {
 
-            if (conn.State != ConnectionState.Open)
+            try
             {
-                conn.Open();
-            }
+                if (conn.State == ConnectionState.Closed)
+                {
+                    conn.Open();
+                }
 
-            cmd.Parameters["@pMessage"].Value = Message;
-            cmd.Parameters["@pErr"].Value = ErrorCode;
-            cmd.ExecuteNonQuery();
+                using (SqlCommand cmd_run = cmd.Clone())
+                {
+                    cmd_run.Parameters["@pMessage"].Value = Message;
+                    cmd_run.Parameters["@pErr"].Value = ErrorCode;
+                    cmd_run.ExecuteNonQuery();
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine(String.Format("Logger Error: {0} {1}", ex.ErrorCode, ex.Message));
+                //throw ex;
+            }
+            finally
+            {
+                if (conn.State != ConnectionState.Closed)
+                    conn.Close();
+            }
 
         }
 
@@ -134,7 +151,7 @@ namespace ControllerRuntime
 
             cmd.Parameters.Add("@pMessage", SqlDbType.NVarChar, -1);
             cmd.Parameters.Add("@pErr", SqlDbType.Int);
-            cmd.Parameters.AddWithValue("@pBatchId",wf_id);
+            cmd.Parameters.AddWithValue("@pBatchId", wf_id);
             cmd.Parameters.AddWithValue("@pStepId", step_id);
             cmd.Parameters.AddWithValue("@pRunId", run_id);
 
@@ -142,11 +159,15 @@ namespace ControllerRuntime
 
         void IDisposable.Dispose()
         {
-            if (conn.State != ConnectionState.Closed)
-                conn.Close();
+            if (!disposed)
+            {
+                if (conn.State != ConnectionState.Closed)
+                    conn.Close();
 
-            cmd.Dispose();
-            conn.Dispose();
+                cmd.Dispose();
+                conn.Dispose();
+                disposed = true;
+            }
         }
     }
 

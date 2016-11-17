@@ -20,14 +20,14 @@ using System.Threading.Tasks;
 
 namespace ControllerRuntime
 {
-/// <summary>
-/// Builds sequence of execution steps based on
-/// workflow definition and prior execution results
-/// dispatch steps for execution based on the build sequence and step execution dependency chain
-/// breaks on timeout, fail condition and on completion
-/// culculate workflow run and compete statuses
-/// </summary>
-    
+    /// <summary>
+    /// Builds sequence of execution steps based on
+    /// workflow definition and prior execution results
+    /// dispatch steps for execution based on the build sequence and step execution dependency chain
+    /// breaks on timeout, fail condition and on completion
+    /// culculate workflow run and compete statuses
+    /// </summary>
+
     public class WorkflowGraph : IWorkflowCommand, IDisposable
     {
 
@@ -40,20 +40,20 @@ namespace ControllerRuntime
         DBController _db;
         BlockingCollection<WorkflowStep> base_queue = new BlockingCollection<WorkflowStep>();
         List<WorkflowStep> base_node_set = new List<WorkflowStep>();
-        Dictionary<string, WfResult> base_status_set = new Dictionary<string,WfResult>();
+        Dictionary<string, WfResult> base_status_set = new Dictionary<string, WfResult>();
         Dictionary<string, List<string>> base_loop_set = new Dictionary<string, List<string>>();
 
         WfResult run_status = WfResult.Unknown;
         WfResult wf_status = WfResult.Unknown;
 
-        protected WorkflowGraph (Workflow wf,DBController db)
+        protected WorkflowGraph(Workflow wf, DBController db)
         {
             _workflow = wf;
             _db = db;
             Build(wf);
         }
         #region Public Methods
-        public static WorkflowGraph Create (Workflow wf,DBController db)
+        public static WorkflowGraph Create(Workflow wf, DBController db)
         {
             return new WorkflowGraph(wf, db);
         }
@@ -94,30 +94,27 @@ namespace ControllerRuntime
         /// <param name="step"></param>
         /// <returns>next step scheduled for execution</returns>
         public bool TryTake(out WorkflowStep step, TimeSpan timeout)
-        {                        
+        {
             //here the take will timeout on workflow Timeout if set
             //after that no new steps will be dispatched
             //running steps need to timeout on its own accord
-            bool ret = false;
-            if(base_queue.IsCompleted)
+            if (!base_queue.TryTake(out step, timeout))
             {
-                step = null;
-                return ret;
-            }
-
-            ret = base_queue.TryTake(out step, timeout);
-            if (!ret)
-            {
-                //fail dispatcher on timeout
-                lock(lock_object)
+                //no more steps or fail dispatcher on timeout
+                if (!base_queue.IsCompleted)
                 {
-                    base_queue.CompleteAdding();
-                    run_status.SetTo(WfResult.Create(WfStatus.Failed, "Timeout", -1));
-                    wf_status.SetTo(run_status);
+                    //clean up on timeout
+                    lock (lock_object)
+                    {
+                        base_queue.CompleteAdding();
+                        run_status.SetTo(WfResult.Create(WfStatus.Failed, "Timeout", -1));
+                        wf_status.SetTo(run_status);
+                    }
                 }
+                return false;
             }
 
-            return ret;
+            return true;
         }
 
         public WfResult Start()
@@ -181,7 +178,7 @@ namespace ControllerRuntime
         }
 
         public WfResult Status
-        { get {return run_status;}}
+        { get { return run_status; } }
 
         /// <summary>
         /// Workflow  Step Processors will call this function on every step execution exit
@@ -191,10 +188,10 @@ namespace ControllerRuntime
         /// </summary>
         /// <param name="key"></param>
         /// <param name="result"></param>
-        public void SetNodeExecutionResult(string key,WfResult result)
+        public void SetNodeExecutionResult(string key, WfResult result)
         {
             if (!base_status_set.ContainsKey(key))
-                throw new ArgumentException(String.Format("Invalid base key {0}",key));
+                throw new ArgumentException(String.Format("Invalid base key {0}", key));
 
             if (base_status_set[key].StatusCode == result.StatusCode)
                 return;
@@ -210,7 +207,7 @@ namespace ControllerRuntime
                     SetCompleteStatus();
                 }
             }
- 
+
         }
 
         #endregion
@@ -291,7 +288,7 @@ namespace ControllerRuntime
             if (base_queue.IsCompleted
                 && run_status.StatusCode == WfStatus.Running
                 && (0 == base_status_set.Values.Count(kvp => kvp.StatusCode == WfStatus.Running)))
-                    run_status.SetTo(WfResult.Succeeded);
+                run_status.SetTo(WfResult.Succeeded);
 
         }
 
@@ -300,7 +297,7 @@ namespace ControllerRuntime
         {
             if (!base_queue.IsCompleted)
                 return;
-            
+
             if (run_status.StatusCode == WfStatus.Failed)
             {
                 wf_status.SetTo(run_status);
@@ -330,7 +327,7 @@ namespace ControllerRuntime
                 return;
             }
 
-            
+
             while (1 == 1)
             {
                 //max thread constraint
@@ -339,18 +336,18 @@ namespace ControllerRuntime
                 //all steps submitted
                 if (0 == base_status_set.Count(kvp => kvp.Value.StatusCode == WfStatus.Unknown))
                 {
-                    base_queue.CompleteAdding(); 
+                    base_queue.CompleteAdding();
                     break;
                 }
-                
+
                 WorkflowStep step = base_node_set.FirstOrDefault(item =>
                     //not started
                     base_status_set[item.Key].StatusCode == WfStatus.Unknown
-                        //priority group constraint
+                    //priority group constraint
                     && (0 == base_node_set.Count(kvp =>
                         kvp.PriorityGroup != item.PriorityGroup
                         && base_status_set[kvp.Key].StatusCode == WfStatus.Running))
-                        //sequence group constraint
+                    //sequence group constraint
                     && (String.IsNullOrEmpty(item.SequenceGroup) || (0 == base_node_set.Count(kvp =>
                         kvp.SequenceGroup == item.SequenceGroup
                         && base_status_set[kvp.Key].StatusCode == WfStatus.Running)))
@@ -369,11 +366,11 @@ namespace ControllerRuntime
         {
             if (run_status.StatusCode == WfStatus.Failed)
                 return;
-            
+
             WorkflowStep step = base_node_set.FirstOrDefault(item => item.Key == key);
             if (String.IsNullOrEmpty(step.LoopGroup))
                 return;
-            
+
             if (!base_loop_set.ContainsKey(step.LoopGroup))
                 return;
 
@@ -381,12 +378,12 @@ namespace ControllerRuntime
             if (WfStatus.Succeeded == _db.WorkflowLoopBreak(_workflow.WorkflowId, _workflow.RunId, step.LoopGroup))
                 return;
 
-            WfStatus[] status_set = new WfStatus[2] {WfStatus.Running, WfStatus.Unknown};
-            if (0 == base_loop_set[step.LoopGroup].Count(item =>  status_set.Contains(base_status_set[item].StatusCode)))
+            WfStatus[] status_set = new WfStatus[2] { WfStatus.Running, WfStatus.Unknown };
+            if (0 == base_loop_set[step.LoopGroup].Count(item => status_set.Contains(base_status_set[item].StatusCode)))
             {
                 //reset all loop steps
                 base_loop_set[step.LoopGroup].ForEach(item => base_status_set[item] = WfResult.Unknown);
-                _db.WorkflowLoopStepsReset(_workflow.WorkflowId,_workflow.RunId, step.LoopGroup);
+                _db.WorkflowLoopStepsReset(_workflow.WorkflowId, _workflow.RunId, step.LoopGroup);
             }
         }
 

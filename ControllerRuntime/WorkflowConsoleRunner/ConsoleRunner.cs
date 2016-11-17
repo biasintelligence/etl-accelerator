@@ -195,7 +195,11 @@ namespace WorkflowConsoleRunner
 
         public void Dispose()
         {
-            Close();
+            if (!disposed)
+            {
+                Close();
+                disposed = true;
+            }
         }
 
     }

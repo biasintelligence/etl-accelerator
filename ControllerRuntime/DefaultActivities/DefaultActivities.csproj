@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0AE30271-1B13-41C9-901F-DE4ECCFFB240}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{B358B4BF-3F25-4D1E-8F89-594A8437AA73}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WorkflowRunner</RootNamespace>
-    <AssemblyName>WorkflowRunner</AssemblyName>
+    <RootNamespace>DefaultActivities</RootNamespace>
+    <AssemblyName>DefaultActivities</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,9 +20,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -42,20 +41,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="CheckFileActivity.cs" />
+    <Compile Include="ConsoleActivity.cs" />
+    <Compile Include="DeltaExtractorActivity.cs" />
+    <Compile Include="SqlServerActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
+    <Compile Include="SqlServerExecuteScalarActivity.cs" />
+    <Compile Include="WaitActivity.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ControllerRuntime\ControllerRuntime.csproj">
       <Project>{236758d4-9381-4ac9-87de-909f89dfba73}</Project>
       <Name>ControllerRuntime</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DefaultActivities\DefaultActivities.csproj">
-      <Project>{b358b4bf-3f25-4d1e-8f89-594a8437aa73}</Project>
-      <Name>DefaultActivities</Name>
+    <ProjectReference Include="..\DeltaExtractor\DeltaExtractor.csproj">
+      <Project>{3e531402-d292-4e5b-9f46-9cab914c5cd7}</Project>
+      <Name>DeltaExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WorkflowConsoleRunner\WorkflowConsoleRunner.csproj">
+      <Project>{44e4af0a-34fe-4253-917c-dc52b4fc847f}</Project>
+      <Name>WorkflowConsoleRunner</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WorkflowLibraryRunner\WorkflowLibraryRunner.csproj">
+      <Project>{c72c099f-826b-469c-a3a2-3e02659d999b}</Project>
+      <Name>WorkflowLibraryRunner</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

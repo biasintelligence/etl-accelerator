@@ -60,8 +60,10 @@ namespace WorkflowRunner
             {
                 WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
                 wfp.ConnectionString = connectionString;
-                wfp.WorkflowName = args[0];
+                wfp.WorkflowName = args[0].Replace("\"", "");
                 WfResult wr = wfp.Run(options.ToArray());
+                if (wr.StatusCode != WfStatus.Succeeded)
+                    return 1;
             }
             catch (Exception ex)
             {

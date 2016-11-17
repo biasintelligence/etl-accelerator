@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
@@ -28,7 +29,7 @@ namespace DefaultActivities
     class SqlServerExecuteScalarActivity : SqlServerActivity
     {
 
-        public override WfResult Run()
+        public override WfResult Run(CancellationToken token)
         {
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
@@ -39,16 +40,19 @@ namespace DefaultActivities
                 cn.Open();
                 using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
                 {
-                    cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                    var value = cmd.ExecuteScalar();
-
-                    int int_value;
-                    if (Int32.TryParse(value.ToString(), out int_value))
+                    using (token.Register(cmd.Cancel))
                     {
-                        result = (int_value > 0) ? WfResult.Succeeded : WfResult.Failed;
+                        cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
+                        var value = cmd.ExecuteScalar();
+
+                        int int_value;
+                        if (Int32.TryParse(value.ToString(), out int_value))
+                        {
+                            result = (int_value > 0) ? WfResult.Succeeded : WfResult.Failed;
+                        }
+                        else
+                            result = WfResult.Failed;
                     }
-                    else
-                        result = WfResult.Failed;
                 }
             }
             catch (SqlException ex)

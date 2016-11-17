@@ -250,3 +250,6 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+*.exe
+ETL_Framework/Database/ETL_Staging/ETL_Staging.jfm
+*.jfm

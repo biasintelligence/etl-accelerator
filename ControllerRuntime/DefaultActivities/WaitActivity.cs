@@ -28,11 +28,11 @@ namespace DefaultActivities
     {
         private const string TIMEOUT = "Timeout";
 
-        private Dictionary<string, string> _attributes = new Dictionary<string, string>();
+        private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private IWorkflowLogger _logger;
         private List<string> _required_attributes = new List<string>() { TIMEOUT };
 
-        private TimeSpan _timeout; 
+        private TimeSpan _timeout;
 
         public string[] RequiredAttributes
         {
@@ -52,7 +52,7 @@ namespace DefaultActivities
 
             foreach (WorkflowAttribute attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Name))
+                if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
@@ -61,14 +61,10 @@ namespace DefaultActivities
 
         }
 
-        public WfResult Run()
+        public WfResult Run(CancellationToken token)
         {
             Thread.Sleep(_timeout);
             return WfResult.Succeeded;
-        }
-        public virtual void Cancel()
-        {
-            return;
         }
     }
 }

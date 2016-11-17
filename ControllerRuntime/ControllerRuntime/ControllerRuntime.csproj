@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="DBController.cs" />
     <Compile Include="WorkflowActivity.cs" />
+    <Compile Include="WorkflowActivityParameters.cs" />
     <Compile Include="WorkflowAttribute.cs" />
     <Compile Include="WorkflowConstraintProcessor.cs" />
     <Compile Include="WorkflowGraph.cs" />

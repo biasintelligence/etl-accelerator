@@ -27,33 +27,33 @@ namespace ControllerRuntime
     {
 
         public WorkflowAttribute[] RequiredAttributes
-        {get; set;}
+        { get; set; }
 
         public IWorkflowLogger Logger
-        {get; set;}
+        { get; set; }
 
     }
-/// <summary>
-/// Activity Execution Wrapper.
-/// Load/Configure/Run Workflow Activity modules
-/// Load Activity Assembly
-/// Query for required attributes
-/// Provide Attribute values back to Activity
-/// Run it
-/// 
-/// params hold attribute override directives in the form
-/// name1=>override_name1;name2=>override_name2
-/// </summary>
-    
+    /// <summary>
+    /// Activity Execution Wrapper.
+    /// Load/Configure/Run Workflow Activity modules
+    /// Load Activity Assembly
+    /// Query for required attributes
+    /// Provide Attribute values back to Activity
+    /// Run it
+    /// 
+    /// params hold attribute override directives in the form
+    /// name1=>override_name1;name2=>override_name2
+    /// </summary>
+
     public class WorkflowActivity
     {
         private const string ACTIVITY_LOCATION = @"ActivityLocation";
-        
+
         private WorkflowProcess _process;
         private IWorkflowLogger _logger;
-        Dictionary<string, WorkflowAttribute> _attributes = new Dictionary<string, WorkflowAttribute>();
+        Dictionary<string, WorkflowAttribute> _attributes = new Dictionary<string, WorkflowAttribute>(StringComparer.InvariantCultureIgnoreCase);
 
-        public WorkflowActivity(WorkflowProcess process,WorkflowAttribute[] attributes, IWorkflowLogger logger)
+        public WorkflowActivity(WorkflowProcess process, WorkflowAttribute[] attributes, IWorkflowLogger logger)
         {
             _process = process;
             _logger = logger;
@@ -93,15 +93,19 @@ namespace ControllerRuntime
         private IWorkflowActivity LoadActivity()
         {
 
-            
+
             string activity_path = String.Empty;
             if (_attributes.Keys.Contains(ACTIVITY_LOCATION))
                 activity_path = _attributes[ACTIVITY_LOCATION].Value;
 
             string[] activity_name = _process.Process.Split('.');
             string activity_dll = activity_name[0] + ".dll";
-            string activity_namespace = (activity_name.Length > 1) ? activity_name[1] : String.Empty;
-            string activity_classname = (activity_name.Length > 2) ? activity_name[2] : String.Empty;
+            string activity_namespace = String.Empty;
+            for (int i = 1; i < activity_name.Length - 1; i++)
+            {
+                activity_namespace += ((i == 1) ? "" : ".") + activity_name[i];
+            }
+            string activity_classname = activity_name[activity_name.Length - 1];
 
             string dll_path = System.IO.Path.Combine(activity_path, activity_dll);
             string path = System.IO.Path.GetFullPath(dll_path);
@@ -162,22 +166,38 @@ namespace ControllerRuntime
         {
             bool ret = true;
             List<WorkflowAttribute> found = new List<WorkflowAttribute>();
-            Dictionary<string, string> map = ParseParameterString(_process.Param);
-            foreach (string name in required)
+
+            if (required != null && required.Length > 0)
             {
 
-                string attr_name = name;
-                //find if override exist
-                if (map.Keys.Contains(name))
-                    attr_name = map[name];
-
-                if (_attributes.Keys.Contains(attr_name))
-                    found.Add(new WorkflowAttribute(name, _attributes[attr_name].Value));
-                else
+                Dictionary<string, string[]> map = ParseParameterString(_process.Param);
+                foreach (string name in required)
                 {
-                    ret = false;
-                    _logger.WriteError(String.Format("Attribute {0} is not found", attr_name), -11);
 
+                    ret = false;
+                    string[] attr_list = { name };
+                    //find if override exist
+                    if (map.Keys.Contains(name))
+                    {
+                        attr_list = map[name];
+                    }
+
+                    foreach (string attr_name in attr_list)
+                    {
+
+                        if (_attributes.Keys.Contains(attr_name))
+                        {
+                            found.Add(new WorkflowAttribute(name, _attributes[attr_name].Value));
+                            ret = true;
+                            break;
+                        }
+                    }
+
+                    if (!ret)
+                    {
+                        _logger.WriteError(String.Format("Attribute {0} is not found", name), -11);
+                        break;
+                    }
                 }
             }
 
@@ -185,9 +205,14 @@ namespace ControllerRuntime
             return ret;
         }
 
-        private Dictionary<string,string> ParseParameterString(string param)
+        /// <summary>
+        /// parse param astring to the param map
+        /// </summary>
+        /// <param name="param">attr=>attr1,attr2;</param>
+        /// <returns>attribute map</returns>
+        private Dictionary<string, string[]> ParseParameterString(string param)
         {
-            Dictionary<string,string> dic = new Dictionary<string,string>();
+            Dictionary<string, string[]> dic = new Dictionary<string, string[]>(StringComparer.InvariantCultureIgnoreCase);
 
             if (String.IsNullOrEmpty(param))
                 return dic;
@@ -195,13 +220,13 @@ namespace ControllerRuntime
             string[] map = param.Split(';');
             foreach (string pair in map)
             {
-                string[] kvp = pair.Split(new string[] {"=>"},StringSplitOptions.None);
+                string[] kvp = pair.Split(new string[] { "=>" }, StringSplitOptions.None);
                 if (kvp.Length == 2
                     && !String.IsNullOrEmpty(kvp[0])
                     && !String.IsNullOrEmpty(kvp[1])
                     )
                 {
-                    dic.Add(kvp[0], kvp[1]);
+                    dic.Add(kvp[0], kvp[1].Split(','));
                 }
             }
             return dic;

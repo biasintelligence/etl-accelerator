@@ -160,6 +160,10 @@ namespace ControllerRuntime
 
                 //now we can start logging to the Controller
                 _logger = _db.GetLogger(_wf.WorkflowId, 0, 0, _wf.RunId);
+
+                Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+
+                _logger.Write(String.Format("Workflow Runner v.{0} ({1})bit", v.ToString(), 8 * IntPtr.Size));
                 _logger.Write(String.Format("Start Processing Workflow {0}", _wf.WorkflowName));
 
                 _wfg = WorkflowGraph.Create(_wf, _db);

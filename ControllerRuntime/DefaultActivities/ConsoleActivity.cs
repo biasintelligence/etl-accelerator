@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ControllerRuntime;
@@ -33,7 +34,7 @@ namespace DefaultActivities
         private const string TIMEOUT = "Timeout";
 
 
-        private Dictionary<string, string> _attributes = new Dictionary<string, string>();
+        private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private IWorkflowLogger _logger;
         private List<string> _required_attributes = new List<string>() { APP_NAME, APP_ARGS, TIMEOUT };
 
@@ -56,7 +57,7 @@ namespace DefaultActivities
 
             foreach (WorkflowAttribute attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Name))
+                if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
@@ -66,7 +67,7 @@ namespace DefaultActivities
 
         }
 
-        public WfResult Run()
+        public WfResult Run(CancellationToken token)
         {
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
@@ -74,20 +75,16 @@ namespace DefaultActivities
             using (ConsoleRunner p = new ConsoleRunner())
             {
                 p.Timeout = Int32.Parse(_attributes[TIMEOUT]);
-                p.haveOutput += delegate(object sender, HaveOutputEventArgs e)
+                p.haveOutput += delegate (object sender, HaveOutputEventArgs e)
                 {
-                   _logger.WriteDebug(e.Output);
+                    _logger.WriteDebug(e.Output);
                 };
 
                 int ret = p.Execute(_attributes[APP_NAME], _attributes[APP_ARGS]);
                 result = (ret == 0) ? WfResult.Succeeded : WfResult.Failed;
             }
-                       
+
             return result;
-        }
-        public void Cancel()
-        {
-            return;
         }
         #endregion
     }
