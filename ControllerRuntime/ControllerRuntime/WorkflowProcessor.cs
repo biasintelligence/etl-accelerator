@@ -191,8 +191,8 @@ namespace ControllerRuntime
                     }
 
                 },_cts.Token);
-                
-                while (timeout > TimeSpan.Zero && _wfg.TryTake(out step, timeout))
+
+                while (_wfg.TryTake(out step, timeout))
                 {
                     //tell dispatcher we are starting the step execution
                     ReportStepResult(step, WfResult.Started);
@@ -235,6 +235,7 @@ namespace ControllerRuntime
 
                 //after workflow Dispatcher is done, we wait for the still running steps completion.
                 //or exit on timeout
+                timeout = lifetime - DateTime.Now.Subtract(start_dt);
                 if (timeout <= TimeSpan.Zero || !Task.WaitAll(_tasks.Values.ToArray(), timeout))
                 {
                     _cts.Cancel();
