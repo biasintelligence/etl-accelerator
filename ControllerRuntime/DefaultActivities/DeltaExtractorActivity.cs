@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using ControllerRuntime;
-using WorkflowLibraryRunner;
 using BIAS.Framework.DeltaExtractor;
 
 namespace DefaultActivities
@@ -94,7 +93,7 @@ namespace DefaultActivities
 
             DeParameters();
 
-            //_logger.Write(String.Format("Conn: {1}", _attributes[CONNECTION_STRING]));
+            _logger.WriteDebug(String.Format("Conn: {0}", _attributes[CONNECTION_STRING]));
             _logger.WriteDebug(String.Format("DE Command: {0}", _parameters.Get(XMLParameter)));
 
         }
@@ -106,17 +105,8 @@ namespace DefaultActivities
 
             _logger.WriteDebug("Running DeltaExtractor...");
 
-            using (LibraryRunner libraryRunner = new LibraryRunner())
-            {
-                libraryRunner.haveOutput += delegate (object sender, HaveOutputEventArgs e)
-                {
-                    _logger.WriteDebug(e.Output);
-                };
-
-                result = libraryRunner.Execute(new DERun(), _parameters, _logger);
-            }
-
-            return result;
+            DERun runner = new DERun();
+            return runner.Start(_parameters,_logger);
         }
         #endregion
 
@@ -149,8 +139,6 @@ namespace DefaultActivities
                     {
                         _logger.WriteDebug("_parameters is null!");
                     }
-
-                    string s = sb.ToString();
 
                     _parameters.Add(XMLParameter, sb.ToString());
                 }

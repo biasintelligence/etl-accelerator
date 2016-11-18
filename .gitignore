@@ -253,3 +253,4 @@ paket-files/
 *.exe
 ETL_Framework/Database/ETL_Staging/ETL_Staging.jfm
 *.jfm
+*.dll

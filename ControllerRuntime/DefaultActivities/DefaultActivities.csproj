@@ -29,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -61,10 +62,6 @@
     <ProjectReference Include="..\WorkflowConsoleRunner\WorkflowConsoleRunner.csproj">
       <Project>{44e4af0a-34fe-4253-917c-dc52b4fc847f}</Project>
       <Name>WorkflowConsoleRunner</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WorkflowLibraryRunner\WorkflowLibraryRunner.csproj">
-      <Project>{c72c099f-826b-469c-a3a2-3e02659d999b}</Project>
-      <Name>WorkflowLibraryRunner</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
