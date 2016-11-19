@@ -45,6 +45,7 @@
     <Compile Include="CheckFileActivity.cs" />
     <Compile Include="ConsoleActivity.cs" />
     <Compile Include="DeltaExtractorActivity.cs" />
+    <Compile Include="GzipActivity.cs" />
     <Compile Include="SqlServerActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerExecuteScalarActivity.cs" />

@@ -51,7 +51,7 @@ namespace DefaultActivities
             if (_required_attributes.Count != args.RequiredAttributes.Length)
             {
                 //_logger.WriteError(String.Format("Not all required attributes are provided"), -11);
-                throw new Exception("Not all required attributes are provided");
+                throw new ArgumentException("Not all required attributes are provided");
             }
 
 
@@ -80,8 +80,11 @@ namespace DefaultActivities
                     _logger.WriteDebug(e.Output);
                 };
 
-                int ret = p.Execute(_attributes[APP_NAME], _attributes[APP_ARGS]);
-                result = (ret == 0) ? WfResult.Succeeded : WfResult.Failed;
+                using (token.Register(p.Dispose))
+                {
+                    int ret = p.Execute(_attributes[APP_NAME], _attributes[APP_ARGS]);
+                    result = (ret == 0) ? WfResult.Succeeded : WfResult.Failed;
+                }
             }
 
             return result;

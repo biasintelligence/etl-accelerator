@@ -46,7 +46,7 @@ namespace DefaultActivities
             if (_required_attributes.Count != args.RequiredAttributes.Length)
             {
                 //_logger.WriteError(String.Format("Not all required attributes are provided"), -11);
-                throw new Exception("Not all required attributes are provided");
+                throw new ArgumentException("Not all required attributes are provided");
             }
 
 
