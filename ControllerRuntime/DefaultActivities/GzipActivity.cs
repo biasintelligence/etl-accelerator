@@ -28,7 +28,7 @@ namespace DefaultActivities
     /// Gzip compression
     /// Example: InputFile = c:\test.txt.gz, OutputFolder = c:\output Command = C(compress)/D(decompress)
     /// </summary>
-    class GzipActivity : IWorkflowActivity
+    public class GzipActivity : IWorkflowActivity
     {
         private const string INPUT_FILE = "InputFile";
         private const string OUTPUT_FOLDER = "OutputFolder";
@@ -76,12 +76,12 @@ namespace DefaultActivities
 
             if(_attributes[COMMAND].Equals("C"))
             {
-                Compress(_attributes[INPUT_FILE], OUTPUT_FOLDER, token);
+                Compress(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
                 result = WfResult.Succeeded;
             }
             else if (_attributes[COMMAND].Equals("D"))
             {
-                Decompress(_attributes[INPUT_FILE], OUTPUT_FOLDER, token);
+                Decompress(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
                 result = WfResult.Succeeded;
             }
             else
@@ -96,15 +96,14 @@ namespace DefaultActivities
         private void Compress(string input, string output,CancellationToken token)
         {
         
-            //Path.GetDirectoryName(input);
-            string[] files = Directory.GetFiles(input);
+            string[] files = Directory.GetFiles(Path.GetDirectoryName(input),Path.GetFileName(input),SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
                 if (token.IsCancellationRequested)
                     break;
 
                 FileInfo fileToCompress = new FileInfo(file);
-                string outputFile = Path.Combine(output, fileToCompress.Name, ".gz");
+                string outputFile = Path.Combine(output, fileToCompress.Name + ".gz");
                 using (FileStream originalFileStream = fileToCompress.OpenRead())
                 {
                     if ((File.GetAttributes(fileToCompress.FullName) &
@@ -132,15 +131,14 @@ namespace DefaultActivities
         private void Decompress(string input, string output,CancellationToken token)
         {
 
-            //Path.GetDirectoryName(input);
-            string[] files = Directory.GetFiles(input);
+            string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
                 if (token.IsCancellationRequested)
                     break;
-
+                //fileToDecompress.Name.Remove(fileToDecompress.FullName.Length - fileToDecompress.Extension.Length
                 FileInfo fileToDecompress = new FileInfo(file);
-                string outputFile = Path.Combine(output, fileToDecompress.FullName.Remove(fileToDecompress.FullName.Length - fileToDecompress.Extension.Length));
+                string outputFile = Path.Combine(output, Path.GetFileNameWithoutExtension(file));
                 using (FileStream originalFileStream = fileToDecompress.OpenRead())
                 {
                     using (FileStream decompressedFileStream = File.Create(outputFile))

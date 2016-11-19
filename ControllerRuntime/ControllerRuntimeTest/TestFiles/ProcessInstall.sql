@@ -14,6 +14,8 @@ begin
 	--this is OnSuccess/OnError substitute for #20,#23. For Example Query attribute is substituted with CleanUpQuery.
 	,(26,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>CleanUpQuery',3)
 	,(27,'DefaultActivities.DefaultActivities.ConsoleActivity','Console=>CleanUpConsole;Arg=>CleanUpArg',15)
+	,(28,'DefaultActivities.DefaultActivities.GzipActivity',null,15)
+	,(29,'DefaultActivities.DefaultActivities.BsonConverterActivity',null,15)
 
 	set identity_insert dbo.etlprocess off;
 end
