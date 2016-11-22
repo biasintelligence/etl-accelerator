@@ -12,14 +12,14 @@ namespace ControllerRuntimeTest
     public class ActivityTest
     {
         [TestMethod]
-        public void GzipCompress_Ok()
+        public void TGZCompress_Ok()
         {
-            GzipActivity activity = new GzipActivity();
+            TGZCompressActivity activity = new TGZCompressActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
             list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\FlatFiles\\*.txt"));
             list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\ZipFiles"));
-            list.Add(new WorkflowAttribute("Command", "C"));
+            list.Add(new WorkflowAttribute("ArchiveName", "test"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true,true);
@@ -31,14 +31,13 @@ namespace ControllerRuntimeTest
         }
 
         [TestMethod]
-        public void GzipDecompress_Ok()
+        public void TGZDecompress_Ok()
         {
-            GzipActivity activity = new GzipActivity();
+            TGZDecompressActivity activity = new TGZDecompressActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\ZipFiles\\*.gz"));
+            list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\ZipFiles\\*.tar.gz"));
             list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\UnzipFiles"));
-            list.Add(new WorkflowAttribute("Command", "D"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);

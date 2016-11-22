@@ -20,6 +20,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using ControllerRuntime;
+using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.GZip;
+using ICSharpCode.SharpZipLib.Tar;
 
 
 namespace DefaultActivities
@@ -28,17 +31,17 @@ namespace DefaultActivities
     /// Gzip compression
     /// Example: InputFile = c:\test.txt.gz, OutputFolder = c:\output Command = C(compress)/D(decompress)
     /// </summary>
-    public class GzipActivity : IWorkflowActivity
+    public class TGZCompressActivity : IWorkflowActivity
     {
         private const string INPUT_FILE = "InputFile";
+        private const string ARCHIVE_NAME = "ArchiveName";
         private const string OUTPUT_FOLDER = "OutputFolder";
-        private const string COMMAND = "Command";
         private const string TIMEOUT = "Timeout";
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private IWorkflowLogger _logger;
-        private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, COMMAND, TIMEOUT };
+        private List<string> _required_attributes = new List<string>() { INPUT_FILE, ARCHIVE_NAME, OUTPUT_FOLDER, TIMEOUT };
 
         #region IWorkflowActivity
         public string[] RequiredAttributes
@@ -65,7 +68,7 @@ namespace DefaultActivities
 
 
 
-            _logger.Write(String.Format("Gzip ({2}): {0} => {1}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER],_attributes[COMMAND]));
+            _logger.Write(String.Format("TGZ ({2}): {0} => {1}; archive: {2}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], _attributes[ARCHIVE_NAME]));
 
         }
 
@@ -74,29 +77,17 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            if(_attributes[COMMAND].Equals("C"))
-            {
-                Compress(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
-                result = WfResult.Succeeded;
-            }
-            else if (_attributes[COMMAND].Equals("D"))
-            {
-                Decompress(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
-                result = WfResult.Succeeded;
-            }
-            else
-            {
-                throw new ArgumentException(String.Format("Invalid Command (expected: C - compress, D - decompress): {0}", _attributes[COMMAND]));
-            }
+            CompressTGZ(_attributes[INPUT_FILE], _attributes[ARCHIVE_NAME], _attributes[OUTPUT_FOLDER], token);
+            result = WfResult.Succeeded;
 
             return result;
         }
         #endregion
 
-        private void Compress(string input, string output,CancellationToken token)
+        private void Compress(string input, string output, CancellationToken token)
         {
-        
-            string[] files = Directory.GetFiles(Path.GetDirectoryName(input),Path.GetFileName(input),SearchOption.TopDirectoryOnly);
+
+            string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
                 if (token.IsCancellationRequested)
@@ -128,33 +119,65 @@ namespace DefaultActivities
             }
         }
 
-        private void Decompress(string input, string output,CancellationToken token)
+
+        private void CompressTGZ(string input, string archive, string output, CancellationToken token)
         {
 
-            string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
-            foreach (string file in files)
-            {
-                if (token.IsCancellationRequested)
-                    break;
-                //fileToDecompress.Name.Remove(fileToDecompress.FullName.Length - fileToDecompress.Extension.Length
-                FileInfo fileToDecompress = new FileInfo(file);
-                string outputFile = Path.Combine(output, Path.GetFileNameWithoutExtension(file));
-                using (FileStream originalFileStream = fileToDecompress.OpenRead())
+            string sourceDirectory = Path.GetDirectoryName(input);
+
+
+
+            string archive_name = archive.Replace(".tar.gz", "") + ".tar.gz";
+            string outputFile = Path.Combine(output, archive_name);
+
+                using (Stream outStream = File.Create(outputFile))
                 {
-                    using (FileStream decompressedFileStream = File.Create(outputFile))
+                    using (Stream gzoStream = new GZipOutputStream(outStream))
                     {
-                        using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                        using (TarArchive tarArchive = TarArchive.CreateOutputTarArchive(gzoStream))
                         {
-                            decompressionStream.CopyTo(decompressedFileStream);
-                            _logger.Write(String.Format("Decompressed: {0}", fileToDecompress.Name));
+                        try
+                        {
+                            // Note that the RootPath is currently case sensitive and must be forward slashes e.g. "c:/temp"
+                            // and must not end with a slash, otherwise cuts off first char of filename
+                            // This is scheduled for fix in next release
+                            tarArchive.RootPath = sourceDirectory.Replace('\\', '/');
+                            if (tarArchive.RootPath.EndsWith("/"))
+                                tarArchive.RootPath = tarArchive.RootPath.Remove(tarArchive.RootPath.Length - 1);
+
+                            TarEntry tarEntry = TarEntry.CreateEntryFromFile(sourceDirectory);
+                            tarArchive.WriteEntry(tarEntry, false);
+
+                            // Write each file to the tar.
+                            string[] files = Directory.GetFiles(sourceDirectory, Path.GetFileName(input), SearchOption.TopDirectoryOnly);
+                            foreach (string file in files)
+                            {
+                                if (token.IsCancellationRequested)
+                                    break;
+
+                                tarEntry = TarEntry.CreateEntryFromFile(file);
+                                tarArchive.WriteEntry(tarEntry, true);
+                            }
                         }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                        finally
+                        {
+                            tarArchive.Close();
+                            gzoStream.Close();
+                            outStream.Close();
+                        }
+
                     }
                 }
+
+                FileInfo info = new FileInfo(outputFile);
+                _logger.Write(String.Format("Compressed to {0} ({1} bytes)", info, info.Length.ToString()));
+
             }
-
-
         }
-
 
     }
 

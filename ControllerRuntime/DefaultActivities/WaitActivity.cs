@@ -64,7 +64,7 @@ namespace DefaultActivities
         public WfResult Run(CancellationToken token)
         {
 
-            Task.Delay(_timeout, token);
+            Task.Delay(_timeout, token).Wait();
             return WfResult.Succeeded;
         }
     }

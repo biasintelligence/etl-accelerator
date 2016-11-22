@@ -1,5 +1,5 @@
-delete etlprocess where ProcessId between 20 and 27;
-if not exists (select 1 from etlprocess where ProcessId between 20 and 27)
+delete etlprocess where ProcessId between 20 and 30;
+if not exists (select 1 from etlprocess where ProcessId between 20 and 30)
 begin
 	set identity_insert dbo.etlprocess on;
 	insert etlprocess
@@ -14,8 +14,9 @@ begin
 	--this is OnSuccess/OnError substitute for #20,#23. For Example Query attribute is substituted with CleanUpQuery.
 	,(26,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>CleanUpQuery',3)
 	,(27,'DefaultActivities.DefaultActivities.ConsoleActivity','Console=>CleanUpConsole;Arg=>CleanUpArg',15)
-	,(28,'DefaultActivities.DefaultActivities.GzipActivity',null,15)
-	,(29,'DefaultActivities.DefaultActivities.BsonConverterActivity',null,15)
+	,(28,'DefaultActivities.DefaultActivities.TGZCompressActivity',null,15)
+	,(29,'DefaultActivities.DefaultActivities.TGZDecompressActivity',null,15)
+	,(30,'DefaultActivities.DefaultActivities.BsonConverterActivity',null,15)
 
 	set identity_insert dbo.etlprocess off;
 end
