@@ -54,7 +54,7 @@ namespace ControllerRuntimeTest
             BsonConverterActivity activity = new BsonConverterActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\BsonFiles\\*.txt"));
+            list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\BsonFiles\\*.bson"));
             list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\JsonFiles"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();

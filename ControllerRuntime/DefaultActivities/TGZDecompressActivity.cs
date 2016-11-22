@@ -133,12 +133,12 @@ namespace DefaultActivities
                             {
                                 throw ex;
                             }
-                            finally
-                            {
-                                tarArchive.Close();
-                                gzipStream.Close();
-                                inStream.Close();
-                            }
+                            //finally
+                            //{
+                            //    tarArchive.Close();
+                            //    gzipStream.Close();
+                            //    inStream.Close();
+                            //}
                         }
                     }
                 }

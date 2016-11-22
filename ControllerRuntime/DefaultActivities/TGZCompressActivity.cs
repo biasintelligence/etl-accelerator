@@ -163,12 +163,12 @@ namespace DefaultActivities
                         {
                             throw ex;
                         }
-                        finally
-                        {
-                            tarArchive.Close();
-                            gzoStream.Close();
-                            outStream.Close();
-                        }
+                        //finally
+                        //{
+                        //    tarArchive.Close();
+                        //    gzoStream.Close();
+                        //    outStream.Close();
+                        //}
 
                     }
                 }

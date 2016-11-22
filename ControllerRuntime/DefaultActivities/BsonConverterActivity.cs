@@ -18,9 +18,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Bson;
+//using Newtonsoft.Json;
+//using Newtonsoft.Json.Linq;
+//using Newtonsoft.Json.Bson;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 
 using ControllerRuntime;
 
@@ -65,8 +68,6 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-
-
             _logger.Write(String.Format("Bson : {0} => {1}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER]));
 
         }
@@ -100,31 +101,25 @@ namespace DefaultActivities
                        FileAttributes.Hidden) != FileAttributes.Hidden & fileToConvert.Extension != ".json")
                     {
 
-                        StreamReader input_reader = new StreamReader(originalFileStream, Encoding.UTF8);
-                        byte[] data = Convert.FromBase64String(input_reader.ReadToEnd());
-                        using (MemoryStream ms = new MemoryStream(data))
+                        string json;
+                        using (var reader = new BsonBinaryReader(originalFileStream))
                         {
-                            using (BsonReader reader = new BsonReader(ms))
-                            {
-                                using (FileStream jsonFileStream = File.Create(outputFile))
-                                {
-                                    JsonSerializer jser = new JsonSerializer();
-                                    //JObject json =  jser.Deserialize(reader) as JObject;
-                                    var json = jser.Deserialize(reader);
-
-                                    StreamWriter writer = new StreamWriter(jsonFileStream,Encoding.UTF8);
-                                    writer.Write(json);
-                                    writer.Flush();
- 
-                                }
-                            }
+                            var bson = BsonSerializer.Deserialize<BsonDocument>(reader);
+                            json = bson.ToJson(new JsonWriterSettings() { OutputMode = JsonOutputMode.Strict });
                         }
 
+                        using (FileStream jsonFileStream = File.Create(outputFile))
+                        {
 
-                        FileInfo info = new FileInfo(outputFile);
-                        _logger.Write(String.Format("Converted {0} => {1}", fileToConvert.Name,info.Name));
+                            StreamWriter writer = new StreamWriter(jsonFileStream, Encoding.UTF8);
+                            writer.Write(json);
+                            writer.Flush();
+
+                        }
                     }
 
+                    FileInfo info = new FileInfo(outputFile);
+                    _logger.Write(String.Format("Converted {0} => {1}", fileToConvert.Name,info.Name));
                 }
             }
         }
