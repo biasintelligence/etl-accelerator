@@ -37,7 +37,7 @@ namespace ControllerRuntimeTest
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
             list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\ZipFiles\\*.tar.gz"));
-            list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\UnzipFiles"));
+            list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\UnzipFiles1"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);
@@ -54,7 +54,7 @@ namespace ControllerRuntimeTest
             BsonConverterActivity activity = new BsonConverterActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\BsonFiles\\*.bson"));
+            list.Add(new WorkflowAttribute("InputFile", "C:\\Builds\\UnzipFiles\\mongobackup_10-19-2016-230145\\edxapp\\modulestore.definitions.bson"));
             list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\JsonFiles"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();

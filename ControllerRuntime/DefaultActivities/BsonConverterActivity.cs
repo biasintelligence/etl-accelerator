@@ -94,28 +94,31 @@ namespace DefaultActivities
                     break;
 
                 FileInfo fileToConvert = new FileInfo(file);
-                string outputFile = Path.Combine(output, fileToConvert.Name + ".json");
+                string outputFile = Path.Combine(output, Path.GetFileNameWithoutExtension(file) + ".json");
+                string outputDir = Path.GetDirectoryName(outputFile);
+                Directory.CreateDirectory(outputDir);
                 using (FileStream originalFileStream = fileToConvert.OpenRead())
                 {
                     if ((File.GetAttributes(fileToConvert.FullName) &
                        FileAttributes.Hidden) != FileAttributes.Hidden & fileToConvert.Extension != ".json")
                     {
 
-                        string json;
-                        using (var reader = new BsonBinaryReader(originalFileStream))
-                        {
-                            var bson = BsonSerializer.Deserialize<BsonDocument>(reader);
-                            json = bson.ToJson(new JsonWriterSettings() { OutputMode = JsonOutputMode.Strict });
-                        }
-
                         using (FileStream jsonFileStream = File.Create(outputFile))
                         {
-
                             StreamWriter writer = new StreamWriter(jsonFileStream, Encoding.UTF8);
-                            writer.Write(json);
-                            writer.Flush();
+                            using (var reader = new BsonBinaryReader(originalFileStream))
+                            {
+                                while (!reader.IsAtEndOfFile())
+                                {
+                                    var bson = BsonSerializer.Deserialize<BsonDocument>(reader);
+                                    string json = bson.ToJson(new JsonWriterSettings() { OutputMode = JsonOutputMode.Strict });
+                                    writer.Write(json);
+                                }
+                                writer.Flush();
+                            }
 
                         }
+
                     }
 
                     FileInfo info = new FileInfo(outputFile);
