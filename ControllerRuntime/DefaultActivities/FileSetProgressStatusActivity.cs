@@ -27,22 +27,23 @@ namespace DefaultActivities
     /// <summary>
     /// Register all files by Path pattern for processing
     /// </summary>
-    public class FileRegisterActivity : IWorkflowActivity
+    public class FileSetProgressStatusActivity : IWorkflowActivity
     {
         protected const string CONNECTION_STRING = "RegisterConnectionString";
-        protected const string FILE_PATH = "RegisterPath";
-        protected const string FILE_SOURCE = "SourceName";
-        protected const string PROCESS_PRIORITY = "ProcessPriority";
+        protected const string FILE_ID = "FileId";
+        protected const string FILE_STATUS = "FileStatus";
+        //protected const string FILE_NAME = "FileName";
+        //protected const string FILE_SOURCE = "SourceName";
         protected const string TIMEOUT = "Timeout";
-        protected const string ETL_RUNID = "@RunId";
+        protected const string ETL_RUNID = "etl:RunId";
 
-        protected const string REGISTRATION_QUERY = "dbo.prc_FileProcessRegisterNew";
+        protected const string REGISTRATION_QUERY = "dbo.prc_FileProcessProgressUpdate";
 
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         protected IWorkflowLogger _logger;
         protected List<string> _required_attributes = new List<string>()
-        { CONNECTION_STRING, FILE_PATH,TIMEOUT,ETL_RUNID,PROCESS_PRIORITY,FILE_SOURCE };
+        { CONNECTION_STRING, FILE_ID,TIMEOUT,ETL_RUNID,FILE_STATUS };
 
 
         public string[] RequiredAttributes
@@ -68,7 +69,7 @@ namespace DefaultActivities
             }
 
             _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
-            _logger.WriteDebug(String.Format("RegisterPath: {0}", _attributes[FILE_PATH]));
+            _logger.WriteDebug(String.Format("FileId: {0}", _attributes[FILE_ID]));
         }
 
         public virtual WfResult Run(CancellationToken token)
@@ -76,10 +77,6 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            string path = _attributes[FILE_PATH];
-            string[] files = Directory.GetFiles(Path.GetDirectoryName(path), Path.GetFileName(path), SearchOption.TopDirectoryOnly);
-            if (files.Length == 0)
-                return WfResult.Succeeded;
 
             SqlConnection cn = new SqlConnection(_attributes[CONNECTION_STRING]);
             try
@@ -91,18 +88,16 @@ namespace DefaultActivities
                     using (token.Register(cmd.Cancel))
                     {
 
-                        int priority = 0;
-                        Int32.TryParse(_attributes[PROCESS_PRIORITY], out priority);
+                        int fileId = 0;
+                        Int32.TryParse(_attributes[FILE_ID], out fileId);
                         int runId = 0;
                         Int32.TryParse(_attributes[ETL_RUNID], out runId);
 
 
                         cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
                         cmd.Parameters.AddWithValue("@processId", runId);
-                        cmd.Parameters.AddWithValue("@priority", priority);
-                        var param = cmd.Parameters.AddWithValue("@list", FileRegisterList.ToDataTable(files,_attributes[FILE_SOURCE]));
-                        param.SqlDbType = SqlDbType.Structured;
-                        param.TypeName = FileRegisterList.TypeName;
+                        cmd.Parameters.AddWithValue("@fileId", fileId);
+                        cmd.Parameters.AddWithValue("@ProgressStatusName", _attributes[FILE_STATUS]);
 
                         cmd.ExecuteNonQuery();
                         result = WfResult.Succeeded;

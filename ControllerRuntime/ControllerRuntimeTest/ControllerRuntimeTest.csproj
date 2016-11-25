@@ -74,6 +74,7 @@
   <ItemGroup>
     <Content Include="TestFiles\ProcessInstall.sql" />
     <Content Include="TestFiles\TestWorkflow100.sql" />
+    <Content Include="TestFiles\TestWorkflow101.sql" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

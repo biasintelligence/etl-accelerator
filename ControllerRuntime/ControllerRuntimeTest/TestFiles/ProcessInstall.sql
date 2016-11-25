@@ -18,6 +18,8 @@ begin
 	,(29,'DefaultActivities.DefaultActivities.TGZDecompressActivity',null,15)
 	,(30,'DefaultActivities.DefaultActivities.BsonConverterActivity',null,15)
 	,(31,'DefaultActivities.DefaultActivities.FileRegisterActivity',null,15)
+	,(32,'DefaultActivities.DefaultActivities.FileGetProcessListActivity',null,15)
+	,(33,'DefaultActivities.DefaultActivities.FileSetProgressStatusActivity',null,15)
 
 
 

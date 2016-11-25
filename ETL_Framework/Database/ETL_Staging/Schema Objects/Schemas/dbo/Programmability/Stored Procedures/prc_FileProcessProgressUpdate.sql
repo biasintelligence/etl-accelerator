@@ -4,8 +4,8 @@
 	,@SourceName nvarchar(100) = null
 	,@ProgressStatusId tinyint = null
 	,@ProgressStatusName nvarchar(100) = null
-	,@processId int = 0
-	,@priority int = 0
+	,@processId int = null
+	,@priority int = null
 	,@options nvarchar(100) = null
 AS
 /*
