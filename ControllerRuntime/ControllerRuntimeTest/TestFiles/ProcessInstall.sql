@@ -1,5 +1,5 @@
-delete etlprocess where ProcessId between 20 and 30;
-if not exists (select 1 from etlprocess where ProcessId between 20 and 30)
+delete etlprocess where ProcessId between 20 and 50;
+if not exists (select 1 from etlprocess where ProcessId between 20 and 50)
 begin
 	set identity_insert dbo.etlprocess on;
 	insert etlprocess
@@ -17,6 +17,9 @@ begin
 	,(28,'DefaultActivities.DefaultActivities.TGZCompressActivity',null,15)
 	,(29,'DefaultActivities.DefaultActivities.TGZDecompressActivity',null,15)
 	,(30,'DefaultActivities.DefaultActivities.BsonConverterActivity',null,15)
+	,(31,'DefaultActivities.DefaultActivities.FileRegisterActivity',null,15)
+
+
 
 	set identity_insert dbo.etlprocess off;
 end

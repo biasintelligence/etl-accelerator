@@ -191,6 +191,12 @@
     <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\AuditPK.pkey.sql">
       <SubType>Code</SubType>
     </Build>
+    <Build Include="Schema Objects\Schemas\dbo\Tables\ProgressStatus.sql" />
+    <Build Include="Schema Objects\Schemas\dbo\Tables\FileProcessProgress.sql" />
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Types\User Defined Table Types\FileList.sql" />
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\prc_FileProcessRegisterNew.sql" />
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\prc_FileProcessProgressUpdate.sql" />
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\prc_FileProcessGetNext.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Pre-Deployment\Script.PreDeployment.sql" />
@@ -200,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ETL_Staging.publish.xml" />
+    <None Include="Scripts\Post-Deployment\DomainData.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\110\SqlSchemas\master.dacpac">

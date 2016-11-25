@@ -110,7 +110,7 @@ select 6,@BatchID,'ST06','loop wait',25,null,null,null,'06'
 union all
 select 7,@BatchID,'ST07','loop wait',25,null,null,null,'07'
 union all
-select 8,@BatchID,'ST08','loop break',20,null,null,null,'08'
+select 8,@BatchID,'ST08','loop break',50,null,null,null,'08'
 
 set identity_insert dbo.ETLStep off
 
@@ -185,15 +185,13 @@ union all select 7,@BatchID,'DISABLED','0'
 union all select 7,@BatchID,'PRIGROUP','3'
 union all select 7,@BatchID,'LOOPGROUP','1'
 
+--result should evalate to 0/1
 union all select 8,@BatchID,'Query','
-declare @count int;
+declare @result bit = 0;
 --check loop count for the LOOPGROUP 1
-set @count = isnull(dbo.fn_ETLCounterGet (<@BatchID>,0,<@RunID>,''Loop_<etl:LoopGroup>''),0);
-if (@count > 3)
-	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''BreakEvent'',<etl:LoopGroup>;
+if (3 < isnull(dbo.fn_ETLCounterGet (<@BatchID>,0,<@RunID>,''Loop_<etl:LoopGroup>''),0))
+   set @result = 1;
 '
-union all select 8,@BatchID,'ConnectionString','<TestConnectionString>'
-union all select 8,@BatchID,'Timeout','60'
 union all select 8,@BatchID,'DISABLED','0'
 union all select 8,@BatchID,'PRIGROUP','4'
 union all select 8,@BatchID,'LOOPGROUP','1'

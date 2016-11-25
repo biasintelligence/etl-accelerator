@@ -171,6 +171,7 @@ union select '@ConstID',cast(@ConstID as nvarchar(100))
 union select '@RunID',cast(@RunID as nvarchar(100))
 union select '@Options',cast(@inputoptions as nvarchar(100))
 union select '@Handle',cast(@handle as nvarchar(100))
+union select '@etl:RunID',cast(@RunID as nvarchar(100))
 
 
 -------------------------------------------------------------------

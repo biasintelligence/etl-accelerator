@@ -58,6 +58,8 @@
     <Compile Include="CheckFileActivity.cs" />
     <Compile Include="ConsoleActivity.cs" />
     <Compile Include="DeltaExtractorActivity.cs" />
+    <Compile Include="FileRegisterActivity.cs" />
+    <Compile Include="FileRegisterList.cs" />
     <Compile Include="TGZDecompressActivity.cs" />
     <Compile Include="SqlServerActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
