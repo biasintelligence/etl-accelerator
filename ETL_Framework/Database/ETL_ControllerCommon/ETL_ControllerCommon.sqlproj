@@ -369,7 +369,6 @@
     <Build Include="Schema Objects\Schemas\dbo\Tables\Constraints\SystemParameters.SystemParametersEnvironmentNameCK.chkconst.sql">
       <SubType>Code</SubType>
     </Build>
-    <None Include="ETL_ControllerCommon.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\prc_ApplicationLog.proc.sql">
