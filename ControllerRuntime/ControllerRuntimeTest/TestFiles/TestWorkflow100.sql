@@ -187,11 +187,13 @@ union all select 7,@BatchID,'LOOPGROUP','1'
 
 --result should evalate to 0/1
 union all select 8,@BatchID,'Query','
-declare @result bit = 0;
+declare @count int;
 --check loop count for the LOOPGROUP 1
-if (3 < isnull(dbo.fn_ETLCounterGet (<@BatchID>,0,<@RunID>,''Loop_<etl:LoopGroup>''),0))
-   set @result = 1;
+set @count = isnull(dbo.fn_ETLCounterGet (<@BatchID>,0,<@RunID>,''Loop_<etl:LoopGroup>''),0);
+if (@count > 3)
+	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''BreakEvent_<etl:LoopGroup>'',''1'';
 '
+
 union all select 8,@BatchID,'DISABLED','0'
 union all select 8,@BatchID,'PRIGROUP','4'
 union all select 8,@BatchID,'LOOPGROUP','1'

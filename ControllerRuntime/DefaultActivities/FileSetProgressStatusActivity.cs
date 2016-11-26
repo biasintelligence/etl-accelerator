@@ -69,7 +69,7 @@ namespace DefaultActivities
             }
 
             _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
-            _logger.WriteDebug(String.Format("FileId: {0}", _attributes[FILE_ID]));
+            _logger.WriteDebug(String.Format("FileId: {0}, Status: {1}", _attributes[FILE_ID], _attributes[FILE_STATUS]));
         }
 
         public virtual WfResult Run(CancellationToken token)

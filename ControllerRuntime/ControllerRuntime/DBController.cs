@@ -300,11 +300,12 @@ declare @BatchId int = {0};
 declare @RunId int = {1}
 declare @LoopGroup nvarchar(30) = '{2}'
 declare @CounterValue nvarchar(30);
+declare @CounterName nvarchar(30) = 'BreakEvent_' + @LoopGroup;
 
 --check for loop break event
-set @CounterValue = dbo.fn_ETLCounterGet (@BatchId,0,@RunId,'BreakEvent');
+set @CounterValue = dbo.fn_ETLCounterGet (@BatchId,0,@RunId,@counterName);
 
-if (@LoopGroup = @CounterValue)
+if (@CounterValue is not null)
 BEGIN
     UPDATE s
         SET s.StatusID = 2,s.EndTime = getdate() ,s.Err = 0

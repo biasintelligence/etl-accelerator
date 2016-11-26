@@ -68,7 +68,7 @@ namespace DefaultActivities
             }
 
             _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
-            _logger.WriteDebug(String.Format("RegisterPath: {0}", _attributes[FILE_PATH]));
+            _logger.Write(String.Format("Register files from Source {0}: {1}", _attributes[FILE_SOURCE], _attributes[FILE_PATH]));
         }
 
         public virtual WfResult Run(CancellationToken token)

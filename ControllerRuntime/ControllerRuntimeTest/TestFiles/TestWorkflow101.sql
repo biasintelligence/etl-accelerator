@@ -4,7 +4,7 @@
 set quoted_identIfier on;
 set nocount on;
 Declare @Batchid int,@BatchName nvarchar(100) 
-set @BatchID = 100
+set @BatchID = 101
 set @BatchName = 'Test101' 
 
 print ' Compiling Test101'
@@ -60,9 +60,22 @@ union all select @BatchID,'Controller.ConnectionString','Server=<Control.Server>
 union all select @BatchID,'Staging.ConnectionString','Server=<Control.Server>;Database=ETL_Staging;Trusted_Connection=True;Connection Timeout=30;'
 union all select @BatchID,'ActivityLocation','.\'
 --operational
+union all select @BatchID,'StepId','0'
+union all select @BatchID,'GetFileId'	,'isnull(dbo.fn_etlCounterGet(<@batchID>,<StepId>,<@runID>,''fileId''),''0'')'
+union all select @BatchID,'GetFileName'	,'isnull(dbo.fn_etlCounterGet(<etl:batchId>,<StepId>,<etl:runId>,''fileName_<getFileId*>''),'''')'
+union all select @BatchID,'CheckWorkloadStatus','
+if (0 = isnull(dbo.fn_ETLCounterGet (<@BatchID>,<StepId>,<@RunID>,''fileId''),0))
+begin
+	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''ExitEvent'',''2'';
+	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''BreakEvent'',<etl:LoopGroup>;
+end
+'
+
+
+
 union all select @BatchID,'Inputdir'	,'<Path*>\ZipFiles'
-union all select @BatchID,'SourcePattern'	,'*.txt.gz'
-union all select @BatchID,'SourceName'	,'TestSource'
+union all select @BatchID,'SourcePattern'	,'test*.tar.gz'
+union all select @BatchID,'SourceName'	,'TestSource_TGZ'
 union all select @BatchID,'OutputDir'	,'<Path*>\UnzipFiles'
 
 
@@ -81,22 +94,110 @@ insert dbo.ETLStep
 )
 select 1,@BatchID,'ST01','register files',31,null,null,null,'01'
 union all
-select 2,@BatchID,'ST011','processor 1 get workload',32,null,null,null,'011'
+select 2,@BatchID,'ST011','processor 1 get workload',32,20,34,null,'011'
 union all
-select 3,@BatchID,'ST012','processor 1 upzip',29,null,null,null,'012'
+select 3,@BatchID,'ST012','processor 1 upzip',29,33,34,null,'012'
+
 union all
-select 4,@BatchID,'ST021','processor 2 get workload',32,null,null,null,'021'
+select 10,@BatchID,'ST021','processor 2 get workload',32,20,34,null,'021'
 union all
-select 5,@BatchID,'ST022','processor 2 upzip',29,null,null,null,'022'
+select 11,@BatchID,'ST022','processor 2 upzip',29,33,34,null,'022'
 
 set identity_insert dbo.ETLStep off
 
 -------------------------------------------------------
 --Define step level system attributes
 -------------------------------------------------------
---insert dbo.ETLStepAttribute
---(StepID,BatchID,AttributeName,AttributeValue)
+insert dbo.ETLStepAttribute
+(StepID,BatchID,AttributeName,AttributeValue)
+--Check for new files
+		  select 1,@BatchId,'ConnectionString','<Controller.ConnectionString>'
+union all select 1,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
+union all select 1,@BatchId,'RegisterPath','<Inputdir>\<SourcePattern>'
+union all select 1,@BatchId,'ProcessPriority','0'
+union all select 1,@BatchId,'Timeout','30'
 
+union all select 1,@BatchID,'DISABLED','0'
+union all select 1,@BatchID,'PRIGROUP','1'
+
+--workload 1 loop
+union all select 2,@BatchId,'ConnectionString','<Controller.ConnectionString>'
+union all select 2,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
+union all select 2,@BatchId,'Timeout','30'
+union all select 2,@BatchId,'StepId','<@StepId>' --this step
+--on success skip workload steps and break loop if no more work found
+union all select 2,@BatchID,'Query','
+if (0 = isnull(dbo.fn_ETLCounterGet (<@BatchID>,<@StepId>,<@RunID>,''fileId''),0))
+begin
+	exec dbo.prc_ETLCounterSet <@BatchID>,3,<@RunID>,''ExitEvent'',''2'';
+	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''BreakEvent_<etl:LoopGroup>'',''1'';
+end
+'
+--on failure
+union all select 2,@BatchId,'FileId','<GetFileId*>' -- get fileId for this workload
+union all select 2,@BatchId,'OnFailureStatus','Failed' --set progressStatus for this fileId to failed
+--control
+union all select 2,@BatchID,'DISABLED','0'
+union all select 2,@BatchID,'SEQGROUP','1'
+union all select 2,@BatchID,'PRIGROUP','2'
+union all select 2,@BatchID,'LOOPGROUP','1'
+
+--upzip and finish workload 1
+union all select 3,@BatchId,'ConnectionString','<Controller.ConnectionString>'
+union all select 3,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
+union all select 3,@BatchId,'StepId','2' --where to find the file to process
+union all select 3,@BatchId,'InputFile','<GetFileName*>' -- get the file name for this workload
+union all select 3,@BatchId,'OutputFolder','<OutputDir>' --destination folder
+union all select 3,@BatchId,'Timeout','30'
+--on success/failure
+union all select 3,@BatchId,'FileId','<GetFileId*>' -- get the fileId being processed
+union all select 3,@BatchId,'OnFailureStatus','Failed'
+union all select 3,@BatchId,'OnSuccessStatus','Completed'
+
+union all select 3,@BatchID,'DISABLED','0'
+union all select 3,@BatchID,'SEQGROUP','1'
+union all select 3,@BatchID,'PRIGROUP','2'
+union all select 3,@BatchID,'LOOPGROUP','1'
+
+--workload 2 loop
+union all select 10,@BatchId,'ConnectionString','<Controller.ConnectionString>'
+union all select 10,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
+union all select 10,@BatchId,'Timeout','30'
+union all select 10,@BatchId,'StepId','<@StepId>' --this step
+--on success check workload 2 and break loop
+--on success skip workload steps and break loop if no more work found
+union all select 10,@BatchID,'Query','
+if (0 = isnull(dbo.fn_ETLCounterGet (<@BatchID>,<@StepId>,<@RunID>,''fileId''),0))
+begin
+	exec dbo.prc_ETLCounterSet <@BatchID>,11,<@RunID>,''ExitEvent'',''2'';
+	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''BreakEvent_<etl:LoopGroup>'',''1'';
+end
+'
+--on failure
+union all select 10,@BatchId,'FileId','<GetFileId*>'
+union all select 10,@BatchId,'OnFailureStatus','Failed'
+
+union all select 10,@BatchID,'DISABLED','0'
+union all select 10,@BatchID,'SEQGROUP','2'
+union all select 10,@BatchID,'PRIGROUP','2'
+union all select 10,@BatchID,'LOOPGROUP','2'
+
+--unzip and finish workload 2
+union all select 11,@BatchId,'ConnectionString','<Controller.ConnectionString>'
+union all select 11,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
+union all select 11,@BatchId,'StepId','10'
+union all select 11,@BatchId,'InputFile','<GetFileName*>'
+union all select 11,@BatchId,'OutputFolder','<OutputDir>'
+union all select 11,@BatchId,'Timeout','30'
+--on success/failure
+union all select 11,@BatchId,'FileId','<GetFileId*>'
+union all select 11,@BatchId,'OnFailureStatus','Failed'
+union all select 11,@BatchId,'OnSuccessStatus','Completed'
+
+union all select 11,@BatchID,'DISABLED','0'
+union all select 11,@BatchID,'SEQGROUP','2'
+union all select 11,@BatchID,'PRIGROUP','2'
+union all select 11,@BatchID,'LOOPGROUP','2'
 
 
 end try

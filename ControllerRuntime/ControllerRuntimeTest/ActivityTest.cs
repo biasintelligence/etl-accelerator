@@ -98,9 +98,7 @@ namespace ControllerRuntimeTest
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
             list.Add(new WorkflowAttribute("ConnectionString", @"Server=.\sql14; Database=etl_controller; Trusted_Connection = True; Connection Timeout = 120; "));
             list.Add(new WorkflowAttribute("RegisterConnectionString", @"Server=.\sql14; Database=etl_staging; Trusted_Connection = True; Connection Timeout = 120; "));
-            list.Add(new WorkflowAttribute("FileCount", "2"));
             list.Add(new WorkflowAttribute("SourceName", "testFiles"));
-            list.Add(new WorkflowAttribute("CounterName", "FileId"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             list.Add(new WorkflowAttribute("etl:RunId", "1"));
             list.Add(new WorkflowAttribute("etl:BatchId", "101"));

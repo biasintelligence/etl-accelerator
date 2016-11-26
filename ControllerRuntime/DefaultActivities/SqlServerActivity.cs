@@ -60,7 +60,7 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            _logger.Write(String.Format("SqlServer: {0}", _attributes[CONNECTION_STRING]));
+            _logger.WriteDebug(String.Format("SqlServer: {0}", _attributes[CONNECTION_STRING]));
             _logger.WriteDebug(String.Format("Query: {0}", _attributes[QUERY_STRING]));
 
         }

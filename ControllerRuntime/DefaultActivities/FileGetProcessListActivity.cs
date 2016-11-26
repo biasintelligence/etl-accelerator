@@ -31,9 +31,7 @@ namespace DefaultActivities
     {
         protected const string CONNECTION_STRING = "ConnectionString";
         protected const string CONNECTION_STRING_REGISTER = "RegisterConnectionString";
-        protected const string FILE_COUNT = "FileCount";
         protected const string FILE_SOURCE = "SourceName";
-        protected const string COUNTER_NAME = "CounterName";
         protected const string TIMEOUT = "Timeout";
         protected const string ETL_RUNID = "etl:RunId";
         protected const string ETL_BATCHID = "etl:BatchId";
@@ -48,11 +46,9 @@ namespace DefaultActivities
         protected List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
           CONNECTION_STRING_REGISTER,
-          FILE_COUNT,
           FILE_SOURCE,
           TIMEOUT,
           ETL_RUNID,
-          COUNTER_NAME,
           ETL_BATCHID,
           ETL_STEPID
         };
@@ -82,7 +78,7 @@ namespace DefaultActivities
 
             _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
             _logger.WriteDebug(String.Format("RegisterConnectionString: {0}", _attributes[CONNECTION_STRING_REGISTER]));
-            _logger.WriteDebug(String.Format("File Source: {0}, count {1}", _attributes[FILE_SOURCE], _attributes[FILE_COUNT]));
+            _logger.Write(String.Format("Processing from File Source: {0}", _attributes[FILE_SOURCE]));
         }
 
         public virtual WfResult Run(CancellationToken token)
@@ -111,37 +107,47 @@ namespace DefaultActivities
                         int stepId = 0;
                         Int32.TryParse(_attributes[ETL_STEPID], out stepId);
 
-                        string counterName = _attributes[COUNTER_NAME];
-
                         scmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
                         scmd.Parameters.AddWithValue("@processId", runId);
                         scmd.Parameters.AddWithValue("@sourceName", _attributes[FILE_SOURCE]);
-                        scmd.Parameters.AddWithValue("@count", _attributes[FILE_COUNT]);
+                        scmd.Parameters.AddWithValue("@count", 1);
 
                         var reader = scmd.ExecuteReader();
 
-                        if (reader.HasRows)
+                        dcn.Open();
+                        using (SqlCommand dcmd = new SqlCommand(SET_COUNTER_QUERY, dcn))
                         {
-                            dcn.Open();
-                            using (SqlCommand dcmd = new SqlCommand(SET_COUNTER_QUERY, dcn))
+                            dcmd.CommandType = CommandType.StoredProcedure;
+                            using (token.Register(dcmd.Cancel))
                             {
-                                dcmd.CommandType = CommandType.StoredProcedure;
-                                using (token.Register(dcmd.Cancel))
+
+                                dcmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
+                                dcmd.Parameters.AddWithValue("@pBatchId", batchId);
+                                dcmd.Parameters.AddWithValue("@pStepId", stepId);
+                                dcmd.Parameters.AddWithValue("@pRunId", runId);
+                                dcmd.Parameters.Add("@pName", SqlDbType.NVarChar, 100);
+                                dcmd.Parameters.Add("@pValue", SqlDbType.NVarChar, -1);
+
+                                if (reader.HasRows)
                                 {
-
-                                    dcmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                                    dcmd.Parameters.AddWithValue("@pBatchId", batchId);
-                                    dcmd.Parameters.AddWithValue("@pStepId", stepId);
-                                    dcmd.Parameters.AddWithValue("@pRunId", runId);
-                                    dcmd.Parameters.Add("@pName", SqlDbType.NVarChar, 100);
-                                    dcmd.Parameters.Add("@pValue", SqlDbType.NVarChar, -1);
-
                                     while (reader.Read())
                                     {
-                                        dcmd.Parameters["@pName"].SqlValue = String.Format("{0}_{1}", counterName, reader["fileId"]);
+                                        _logger.WriteDebug(String.Format("File to process id: {0}, name: {1}", reader["fileId"], reader["fullName"]));
+                                        dcmd.Parameters["@pName"].SqlValue = "fileId";
+                                        dcmd.Parameters["@pValue"].SqlValue = reader["fileId"];
+                                        dcmd.ExecuteNonQuery();
+                                        dcmd.Parameters["@pName"].SqlValue = String.Format("fileName_{0}", reader["fileId"]);
                                         dcmd.Parameters["@pValue"].SqlValue = reader["fullName"];
                                         dcmd.ExecuteNonQuery();
                                     }
+                                }
+                                else
+                                {
+                                    _logger.WriteDebug("No files to process");
+                                    dcmd.Parameters["@pName"].SqlValue = "fileId";
+                                    dcmd.Parameters["@pValue"].SqlValue = "0";
+                                    dcmd.ExecuteNonQuery();
+
                                 }
                             }
 

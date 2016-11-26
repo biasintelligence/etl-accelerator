@@ -97,9 +97,13 @@ namespace ControllerRuntime
 
 
 
-                if (_status.StatusCode == WfStatus.Succeeded
+                if (result.StatusCode == WfStatus.Succeeded
                     && _step.StepOnSuccessProcess != null)
                 {
+
+                    _logger.Write(String.Format("On step success"));
+                    _logger.WriteDebug(String.Format("On success process - {0}", _step.StepOnSuccessProcess.Process));
+
                     if ((_step.StepOnSuccessProcess.ScopeId & 3) == 0)
                         throw new ArgumentException(String.Format("OnSuccess Process is not of correct scope 1100 = {0}", _step.StepOnSuccessProcess.ScopeId));
 
@@ -120,6 +124,10 @@ namespace ControllerRuntime
                 else if (result.StatusCode == WfStatus.Failed
                    && _step.StepOnFailureProcess != null)
                 {
+
+                    _logger.Write(String.Format("On step failure"));
+                    _logger.WriteDebug(String.Format("On failure process - {2}", _step.StepOnFailureProcess.Process));
+
                     if ((_step.StepOnFailureProcess.ScopeId & 3) == 0)
                         throw new ArgumentException(String.Format("OnSuccess Process is not of correct scope 1100 = {0}", _step.StepOnFailureProcess.ScopeId));
 
@@ -179,11 +187,22 @@ namespace ControllerRuntime
                     }
                     catch (ThreadAbortException ex)
                     {
-                        throw ex;
+                        logger.WriteError(String.Format("ThreadAbortException: {0}", ex.Message), ex.HResult);
+                    }
+                    catch (AggregateException aex)
+                    {
+                        logger.WriteError(String.Format("AggregateException: {0}", aex.Message), aex.HResult);
+                        foreach (var ex in aex.InnerExceptions)
+                        {
+                            logger.WriteError(String.Format("InnerException: {0}", ex.Message), ex.HResult);
+                        }
+                        result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
                     }
                     catch (Exception ex)
                     {
-                        throw ex;
+
+                        logger.WriteError(String.Format("Exception: {0}", ex.Message), ex.HResult);
+                        result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
                     }
                     return result;
                 }

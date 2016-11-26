@@ -215,6 +215,14 @@ BEGIN
        AND EXISTS(SELECT 1 FROM @ab ab WHERE ab.aid = @id and ab.isexec = 1))
    BEGIN
       SET @nValue = 'select top 1 @value = (' + @Value1 + ')'
+
+	  IF (@debug IS NOT NULL)
+	  BEGIN
+		  SET @msg = 'Evaluate attribute: ' + @Name + ' = ' + @Value1
+		  exec @ProcErr = dbo.[prc_CreateProcessInfo] @ProcessInfo out,@Header,@msg
+		  exec @ProcErr = dbo.[prc_Print] @ProcessInfo,@handle
+	  END
+
       SET @Value2 = null
       EXEC sp_executesql @nValue,N'@value varchar(max) output',@value = @value2 out
 
