@@ -77,8 +77,16 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            CompressTGZ(_attributes[INPUT_FILE], _attributes[ARCHIVE_NAME], _attributes[OUTPUT_FOLDER], token);
-            result = WfResult.Succeeded;
+            using (var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(Int32.Parse(_attributes[TIMEOUT]))))
+            {
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, token))
+                {
+                    CompressTGZ(_attributes[INPUT_FILE], _attributes[ARCHIVE_NAME], _attributes[OUTPUT_FOLDER], token);
+                    result = WfResult.Succeeded;
+                }
+            }
+
+
 
             return result;
         }
@@ -90,8 +98,7 @@ namespace DefaultActivities
             string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
-                if (token.IsCancellationRequested)
-                    break;
+                token.ThrowIfCancellationRequested();
 
                 FileInfo fileToCompress = new FileInfo(file);
                 string outputFile = Path.Combine(output, fileToCompress.Name + ".gz");
@@ -152,9 +159,8 @@ namespace DefaultActivities
                             string[] files = Directory.GetFiles(sourceDirectory, Path.GetFileName(input), SearchOption.TopDirectoryOnly);
                             foreach (string file in files)
                             {
-                                if (token.IsCancellationRequested)
-                                    break;
-
+                                token.ThrowIfCancellationRequested();
+ 
                                 tarEntry = TarEntry.CreateEntryFromFile(file);
                                 tarArchive.WriteEntry(tarEntry, true);
                             }
@@ -163,13 +169,6 @@ namespace DefaultActivities
                         {
                             throw ex;
                         }
-                        //finally
-                        //{
-                        //    tarArchive.Close();
-                        //    gzoStream.Close();
-                        //    outStream.Close();
-                        //}
-
                     }
                 }
 

@@ -21,6 +21,8 @@ begin
 	,(32,'DefaultActivities.DefaultActivities.FileGetProcessListActivity',null,15)
 	,(33,'DefaultActivities.DefaultActivities.FileSetProgressStatusActivity','FileStatus=>OnSuccessStatus,FileStatus',15)
 	,(34,'DefaultActivities.DefaultActivities.FileSetProgressStatusActivity','FileStatus=>OnFailureStatus,FileStatus',15)
+	,(35,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>OnSuccessQuery,Query',15)
+	,(36,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>OnFailureQuery,Query',15)
 
 
 

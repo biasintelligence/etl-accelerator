@@ -77,8 +77,15 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            BsonToJson(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
-            result = WfResult.Succeeded;
+            using (var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(Int32.Parse(_attributes[TIMEOUT]))))
+            {
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, token))
+                {
+
+                    BsonToJson(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], linkedCts.Token);
+                    result = WfResult.Succeeded;
+                }
+            }
 
             return result;
         }
@@ -90,8 +97,7 @@ namespace DefaultActivities
             string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
-                if (token.IsCancellationRequested)
-                    break;
+                token.ThrowIfCancellationRequested();
 
                 FileInfo fileToConvert = new FileInfo(file);
                 string outputFile = Path.Combine(output, Path.GetFileNameWithoutExtension(file) + ".json");
@@ -110,6 +116,8 @@ namespace DefaultActivities
                             {
                                 while (!reader.IsAtEndOfFile())
                                 {
+                                    token.ThrowIfCancellationRequested();
+
                                     var bson = BsonSerializer.Deserialize<BsonDocument>(reader);
                                     string json = bson.ToJson(new JsonWriterSettings() { OutputMode = JsonOutputMode.Strict });
                                     writer.Write(json);

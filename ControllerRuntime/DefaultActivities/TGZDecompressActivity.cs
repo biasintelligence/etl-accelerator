@@ -90,8 +90,7 @@ namespace DefaultActivities
             string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
-                if (token.IsCancellationRequested)
-                    break;
+                token.ThrowIfCancellationRequested();
                 //fileToDecompress.Name.Remove(fileToDecompress.FullName.Length - fileToDecompress.Extension.Length
                 FileInfo fileToDecompress = new FileInfo(file);
                 string outputFile = Path.Combine(output, Path.GetFileNameWithoutExtension(file));
@@ -116,8 +115,7 @@ namespace DefaultActivities
             string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)
             {
-                if (token.IsCancellationRequested)
-                    break;
+                token.ThrowIfCancellationRequested();
 
                 using (Stream inStream = File.OpenRead(file))
                 {
@@ -133,12 +131,6 @@ namespace DefaultActivities
                             {
                                 throw ex;
                             }
-                            //finally
-                            //{
-                            //    tarArchive.Close();
-                            //    gzipStream.Close();
-                            //    inStream.Close();
-                            //}
                         }
                     }
                 }

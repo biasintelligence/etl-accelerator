@@ -63,14 +63,6 @@ union all select @BatchID,'ActivityLocation','.\'
 union all select @BatchID,'StepId','0'
 union all select @BatchID,'GetFileId'	,'isnull(dbo.fn_etlCounterGet(<@batchID>,<StepId>,<@runID>,''fileId''),''0'')'
 union all select @BatchID,'GetFileName'	,'isnull(dbo.fn_etlCounterGet(<etl:batchId>,<StepId>,<etl:runId>,''fileName_<getFileId*>''),'''')'
-union all select @BatchID,'CheckWorkloadStatus','
-if (0 = isnull(dbo.fn_ETLCounterGet (<@BatchID>,<StepId>,<@RunID>,''fileId''),0))
-begin
-	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''ExitEvent'',''2'';
-	exec dbo.prc_ETLCounterSet <@BatchID>,0,<@RunID>,''BreakEvent'',<etl:LoopGroup>;
-end
-'
-
 
 
 union all select @BatchID,'Inputdir'	,'<Path*>\ZipFiles'
