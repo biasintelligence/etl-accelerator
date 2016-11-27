@@ -23,6 +23,7 @@ begin
 	,(34,'DefaultActivities.DefaultActivities.FileSetProgressStatusActivity','FileStatus=>OnFailureStatus,FileStatus;Timeout=>Timeout,etl:Timeout',15)
 	,(35,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>OnSuccessQuery,Query;Timeout=>Timeout,etl:Timeout',15)
 	,(36,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>OnFailureQuery,Query;Timeout=>Timeout,etl:Timeout',15)
+	,(37,'DefaultActivities.DefaultActivities.BsonSqlLoaderActivity','Timeout=>Timeout,etl:Timeout',15)
 
 
 

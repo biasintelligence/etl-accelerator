@@ -95,39 +95,39 @@ namespace DefaultActivities
                 using (SqlCommand scmd = new SqlCommand(GET_LIST_QUERY, scn))
                 {
                     scmd.CommandType = CommandType.StoredProcedure;
+
+                    int runId = 0;
+                    Int32.TryParse(_attributes[ETL_RUNID], out runId);
+
+                    int batchId = 0;
+                    Int32.TryParse(_attributes[ETL_BATCHID], out batchId);
+
+                    int stepId = 0;
+                    Int32.TryParse(_attributes[ETL_STEPID], out stepId);
+
+                    scmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
+                    scmd.Parameters.AddWithValue("@processId", runId);
+                    scmd.Parameters.AddWithValue("@sourceName", _attributes[FILE_SOURCE]);
+                    scmd.Parameters.AddWithValue("@count", 1);
+
                     using (token.Register(scmd.Cancel))
                     {
-
-                        int runId = 0;
-                        Int32.TryParse(_attributes[ETL_RUNID], out runId);
-
-                        int batchId = 0;
-                        Int32.TryParse(_attributes[ETL_BATCHID], out batchId);
-
-                        int stepId = 0;
-                        Int32.TryParse(_attributes[ETL_STEPID], out stepId);
-
-                        scmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                        scmd.Parameters.AddWithValue("@processId", runId);
-                        scmd.Parameters.AddWithValue("@sourceName", _attributes[FILE_SOURCE]);
-                        scmd.Parameters.AddWithValue("@count", 1);
-
                         var reader = scmd.ExecuteReader();
 
                         dcn.Open();
                         using (SqlCommand dcmd = new SqlCommand(SET_COUNTER_QUERY, dcn))
                         {
                             dcmd.CommandType = CommandType.StoredProcedure;
+
+                            dcmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
+                            dcmd.Parameters.AddWithValue("@pBatchId", batchId);
+                            dcmd.Parameters.AddWithValue("@pStepId", stepId);
+                            dcmd.Parameters.AddWithValue("@pRunId", runId);
+                            dcmd.Parameters.Add("@pName", SqlDbType.NVarChar, 100);
+                            dcmd.Parameters.Add("@pValue", SqlDbType.NVarChar, -1);
+
                             using (token.Register(dcmd.Cancel))
                             {
-
-                                dcmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                                dcmd.Parameters.AddWithValue("@pBatchId", batchId);
-                                dcmd.Parameters.AddWithValue("@pStepId", stepId);
-                                dcmd.Parameters.AddWithValue("@pRunId", runId);
-                                dcmd.Parameters.Add("@pName", SqlDbType.NVarChar, 100);
-                                dcmd.Parameters.Add("@pValue", SqlDbType.NVarChar, -1);
-
                                 if (reader.HasRows)
                                 {
                                     while (reader.Read())

@@ -85,23 +85,23 @@ namespace DefaultActivities
                 using (SqlCommand cmd = new SqlCommand(REGISTRATION_QUERY, cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+
+                    int fileId = 0;
+                    Int32.TryParse(_attributes[FILE_ID], out fileId);
+                    int runId = 0;
+                    Int32.TryParse(_attributes[ETL_RUNID], out runId);
+
+
+                    cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
+                    cmd.Parameters.AddWithValue("@processId", runId);
+                    cmd.Parameters.AddWithValue("@fileId", fileId);
+                    cmd.Parameters.AddWithValue("@ProgressStatusName", _attributes[FILE_STATUS]);
+
                     using (token.Register(cmd.Cancel))
                     {
-
-                        int fileId = 0;
-                        Int32.TryParse(_attributes[FILE_ID], out fileId);
-                        int runId = 0;
-                        Int32.TryParse(_attributes[ETL_RUNID], out runId);
-
-
-                        cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                        cmd.Parameters.AddWithValue("@processId", runId);
-                        cmd.Parameters.AddWithValue("@fileId", fileId);
-                        cmd.Parameters.AddWithValue("@ProgressStatusName", _attributes[FILE_STATUS]);
-
                         cmd.ExecuteNonQuery();
-                        result = WfResult.Succeeded;
                     }
+                    result = WfResult.Succeeded;
                 }
             }
             catch (SqlException ex)

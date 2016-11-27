@@ -40,9 +40,9 @@ namespace DefaultActivities
                 cn.Open();
                 using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
                 {
+                    cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
                     using (token.Register(cmd.Cancel))
                     {
-                        cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
                         var value = cmd.ExecuteScalar();
 
                         int int_value;

@@ -70,6 +70,26 @@ namespace ControllerRuntimeTest
         }
 
         [TestMethod]
+        public void BsonSqlLoader_Ok()
+        {
+            BsonSqlLoaderActivity activity = new BsonSqlLoaderActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.\sql14; Database=etl_staging; Trusted_Connection=True; Connection Timeout=120; "));
+            list.Add(new WorkflowAttribute("InputFile", "C:\\Builds\\UnzipFiles\\mongobackup_10-19-2016-230145\\edxapp\\fs.files.bson"));
+            list.Add(new WorkflowAttribute("TableName", "dbo.staging_bson_test"));
+            list.Add(new WorkflowAttribute("Timeout", "600"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
+
+
+        [TestMethod]
         public void FileRegister_Ok()
         {
             FileRegisterActivity activity = new FileRegisterActivity();

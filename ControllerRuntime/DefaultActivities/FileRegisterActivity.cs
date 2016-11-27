@@ -100,11 +100,14 @@ namespace DefaultActivities
                         cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
                         cmd.Parameters.AddWithValue("@processId", runId);
                         cmd.Parameters.AddWithValue("@priority", priority);
-                        var param = cmd.Parameters.AddWithValue("@list", FileRegisterList.ToDataTable(files,_attributes[FILE_SOURCE]));
+                        var param = cmd.Parameters.AddWithValue("@list", FileRegisterList.ToDataTable(files, _attributes[FILE_SOURCE]));
                         param.SqlDbType = SqlDbType.Structured;
                         param.TypeName = FileRegisterList.TypeName;
 
-                        cmd.ExecuteNonQuery();
+                        using (token.Register(cmd.Cancel))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
                         result = WfResult.Succeeded;
                     }
                 }

@@ -70,31 +70,33 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            SqlConnection cn = new SqlConnection(_attributes[CONNECTION_STRING]);
-            try
+            using (SqlConnection cn = new SqlConnection(_attributes[CONNECTION_STRING]))
             {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
+                try
                 {
-                    using (token.Register(cmd.Cancel))
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
                     {
                         cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                        cmd.ExecuteNonQuery();
+                        using (token.Register(cmd.Cancel))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
                         result = WfResult.Succeeded;
                     }
                 }
-            }
-            catch (SqlException ex)
-            {
-                throw ex;
-                //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
-                //result = WfResult.Create(WfStatus.Failed, ex.Message, ex.ErrorCode);
-            }
-            finally
-            {
-                if (cn.State != ConnectionState.Closed)
-                    cn.Close();
+                catch (SqlException ex)
+                {
+                    throw ex;
+                    //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
+                    //result = WfResult.Create(WfStatus.Failed, ex.Message, ex.ErrorCode);
+                }
+                finally
+                {
+                    if (cn.State != ConnectionState.Closed)
+                        cn.Close();
 
+                }
             }
             return result;
         }

@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BsonConverterActivity.cs" />
+    <Compile Include="BsonSqlLoaderActivity.cs" />
     <Compile Include="CheckFileActivity.cs" />
     <Compile Include="ConsoleActivity.cs" />
     <Compile Include="DeltaExtractorActivity.cs" />
