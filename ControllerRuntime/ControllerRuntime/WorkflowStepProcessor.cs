@@ -126,10 +126,10 @@ namespace ControllerRuntime
                 {
 
                     _logger.Write(String.Format("On step failure"));
-                    _logger.WriteDebug(String.Format("On failure process - {2}", _step.StepOnFailureProcess.Process));
+                    _logger.WriteDebug(String.Format("On failure process - {0}", _step.StepOnFailureProcess.Process));
 
                     if ((_step.StepOnFailureProcess.ScopeId & 3) == 0)
-                        throw new ArgumentException(String.Format("OnSuccess Process is not of correct scope 1100 = {0}", _step.StepOnFailureProcess.ScopeId));
+                        throw new ArgumentException(String.Format("OnFailure Process is not of correct scope 1100 = {0}", _step.StepOnFailureProcess.ScopeId));
 
                     //Run OnFailure Activity here
                     if (attributes == null)
