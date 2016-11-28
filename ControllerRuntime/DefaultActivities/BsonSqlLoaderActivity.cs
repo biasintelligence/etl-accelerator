@@ -39,11 +39,12 @@ namespace DefaultActivities
         private const string TABLE_NAME = "TableName";
         private const string INPUT_FILE = "InputFile";
         private const string TIMEOUT = "Timeout";
+        private const string RUNID = "@RunId";
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private IWorkflowLogger _logger;
-        private List<string> _required_attributes = new List<string>() { CONNECTION_STRING, TABLE_NAME, INPUT_FILE, TIMEOUT };
+        private List<string> _required_attributes = new List<string>() { CONNECTION_STRING, TABLE_NAME, INPUT_FILE, TIMEOUT, RUNID };
 
         #region IWorkflowActivity
         public string[] RequiredAttributes
@@ -94,9 +95,11 @@ namespace DefaultActivities
 
         private void BsonToSql(string tableName,string input, CancellationToken token)
         {
-            const string QUERY = @"insert {0} (fileName,document) values (@fileName,@document);";
             const string PARAM_FILENAME = "@fileName";
             const string PARAM_DOCUMENT = "@document";
+            const string PARAM_PROCESSID = "@processId";
+
+            const string QUERY = @"insert {0} (fileName,document,processId) values (@fileName,@document,@processId);";
 
 
             using (var cn = new SqlConnection(_attributes[CONNECTION_STRING]))
@@ -108,7 +111,9 @@ namespace DefaultActivities
                     {
 
                         cmd.Parameters.Add(PARAM_FILENAME, SqlDbType.NVarChar, 500);
-                        cmd.Parameters.Add(PARAM_DOCUMENT, SqlDbType.NVarChar,-1);
+                        cmd.Parameters.Add(PARAM_DOCUMENT, SqlDbType.NVarChar, -1);
+                        var param = cmd.Parameters.Add(PARAM_PROCESSID, SqlDbType.Int);
+                        param.Value = Int32.Parse(_attributes[RUNID]);
                         cmd.Prepare();
                         using (token.Register(cmd.Cancel))
                         {
@@ -167,7 +172,7 @@ namespace DefaultActivities
             }
         }
 
-        private void CheckTable(string tableName,CancellationToken token)
+        private void CheckTable(string tableName, CancellationToken token)
         {
             const string QUERY = @"
 declare @tableName sysname = '{0}';
@@ -178,6 +183,7 @@ begin
 	+ ' (recId int identity(1,1) primary key'
 	+ ' ,fileName nvarchar(500) not null'
 	+ ' ,document nvarchar(max) null'
+	+ ' ,processId int null default 0'
 	+ ' ,createDt datetime not null default getdate()'
 	+ ' ,changeDt datetime null default getdate()'
 	+ ' ,changeBy nvarchar(30) not null default suser_sname()'
@@ -186,13 +192,15 @@ begin
 end
 else
 begin
-	if (3 <> (select count(*) as cnt from sys.columns
+
+	if (4 <> (select count(*) as cnt from sys.columns
 				where [object_Id] = @objectId
-				  and name in ('recId','fileName','document')))
+				  and name in ('recId','fileName','document','processId')))
 	begin
 	declare @msg nvarchar(1000) = 'Table is not in correct format: ' + @tableName;
 		throw 50001, @msg, 1;
 	end
+
 end
 ";
 
@@ -201,7 +209,7 @@ end
                 try
                 {
                     cn.Open();
-                    using (SqlCommand cmd = new SqlCommand(String.Format(QUERY, @tableName), cn))
+                    using (SqlCommand cmd = new SqlCommand(String.Format(QUERY, tableName), cn))
                     {
                         cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
                         using (token.Register(cmd.Cancel))

@@ -58,7 +58,7 @@ union all select @BatchID,'LocalDB'			,'db_name()'
 union all select @BatchID,'Control.Server'	,'<LocalServer*>'
 union all select @BatchID,'Control.Database','<LocalDB*>'
 union all select @BatchID,'Controller.ConnectionString','Server=<Control.Server>;Database=<Control.Database>;Trusted_Connection=True;Connection Timeout=30;'
-union all select @BatchID,'Staging.ConnectionString','Server=<Control.Server>;Database=ETL_Staging;Trusted_Connection=True;Connection Timeout=30;'
+union all select @BatchID,'Staging.ConnectionString','Server=<Control.Server>;Database=OXAStaging;Trusted_Connection=True;Connection Timeout=30;'
 union all select @BatchID,'ActivityLocation','.\'
 --operational
 union all select @BatchID,'GetFileId'	,'isnull(dbo.fn_etlCounterGet(<@batchID>,<@StepId>,<@runID>,''fileId''),''0'')'
@@ -66,13 +66,18 @@ union all select @BatchID,'Workload_workingDir'	,'' --placeholder for workload w
 union all select @BatchID,'Workload_fileId'	,'' --placeholder for workload input file id
 union all select @BatchID,'Workload_fileName'	,'' --placeholder for workload input file name
 
-union all select @BatchID,'InputDir'	,'<Path*>\ZipFiles'
+--staging file processing connection
+union all select @BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
+--activity controller connection
+union all select @BatchId,'ConnectionString','<Controller.ConnectionString>'
+
+union all select @BatchID,'InputDir'	,'\\mslt-319\e$\Powershell\OPENEDX\Mongo'
 union all select @BatchID,'SourcePrefix'	,'mongobackup'
 union all select @BatchID,'SourceExt'	,'.tar.gz'
 union all select @BatchID,'SourcePattern'	,'<SourcePrefix>_*<SourceExt>'
 union all select @BatchID,'SourceName'	,'<SourcePrefix>_TGZ'
-union all select @BatchID,'UnzipDir'	,'<Path*>\TempFiles'
-union all select @BatchID,'OutputDir'	,'<Path*>\OutputMongoFiles'
+union all select @BatchID,'UnzipDir'	,'E:\Data\Oxa\UnGz'
+union all select @BatchID,'OutputDir'	,'E:\Data\Oxa\Output'
 
 
 -------------------------------------------------------
@@ -94,15 +99,15 @@ select 2,@BatchID,'ST011','processor: get workload',32,35,34,null,'011'
 union all
 select 3,@BatchID,'ST012','processor: decompress',29,null,34,null,'012'
 union all
-select 4,@BatchID,'ST013','processor: load staging edxapp fs.chunks ',30,null,34,null,'013'
+select 4,@BatchID,'ST013','processor: load staging edxapp fs.chunks ',37,null,34,null,'013'
 union all
-select 5,@BatchID,'ST014','processor: load staging edxapp fs.files ',30,null,34,null,'014'
+select 5,@BatchID,'ST014','processor: load staging edxapp fs.files ',37,null,34,null,'014'
 union all
-select 6,@BatchID,'ST015','processor: load staging edxapp modulestore.active_versions ',30,null,34,null,'015'
+select 6,@BatchID,'ST015','processor: load staging edxapp modulestore.active_versions ',37,null,34,null,'015'
 union all
-select 7,@BatchID,'ST016','processor: load staging edxapp modulestore.definitions ',30,null,34,null,'016'
+select 7,@BatchID,'ST016','processor: load staging edxapp modulestore.definitions ',37,null,34,null,'016'
 union all
-select 8,@BatchID,'ST017','processor: load staging edxapp modulestore.structures ',30,null,34,null,'017'
+select 8,@BatchID,'ST017','processor: load staging edxapp modulestore.structures ',37,null,34,null,'017'
 union all
 select 9,@BatchID,'ST018','processor: finalize ',33,null,null,null,'018'
 union all
@@ -117,9 +122,7 @@ set identity_insert dbo.ETLStep off
 insert dbo.ETLStepAttribute
 (StepID,BatchID,AttributeName,AttributeValue)
 --Check for new files
-		  select 1,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 1,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
-union all select 1,@BatchId,'RegisterPath','<Inputdir>\<SourcePattern>'
+		  select 1,@BatchId,'RegisterPath','<Inputdir>\<SourcePattern>'
 union all select 1,@BatchId,'ProcessPriority','0'
 union all select 1,@BatchId,'Timeout','30'
 
@@ -127,8 +130,6 @@ union all select 1,@BatchID,'DISABLED','0'
 union all select 1,@BatchID,'PRIGROUP','01'
 
 --Workload processor
-union all select 2,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 2,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
 union all select 2,@BatchId,'Timeout','30'
 --on success skip workload steps and break loop if no more work found
 --or configure workload steps for new work
@@ -166,8 +167,6 @@ union all select 2,@BatchID,'PRIGROUP','02'
 union all select 2,@BatchID,'LOOPGROUP','1'
 
 --upzip
-union all select 3,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 3,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
 union all select 3,@BatchId,'InputFile','<Workload_fileName>' -- file name for this workload
 union all select 3,@BatchId,'OutputFolder','<UnzipDir>' --destination folder
 --on failure
@@ -179,9 +178,10 @@ union all select 3,@BatchID,'PRIGROUP','021'
 union all select 3,@BatchID,'LOOPGROUP','1'
 
 --load edxapp fs.chunks
-union all select 4,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 4,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\fs.chunks.bson' -- bson converter input
-union all select 4,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 4,@BatchId,'localName','fs.chunks'
+union all select 4,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\<localName>.bson' -- bson converter input
+--union all select 4,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 4,@BatchId,'TableName','dbo.[<SourcePrefix>.<localName>]' --destination table
 --on failure
 union all select 4,@BatchId,'FileId','<Workload_fileId>' -- workload fileId
 union all select 4,@BatchId,'OnFailureStatus','Failed'
@@ -191,9 +191,10 @@ union all select 4,@BatchID,'PRIGROUP','03'
 union all select 4,@BatchID,'LOOPGROUP','1'
 
 --load edxapp fs.files
-union all select 5,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 5,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\fs.files.bson' -- bson converter input
-union all select 5,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 5,@BatchId,'localName','fs.files'
+union all select 5,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\<localName>.bson' -- bson converter input
+--union all select 5,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 5,@BatchId,'TableName','dbo.[<SourcePrefix>.<localName>]' --destination table
 --on failure
 union all select 5,@BatchId,'FileId','<Workload_fileId>' -- workload fileId
 union all select 5,@BatchId,'OnFailureStatus','Failed'
@@ -203,9 +204,10 @@ union all select 5,@BatchID,'PRIGROUP','03'
 union all select 5,@BatchID,'LOOPGROUP','1'
 
 --load edxapp modulestore.active_versions
-union all select 6,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 6,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\modulestore.active_versions.bson' -- bson converter input
-union all select 6,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 6,@BatchId,'localName','modulestore.active_versions'
+union all select 6,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\<localName>.bson' -- bson converter input
+--union all select 6,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 6,@BatchId,'TableName','dbo.[<SourcePrefix>.<localName>]' --destination table
 --on failure
 union all select 6,@BatchId,'FileId','<Workload_fileId>' -- workload fileId
 union all select 6,@BatchId,'OnFailureStatus','Failed'
@@ -215,9 +217,10 @@ union all select 6,@BatchID,'PRIGROUP','03'
 union all select 6,@BatchID,'LOOPGROUP','1'
 
 --load edxapp modulestore.definitions
-union all select 7,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 7,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\modulestore.definitions.bson' -- bson converter input
-union all select 7,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 7,@BatchId,'localName','modulestore.definitions'
+union all select 7,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\<localName>.bson' -- bson converter input
+--union all select 7,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 7,@BatchId,'TableName','dbo.[<SourcePrefix>.<localName>]' --destination table
 --on failure
 union all select 7,@BatchId,'FileId','<Workload_fileId>' -- workload fileId
 union all select 7,@BatchId,'OnFailureStatus','Failed'
@@ -227,9 +230,10 @@ union all select 7,@BatchID,'PRIGROUP','03'
 union all select 7,@BatchID,'LOOPGROUP','1'
 
 --load edxapp modulestore.structures
-union all select 8,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 8,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\modulestore.structures.bson' -- bson converter input
-union all select 8,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 8,@BatchId,'localName','modulestore.structures'
+union all select 8,@BatchId,'InputFile','<UnzipDir>\<Workload_workingDir>\edxapp\<localName>.bson' -- bson converter input
+--union all select 8,@BatchId,'OutputFolder','<OutputDir>\<Workload_workingDir>' --destination folder
+union all select 8,@BatchId,'TableName','dbo.[<SourcePrefix>.<localName>]' --destination table
 --on failure
 union all select 8,@BatchId,'FileId','<Workload_fileId>' -- workload fileId
 union all select 8,@BatchId,'OnFailureStatus','Failed'
@@ -239,8 +243,6 @@ union all select 8,@BatchID,'PRIGROUP','03'
 union all select 8,@BatchID,'LOOPGROUP','1'
 
 --finalize load
-union all select 9,@BatchId,'ConnectionString','<Controller.ConnectionString>'
-union all select 9,@BatchId,'RegisterConnectionString','<Staging.ConnectionString>'
 union all select 9,@BatchId,'FileId','<Workload_fileId>' --workload fileId
 union all select 9,@BatchId,'FileStatus','Completed'
 
@@ -251,15 +253,12 @@ union all select 9,@BatchID,'LOOPGROUP','1'
 
 
 --workflow exit
-union all select 100,@BatchId,'ConnectionString','<Controller.ConnectionString>'
 union all select 100,@BatchId,'Query','
 exec prc_ApplicationLog @pMessage = ''Workflow is completed'',@pErr = 0, @pBatchId = <@BatchId>,@pStepId = <@StepId>,@pRunId=<@RunId>;
 '
 union all select 100,@BatchId,'Timeout','30'
 union all select 100,@BatchID,'DISABLED','0'
 union all select 100,@BatchID,'PRIGROUP','99'
-
-
 
 end try
 begin catch
