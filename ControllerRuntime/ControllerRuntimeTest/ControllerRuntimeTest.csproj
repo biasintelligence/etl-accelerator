@@ -73,7 +73,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestFiles\Mongo1001.sql" />
     <Content Include="TestFiles\ProcessInstall.sql" />
     <Content Include="TestFiles\TestWorkflow100.sql" />
     <Content Include="TestFiles\TestWorkflow101.sql" />
