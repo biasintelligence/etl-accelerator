@@ -164,7 +164,7 @@ order by constId;
 set @Script += '
 set identity_insert dbo.ETLBatchConstraint on
 insert dbo.ETLBatchConstraint
-(BatchID,ConstID,,ProcessID,ConstOrder,WaitPeriod)
+(BatchID,ConstID,ProcessID,ConstOrder,WaitPeriod)
 values
 ' + right(@sql,len(@sql) - 1) + ';
 set identity_insert dbo.ETLBatchConstraint off;
