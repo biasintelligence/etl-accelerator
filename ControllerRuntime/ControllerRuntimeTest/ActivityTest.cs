@@ -152,6 +152,24 @@ namespace ControllerRuntimeTest
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
 
+        [TestMethod]
+        public void DERun_Ok()
+        {
+            DeltaExtractorActivity activity = new DeltaExtractorActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=mslt-300\LEXBIDEV; Database=etl_controller; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("@BatchId", "1002"));
+            list.Add(new WorkflowAttribute("@StepId", "1"));
+            list.Add(new WorkflowAttribute("@RunId", "0"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
 
 
     }
