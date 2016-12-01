@@ -331,7 +331,7 @@ namespace ControllerRuntime
             while (1 == 1)
             {
                 //max thread constraint
-                if (_workflow.MaxThreads < base_status_set.Count(kvp => kvp.Value.StatusCode == WfStatus.Running))
+                if (_workflow.MaxThreads <= base_status_set.Count(kvp => kvp.Value.StatusCode == WfStatus.Running))
                     break;
                 //all steps submitted
                 if (0 == base_status_set.Count(kvp => kvp.Value.StatusCode == WfStatus.Unknown))
