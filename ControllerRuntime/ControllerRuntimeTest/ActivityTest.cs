@@ -158,7 +158,7 @@ namespace ControllerRuntimeTest
             DeltaExtractorActivity activity = new DeltaExtractorActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("ConnectionString", @"Server=mslt-300\LEXBIDEV; Database=etl_controller; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=localhost; Database=etl_controller; Trusted_Connection = True; Connection Timeout = 120; "));
             list.Add(new WorkflowAttribute("@BatchId", "1002"));
             list.Add(new WorkflowAttribute("@StepId", "1"));
             list.Add(new WorkflowAttribute("@RunId", "0"));

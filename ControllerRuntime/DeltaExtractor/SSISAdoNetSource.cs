@@ -29,7 +29,7 @@ namespace BIAS.Framework.DeltaExtractor
             cm.ConnectionString = dbsrc.ConnectionString;
             cm.Description = dbsrc.Description;
             //cm.Qualifier = "System.Data.SqlClient.SqlConnection, System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
-            //cm.Qualifier = dbsrc.DBConnection.Qualifier;
+            cm.Qualifier = dbsrc.DBConnection.Qualifier;
 
             IDTSComponentMetaData100 comp = this.MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
