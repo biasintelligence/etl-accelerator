@@ -36,11 +36,14 @@ namespace DefaultActivities
         private const string INPUT_FILE = "InputFile";
         private const string OUTPUT_FOLDER = "OutputFolder";
         private const string TIMEOUT = "Timeout";
+        private const string DECOMPRESS_MODE = "Mode"; //supported gz = .gz,tgz = .tar.gz
+
+        private List<string> supported_mode = new List<string>(){ "gz", "tgz" };
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private IWorkflowLogger _logger;
-        private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, TIMEOUT };
+        private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, TIMEOUT, DECOMPRESS_MODE };
 
         #region IWorkflowActivity
         public string[] RequiredAttributes
@@ -63,11 +66,16 @@ namespace DefaultActivities
             {
                 if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
                     _attributes.Add(attribute.Name, attribute.Value);
+
+                if (attribute.Name.Equals(DECOMPRESS_MODE, StringComparison.InvariantCultureIgnoreCase)
+                    && !supported_mode.Contains(attribute.Value.ToLower()))
+                {
+                    throw new ArgumentException(String.Format("Unsupported {0}: {1}",DECOMPRESS_MODE, attribute.Value));
+                }
+
             }
 
-
-
-            _logger.Write(String.Format("TGZ: {0} => {1}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER]));
+            _logger.Write(String.Format("TGZ mode:{2}: {0} => {1}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], _attributes[DECOMPRESS_MODE]));
 
         }
 
@@ -76,7 +84,17 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            DecompressTGZ(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
+            switch (_attributes[DECOMPRESS_MODE])
+            {
+                case "gz":
+                    Decompress(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
+                    break;
+                case "tgz":
+                    DecompressTGZ(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
+                    break;
+                default:
+                    throw new ArgumentException(String.Format("Unsupported {0}: {1}", DECOMPRESS_MODE, _attributes[DECOMPRESS_MODE]));
+            }
             result = WfResult.Succeeded;
 
             return result;

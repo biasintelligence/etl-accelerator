@@ -39,8 +39,9 @@ namespace ControllerRuntimeTest
             TGZDecompressActivity activity = new TGZDecompressActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\ZipFiles\\*.tar.gz"));
+            list.Add(new WorkflowAttribute("InputFile", "c:\\Builds\\ZipFiles\\test.tar.gz"));
             list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\UnzipFiles"));
+            list.Add(new WorkflowAttribute("Mode", "tgz"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);
