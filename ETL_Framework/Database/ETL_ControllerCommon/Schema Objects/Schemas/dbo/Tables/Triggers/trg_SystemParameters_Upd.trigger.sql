@@ -2,21 +2,11 @@
 /*
 ** Name:  [trg_SystemParameters_Upd]
 **
-** $Workfile: systemparameters.sql $
-** $Archive: /Development/SubjectAreas/WebUsage/Database/Schema/Table/Trigger/systemparameters.sql $
-**
 ** Purpose:
 **      This script creates a trigger on table [dbo].[SystemParameters].
 **  Issue warning messages about changes to the system parameters.  These
 **  errors should be trappable so that an operator can be notified of
 **  changes.
-**
-** $Author: Karlj $
-** $Revision: 4 $
-** $BuildVersion: $
-**
-** Copyright (c) Microsoft Corporation 1996-2000.
-** All rights reserved.
 **
 */
 
@@ -30,6 +20,7 @@ CREATE TRIGGER [trg_SystemParameters_Upd] ON [dbo].[SystemParameters] FOR UPDATE
     DECLARE @ParameterName varchar(57)
     DECLARE @ParameterValue_Current varchar(1024)
     DECLARE @ParameterValue_New varchar(1024)
+	DECLARE @msg nvarchar(1000)
 
     /*
     ** Initialize the @ProcedureName for error messages.
@@ -71,10 +62,16 @@ CREATE TRIGGER [trg_SystemParameters_Upd] ON [dbo].[SystemParameters] FOR UPDATE
         BEGIN
 
             IF UPDATE(ParameterValue_Current)
-                RAISERROR (50025, 10, -1, @ProcedureName, @ParameterName, @ParameterValue_Current)
+			BEGIN
+				SET @msg = 'Operation is not allowed: update @ParameterName: ' + @ParameterName + ' = ' + @ParameterValue_Current;
+                RAISERROR (50025, @msg, 0,1);
+			END
 
             IF UPDATE(ParameterValue_New)
-                RAISERROR (50024, 10, -1, @ProcedureName, @ParameterName, @ParameterValue_New)
+			BEGIN
+				SET @msg = 'Operation is not allowed: update @ParameterName: ' + @ParameterName + ' = ' + @ParameterValue_New;
+                RAISERROR (50025, @msg, 0,1);
+			END
 
             FETCH hC INTO @ParameterName, @ParameterValue_Current, @ParameterValue_New
 
