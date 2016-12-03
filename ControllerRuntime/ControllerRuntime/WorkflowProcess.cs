@@ -24,6 +24,8 @@ using System.Xml;
 using System.Collections;
 using System.Data;
 using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ControllerRuntime
 {
@@ -34,6 +36,8 @@ namespace ControllerRuntime
     public class WorkflowProcess
     {
 
+        IList<WorkflowParameter> parameters;
+        
         #region Elements
         private string process;
         [XmlElement("Process")]
@@ -49,7 +53,29 @@ namespace ControllerRuntime
         public string Param
         {
             get { return this.param; }
-            set { this.param = value; }
+            set
+            {
+                this.param = value;
+                if (value.Trim().StartsWith("[{"))
+                {
+                    try
+                    {
+                        JArray p = JArray.Parse(value);
+                        if (p.HasValues)
+                            parameters = JsonConvert.DeserializeObject<IList<WorkflowParameter>>(value);
+                    }
+                    catch
+                    {
+                        //ignore
+                    }
+                }
+                else
+                {
+                    parameters = LegacyDeserialize(value);
+                }
+                if (parameters == null)
+                    parameters = new List<WorkflowParameter>();
+            }
         }
         #endregion
         #region Attributes
@@ -69,8 +95,54 @@ namespace ControllerRuntime
             get { return this.scope_id; }
             set { this.scope_id = value; }
         }
+
+        public IList<WorkflowParameter> Parameters
+        {
+            get { return parameters; }
+        }
         #endregion
 
+        private List<WorkflowParameter> LegacyDeserialize(string param)
+        {
+            List<WorkflowParameter> list = new List<WorkflowParameter>();
+            Dictionary<string, string[]> dic = ParseParameterString(param);
+            foreach(var kvp in dic)
+            {
+                WorkflowParameter p = new WorkflowParameter();
+                p.Name = kvp.Key;
+                p.Override = new List<string>(kvp.Value);
+                list.Add(p);
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// parse param astring to the param map
+        /// </summary>
+        /// <param name="param">attr=>attr1,attr2;</param>
+        /// <returns>attribute map</returns>
+        private Dictionary<string, string[]> ParseParameterString(string param)
+        {
+            Dictionary<string, string[]> dic = new Dictionary<string, string[]>(StringComparer.InvariantCultureIgnoreCase);
+
+            if (String.IsNullOrEmpty(param))
+                return dic;
+
+            string[] map = param.Split(';');
+            foreach (string pair in map)
+            {
+                string[] kvp = pair.Split(new string[] { "=>" }, StringSplitOptions.None);
+                if (kvp.Length == 2
+                    && !String.IsNullOrEmpty(kvp[0])
+                    && !String.IsNullOrEmpty(kvp[1])
+                    )
+                {
+                    dic.Add(kvp[0], kvp[1].Split(','));
+                }
+            }
+            return dic;
+        }
 
     }
 }

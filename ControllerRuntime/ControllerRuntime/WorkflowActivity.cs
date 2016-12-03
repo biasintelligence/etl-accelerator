@@ -170,16 +170,18 @@ namespace ControllerRuntime
             if (required != null && required.Length > 0)
             {
 
-                Dictionary<string, string[]> map = ParseParameterString(_process.Param);
+                IList<WorkflowParameter> list = _process.Parameters;
                 foreach (string name in required)
                 {
 
                     ret = false;
                     string[] attr_list = { name };
+
+                    WorkflowParameter find = list.FirstOrDefault(p => p.Name == name);
                     //find if override exist
-                    if (map.Keys.Contains(name))
+                    if (find != null)
                     {
-                        attr_list = map[name];
+                        attr_list = find.Override.ToArray();
                     }
 
                     foreach (string attr_name in attr_list)
@@ -204,33 +206,5 @@ namespace ControllerRuntime
             args.RequiredAttributes = found.ToArray();
             return ret;
         }
-
-        /// <summary>
-        /// parse param astring to the param map
-        /// </summary>
-        /// <param name="param">attr=>attr1,attr2;</param>
-        /// <returns>attribute map</returns>
-        private Dictionary<string, string[]> ParseParameterString(string param)
-        {
-            Dictionary<string, string[]> dic = new Dictionary<string, string[]>(StringComparer.InvariantCultureIgnoreCase);
-
-            if (String.IsNullOrEmpty(param))
-                return dic;
-
-            string[] map = param.Split(';');
-            foreach (string pair in map)
-            {
-                string[] kvp = pair.Split(new string[] { "=>" }, StringSplitOptions.None);
-                if (kvp.Length == 2
-                    && !String.IsNullOrEmpty(kvp[0])
-                    && !String.IsNullOrEmpty(kvp[1])
-                    )
-                {
-                    dic.Add(kvp[0], kvp[1].Split(','));
-                }
-            }
-            return dic;
-        }
-
     }
 }

@@ -26,6 +26,22 @@ namespace ControllerRuntimeTest
 
         }
 
+        [TestMethod]
+        public void DeserializeParameter_Ok()
+        {
+            string json = @"
+[{'Name':'Attr1','Override':['Over1','Over2','Attr1'],'Default':'Na trasse vse spokoyno'}
+,{'Name':'Attr2','Override':['Over1','Attr2'],'Default':'no'}
+,{'Name':'Attr2','Override':['Attr2']}]
+";
+            WorkflowProcess p = new WorkflowProcess();
+            p.Param = json;
+
+            Assert.IsTrue(p.Parameters != null && p.Parameters.Count > 0);
+
+        }
+
+
     }
 }
 
