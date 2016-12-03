@@ -166,6 +166,7 @@ namespace ControllerRuntime
         {
             bool ret = true;
             List<WorkflowAttribute> found = new List<WorkflowAttribute>();
+            List<string> attr_list = new List<string>();
 
             if (required != null && required.Length > 0)
             {
@@ -175,30 +176,42 @@ namespace ControllerRuntime
                 {
 
                     ret = false;
-                    string[] attr_list = { name };
-
-                    WorkflowParameter find = list.FirstOrDefault(p => p.Name == name);
+                    WorkflowParameter curr_param = list.FirstOrDefault(p => p.Name.Equals(name,StringComparison.InvariantCultureIgnoreCase));
                     //find if override exist
-                    if (find != null)
+                    if (curr_param == null)
                     {
-                        attr_list = find.Override.ToArray();
+                        curr_param = new WorkflowParameter()
+                        {
+                            Name = name,
+                            Override = new List<string>() { name }
+                        };
                     }
 
-                    foreach (string attr_name in attr_list)
+                    if (curr_param.Override != null)
                     {
-
-                        if (_attributes.Keys.Contains(attr_name))
+                        foreach (string attr_name in curr_param.Override)
                         {
-                            found.Add(new WorkflowAttribute(name, _attributes[attr_name].Value));
-                            ret = true;
-                            break;
+                            if (_attributes.Keys.Contains(attr_name))
+                            {
+                                found.Add(new WorkflowAttribute(name, _attributes[attr_name].Value));
+                                ret = true;
+                                break;
+                            }
                         }
+
                     }
 
                     if (!ret)
                     {
-                        _logger.WriteError(String.Format("Attribute {0} is not found", name), -11);
-                        break;
+                        if (String.IsNullOrEmpty(curr_param.Default))
+                        {
+                            _logger.WriteError(String.Format("Attribute {0} is not found", name), -11);
+                            break;
+                        }
+                        else
+                        {
+                            found.Add(new WorkflowAttribute(name, curr_param.Default));
+                        }
                     }
                 }
             }

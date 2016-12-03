@@ -10,7 +10,8 @@ begin
 	,(22,'DefaultActivities.DefaultActivities.CheckFileActivity',null,12)
 	,(23,'DefaultActivities.DefaultActivities.ConsoleActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(24,'DefaultActivities.DefaultActivities.DeltaExtractorActivity','ConnectionString=>Controller.ConnectionString',3)
-	,(25,'DefaultActivities.DefaultActivities.WaitActivity','Timeout=>WaitTimeout',3)
+	--,(25,'DefaultActivities.DefaultActivities.WaitActivity','Timeout=>WaitTimeout',3)
+	,(25,'DefaultActivities.DefaultActivities.WaitActivity','[{"Name":"Timeout","Override":["WaitTimeout"]}]',3)
 	--this is OnSuccess/OnError substitute for #20,#23. For Example Query attribute is substituted with CleanUpQuery.
 	,(26,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>CleanUpQuery',3)
 	,(27,'DefaultActivities.DefaultActivities.ConsoleActivity','Console=>CleanUpConsole;Arg=>CleanUpArg',15)

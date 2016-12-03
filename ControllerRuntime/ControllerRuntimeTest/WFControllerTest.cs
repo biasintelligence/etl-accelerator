@@ -17,11 +17,11 @@ namespace ControllerRuntimeTest
         public void WFRun_Ok()
         {
             string runnerName = "UTTest";
-            string WFName = "Mongo1001";
+            string WFName = "Test100";
             WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
             wfp.ConnectionString = connectionString;
             wfp.WorkflowName = WFName;
-            WfResult wr = wfp.Run(new string[] { "debug","forcestart" });
+            WfResult wr = wfp.Run(new string[] { "debug" });
             Assert.IsTrue(wr.StatusCode == WfStatus.Succeeded);
 
         }

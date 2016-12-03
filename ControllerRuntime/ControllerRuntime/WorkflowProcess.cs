@@ -63,6 +63,7 @@ namespace ControllerRuntime
                         JArray p = JArray.Parse(value);
                         if (p.HasValues)
                             parameters = JsonConvert.DeserializeObject<IList<WorkflowParameter>>(value);
+
                     }
                     catch
                     {
@@ -75,6 +76,7 @@ namespace ControllerRuntime
                 }
                 if (parameters == null)
                     parameters = new List<WorkflowParameter>();
+
             }
         }
         #endregion
@@ -96,6 +98,12 @@ namespace ControllerRuntime
             set { this.scope_id = value; }
         }
 
+        /// <summary>
+        /// parsed process param
+        /// legacy format attr=>attr1,attr2;...
+        /// json array format [{Name:attr,Override:[attr1,attr2],Default:Value}...]
+        /// </summary>
+        /// <returns>list</returns>
         public IList<WorkflowParameter> Parameters
         {
             get { return parameters; }
