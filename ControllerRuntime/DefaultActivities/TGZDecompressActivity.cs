@@ -35,15 +35,16 @@ namespace DefaultActivities
     {
         private const string INPUT_FILE = "InputFile";
         private const string OUTPUT_FOLDER = "OutputFolder";
+        private const string OUTPUT_EXT = "OutputExt";
         private const string TIMEOUT = "Timeout";
         private const string DECOMPRESS_MODE = "Mode"; //supported gz = .gz,tgz = .tar.gz
 
-        private List<string> supported_mode = new List<string>(){ "gz", "tgz" };
+        private List<string> supported_mode = new List<string>() { "gz", "tgz" };
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private IWorkflowLogger _logger;
-        private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, TIMEOUT, DECOMPRESS_MODE };
+        private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, TIMEOUT, DECOMPRESS_MODE, OUTPUT_EXT };
 
         #region IWorkflowActivity
         public string[] RequiredAttributes
@@ -70,7 +71,7 @@ namespace DefaultActivities
                 if (attribute.Name.Equals(DECOMPRESS_MODE, StringComparison.InvariantCultureIgnoreCase)
                     && !supported_mode.Contains(attribute.Value.ToLower()))
                 {
-                    throw new ArgumentException(String.Format("Unsupported {0}: {1}",DECOMPRESS_MODE, attribute.Value));
+                    throw new ArgumentException(String.Format("Unsupported {0}: {1}", DECOMPRESS_MODE, attribute.Value));
                 }
 
             }
@@ -87,10 +88,10 @@ namespace DefaultActivities
             switch (_attributes[DECOMPRESS_MODE])
             {
                 case "gz":
-                    Decompress(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
+                    Decompress(token);
                     break;
                 case "tgz":
-                    DecompressTGZ(_attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], token);
+                    DecompressTGZ(token);
                     break;
                 default:
                     throw new ArgumentException(String.Format("Unsupported {0}: {1}", DECOMPRESS_MODE, _attributes[DECOMPRESS_MODE]));
@@ -102,8 +103,12 @@ namespace DefaultActivities
         #endregion
 
 
-        private void Decompress(string input, string output,CancellationToken token)
+        private void Decompress(CancellationToken token)
         {
+            string input = _attributes[INPUT_FILE];
+            string output = _attributes[OUTPUT_FOLDER];
+            string ext = _attributes[OUTPUT_EXT];
+            Directory.CreateDirectory(output);
 
             string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)
@@ -112,6 +117,7 @@ namespace DefaultActivities
                 //fileToDecompress.Name.Remove(fileToDecompress.FullName.Length - fileToDecompress.Extension.Length
                 FileInfo fileToDecompress = new FileInfo(file);
                 string outputFile = Path.Combine(output, Path.GetFileNameWithoutExtension(file));
+                outputFile = String.Concat(outputFile, ext);
                 using (FileStream originalFileStream = fileToDecompress.OpenRead())
                 {
                     using (FileStream decompressedFileStream = File.Create(outputFile))
@@ -127,8 +133,11 @@ namespace DefaultActivities
         }
 
 
-        private void DecompressTGZ(string input, string output, CancellationToken token)
+        private void DecompressTGZ(CancellationToken token)
         {
+
+            string input = _attributes[INPUT_FILE];
+            string output = _attributes[OUTPUT_FOLDER];
 
             string[] files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly);
             foreach (string file in files)

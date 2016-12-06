@@ -17,6 +17,7 @@ begin
 	,(27,'DefaultActivities.DefaultActivities.ConsoleActivity','Console=>CleanUpConsole;Arg=>CleanUpArg',15)
 	,(28,'DefaultActivities.DefaultActivities.TGZCompressActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(29,'DefaultActivities.DefaultActivities.TGZDecompressActivity','Timeout=>Timeout,etl:Timeout',15)
+	,(29,'DefaultActivities.DefaultActivities.TGZDecompressActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"Mode","Default":"tgz"},{"Name":"OutputExt","Default":""}]',15)
 	,(30,'DefaultActivities.DefaultActivities.BsonConverterActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(31,'DefaultActivities.DefaultActivities.FileRegisterActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(32,'DefaultActivities.DefaultActivities.FileGetProcessListActivity','Timeout=>Timeout,etl:Timeout',15)
@@ -25,6 +26,7 @@ begin
 	,(35,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>OnSuccessQuery,Query;Timeout=>Timeout,etl:Timeout',15)
 	,(36,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>OnFailureQuery,Query;Timeout=>Timeout,etl:Timeout',15)
 	,(37,'DefaultActivities.DefaultActivities.BsonSqlLoaderActivity','Timeout=>Timeout,etl:Timeout',15)
+	,(38,'DefaultActivities.DefaultActivities.AzureBlobDownloadActivity','Timeout=>Timeout,etl:Timeout',15)
 
 
 

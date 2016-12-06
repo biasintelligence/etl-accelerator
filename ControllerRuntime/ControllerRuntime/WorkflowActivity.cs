@@ -176,18 +176,9 @@ namespace ControllerRuntime
                 {
 
                     ret = false;
-                    WorkflowParameter curr_param = list.FirstOrDefault(p => p.Name.Equals(name,StringComparison.InvariantCultureIgnoreCase));
+                    WorkflowParameter curr_param = list.FirstOrDefault(p => p.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
                     //find if override exist
-                    if (curr_param == null)
-                    {
-                        curr_param = new WorkflowParameter()
-                        {
-                            Name = name,
-                            Override = new List<string>() { name }
-                        };
-                    }
-
-                    if (curr_param.Override != null)
+                    if (curr_param != null && curr_param.Override != null)
                     {
                         foreach (string attr_name in curr_param.Override)
                         {
@@ -198,12 +189,19 @@ namespace ControllerRuntime
                                 break;
                             }
                         }
-
+                    }
+                    else
+                    {
+                        if (_attributes.Keys.Contains(name))
+                        {
+                            found.Add(new WorkflowAttribute(name, _attributes[name].Value));
+                            ret = true;
+                        }
                     }
 
                     if (!ret)
                     {
-                        if (String.IsNullOrEmpty(curr_param.Default))
+                        if (curr_param == null || String.IsNullOrEmpty(curr_param.Default))
                         {
                             _logger.WriteError(String.Format("Attribute {0} is not found", name), -11);
                             break;
