@@ -27,6 +27,7 @@ begin
 	,(36,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>OnFailureQuery,Query;Timeout=>Timeout,etl:Timeout',15)
 	,(37,'DefaultActivities.DefaultActivities.BsonSqlLoaderActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(38,'DefaultActivities.DefaultActivities.AzureBlobDownloadActivity','Timeout=>Timeout,etl:Timeout',15)
+	,(39,'DefaultActivities.DefaultActivities.FileListToCounterActivity','Timeout=>Timeout,etl:Timeout',15)
 
 
 

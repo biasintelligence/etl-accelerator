@@ -83,8 +83,10 @@
     <Compile Include="BsonSqlLoaderActivity.cs" />
     <Compile Include="CheckFileActivity.cs" />
     <Compile Include="ConsoleActivity.cs" />
+    <Compile Include="ControllerCounter.cs" />
     <Compile Include="DeltaExtractorActivity.cs" />
     <Compile Include="FileGetProcessListActivity.cs" />
+    <Compile Include="FileListToCounterActivity.cs" />
     <Compile Include="FileRegisterActivity.cs" />
     <Compile Include="FileRegisterList.cs" />
     <Compile Include="FileSetProgressStatusActivity.cs" />

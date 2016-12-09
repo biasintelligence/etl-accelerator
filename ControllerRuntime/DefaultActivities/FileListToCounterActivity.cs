@@ -25,26 +25,22 @@ using ControllerRuntime;
 namespace DefaultActivities
 {
     /// <summary>
-    /// Push new file to process list to Controller Counter table
+    /// Load File List into Controller Counter table
     /// </summary>
-    public class FileGetProcessListActivity : IWorkflowActivity
+    public class FileListToCounterActivity : IWorkflowActivity
     {
         protected const string CONNECTION_STRING = "ConnectionString";
-        protected const string CONNECTION_STRING_REGISTER = "RegisterConnectionString";
-        protected const string FILE_SOURCE = "SourceName";
+        protected const string FILE_PATH = "FilePath";
         protected const string TIMEOUT = "Timeout";
-        protected const string ETL_RUNID = "etl:RunId";
+        protected const string ETL_RUNID = "@RunId";
         protected const string ETL_BATCHID = "etl:BatchId";
         protected const string ETL_STEPID = "etl:StepId";
-
-        protected const string GET_LIST_QUERY = "dbo.prc_FileProcessGetNext";
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         protected IWorkflowLogger _logger;
         protected List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
-          CONNECTION_STRING_REGISTER,
-          FILE_SOURCE,
+          FILE_PATH,
           TIMEOUT,
           ETL_RUNID,
           ETL_BATCHID,
@@ -75,14 +71,14 @@ namespace DefaultActivities
             }
 
             _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
-            _logger.WriteDebug(String.Format("RegisterConnectionString: {0}", _attributes[CONNECTION_STRING_REGISTER]));
-            _logger.Write(String.Format("Processing from File Source: {0}", _attributes[FILE_SOURCE]));
+            _logger.Write(String.Format("File Path: {0}", _attributes[FILE_PATH]));
         }
 
         public virtual WfResult Run(CancellationToken token)
         {
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
+
 
             int runId = 0;
             Int32.TryParse(_attributes[ETL_RUNID], out runId);
@@ -93,7 +89,8 @@ namespace DefaultActivities
             int stepId = 0;
             Int32.TryParse(_attributes[ETL_STEPID], out stepId);
 
-            Dictionary<string, string> files = new Dictionary<string, string>();
+            string input = _attributes[FILE_PATH];
+
             ControllerCounter counter = new ControllerCounter(_attributes[CONNECTION_STRING], _logger)
             {
                 BatchId = batchId,
@@ -101,57 +98,12 @@ namespace DefaultActivities
                 RunId = runId
             };
 
-            SqlConnection cn = new SqlConnection(_attributes[CONNECTION_STRING_REGISTER]);
-            try
-            {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(GET_LIST_QUERY, cn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-
-                    cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                    cmd.Parameters.AddWithValue("@processId", runId);
-                    cmd.Parameters.AddWithValue("@sourceName", _attributes[FILE_SOURCE]);
-                    cmd.Parameters.AddWithValue("@count", 1);
-
-                    using (token.Register(cmd.Cancel))
-                    {
-                        var reader = cmd.ExecuteReader();
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                //_logger.WriteDebug(String.Format("File to process id: {0}, name: {1}", reader["fileId"], reader["fullName"]));
-                                files.Add("fileId", reader["fileId"].ToString());
-                                files.Add(String.Format("fileName_{0}", reader["fileId"]), reader["fullName"].ToString());
-                            }
-                        }
-                        else
-                        {
-                            _logger.WriteDebug("No files to process");
-                            files.Add("fileId", "0");
-                        }
-
-                        result = WfResult.Succeeded;
-                    }
-                }
-            }
-            catch (SqlException ex)
-            {
-                throw ex;
-                //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
-                //result = WfResult.Create(WfStatus.Failed, ex.Message, ex.ErrorCode);
-            }
-            finally
-            {
-                if (cn.State != ConnectionState.Closed)
-                    cn.Close();
-
-            }
-
+            int id = 0;
+            Dictionary<string,string> files = Directory.GetFiles(Path.GetDirectoryName(input), Path.GetFileName(input), SearchOption.TopDirectoryOnly)
+                .ToDictionary(k => String.Format("file_{0}",id++), v => v);
+             
             counter.SetCounters(files);
-            return result;
+            return WfResult.Succeeded;
         }
 
     }
