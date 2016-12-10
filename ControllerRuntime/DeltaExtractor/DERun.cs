@@ -16,8 +16,8 @@ namespace BIAS.Framework.DeltaExtractor
     {
 
         //private static string m_XSDPath = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]) + "\\Parameters.xsd";
-        private static bool debug = false;
-        private static bool verbose = false;
+        private bool debug = false;
+        private bool verbose = false;
         private const string XMLParameter = "XML";
 
         public WfResult Start(WorkflowActivityParameters args, IWorkflowLogger logger)
@@ -58,8 +58,9 @@ namespace BIAS.Framework.DeltaExtractor
 
                 logger.Write("DE XML: " + XML);
 
-
-                DEController.Execute(parameters, logger);
+                DEController controller = new DEController();
+                controller.Debug = Debug;
+                controller.Execute(parameters, logger);
 
             }
             catch (Exception ex)
@@ -81,10 +82,10 @@ namespace BIAS.Framework.DeltaExtractor
             logger.Write("See Parameters.xsd for XML schema definition.");
         }
 
-        public static bool Debug
+        public bool Debug
         { get { return debug; } }
 
-        public static bool Verbose
+        public bool Verbose
         { get { return verbose; } }
     }
 }

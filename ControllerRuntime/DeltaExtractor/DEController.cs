@@ -26,32 +26,33 @@ namespace BIAS.Framework.DeltaExtractor
     {
 
         #region Methods
+        public bool Debug { get; set; }
 
         public delegate void DEAction<in T, in L>(T obj, L logger);
 
-        public static void Execute(Parameters p, IWorkflowLogger logger)
+        public void Execute(Parameters p, IWorkflowLogger logger)
         {
-           System.Diagnostics.Debug.Assert(p != null);
+            System.Diagnostics.Debug.Assert(p != null);
 
-           Dictionary<string, DEAction<Parameters, IWorkflowLogger>> actions =
-                new Dictionary<string, DEAction<Parameters, IWorkflowLogger>>(StringComparer.OrdinalIgnoreCase) {
+            Dictionary<string, DEAction<Parameters, IWorkflowLogger>> actions =
+                 new Dictionary<string, DEAction<Parameters, IWorkflowLogger>>(StringComparer.OrdinalIgnoreCase) {
                 {"MoveData", MoveDataRun },
                 {"RunPackage", ExecPackageRun }
-                };
+                 };
 
-           if (actions.ContainsKey(p.Action))
-           {
-               actions[p.Action](p, logger);
-           }
-           else
-           {
-               DERun.DisplayHelp(logger);
-           }
+            if (actions.ContainsKey(p.Action))
+            {
+                actions[p.Action](p, logger);
+            }
+            else
+            {
+                DERun.DisplayHelp(logger);
+            }
 
         }
 
-        private static void MoveDataRun(Parameters p, IWorkflowLogger logger)
-       {
+        private void MoveDataRun(Parameters p, IWorkflowLogger logger)
+        {
 
             System.Diagnostics.Debug.Assert(p != null);
 
@@ -59,7 +60,7 @@ namespace BIAS.Framework.DeltaExtractor
             //Check the Source 
             if (action.DataSource.Type == SourceType.Unknown)
             {
-                    throw new UnknownSourceType();
+                throw new UnknownSourceType();
             }
             logger.Write(action.DataSource.Description);
 
@@ -90,8 +91,8 @@ namespace BIAS.Framework.DeltaExtractor
             //ETLController.CounterSet("RowsExtracted", rowCount.ToString());
 
 
-           //if this is a staging extract, then call the upload sproc for each DB Destination
-           //staging value defines which upsert type to use
+            //if this is a staging extract, then call the upload sproc for each DB Destination
+            //staging value defines which upsert type to use
 
             //IEnumerable<object> res = action.DataDestination.Destinations.Where(d => ((IDeDestination)d).Type == DestinationType.OleDb);
             foreach (object odest in action.DataDestination.Destinations)
@@ -120,17 +121,17 @@ namespace BIAS.Framework.DeltaExtractor
                     }
                 }
             }
-       }
+        }
 
 
-        private static void ExecPackageRun(Parameters p, IWorkflowLogger logger)
-       {
+        private void ExecPackageRun(Parameters p, IWorkflowLogger logger)
+        {
 
             System.Diagnostics.Debug.Assert(p != null);
 
             RunPackage action = p.RunPackage;
             //Check the Source 
-            if (action == null || String.IsNullOrEmpty(action.File) )
+            if (action == null || String.IsNullOrEmpty(action.File))
             {
                 throw new InvalidArgumentException("Error: No location to load the package from was supplied. Package can not be loaded.");
             }
@@ -151,7 +152,7 @@ namespace BIAS.Framework.DeltaExtractor
                 logger.Write(String.Format(CultureInfo.InvariantCulture, "DE trying to load the Package {0}", action.File));
                 try
                 {
-                    pkg.LoadFromXML(action.File,null);
+                    pkg.LoadFromXML(action.File, null);
                     ExecutePackageWithEvents(pkg, logger);
                 }
                 catch (COMException cexp)
@@ -166,29 +167,29 @@ namespace BIAS.Framework.DeltaExtractor
             //PrintOutput.PrintToOutput("DE Package completed.");
             //ETLController.CounterSet("RowsExtracted", rowCount.ToString());
 
-       }
+        }
 
-       private static void ExecutePackageWithEvents(Package pkg, IWorkflowLogger logger)
-       {
-           // Throw an exception if we get an error
+        private void ExecutePackageWithEvents(Package pkg, IWorkflowLogger logger)
+        {
+            // Throw an exception if we get an error
 
-           logger.Write("Executing DE Package...");
-           SSISEvents ev = new SSISEvents(logger);
-           DTSExecResult rc = pkg.Execute(null, null,ev, null, null);
-           if (rc != DTSExecResult.Success)
-           {
-               logger.WriteDebug("Error: the DE failed to complete successfully.");
-               StringBuilder dtserrors = new StringBuilder();
-               foreach (DtsError error in pkg.Errors)
-               {
-                   logger.WriteDebug(error.Description);
-                   dtserrors.AppendLine(error.Description);
-               }
-               throw new UnexpectedSsisException(dtserrors.ToString());
-               //return false;
-           }
-       }
-   
+            logger.Write("Executing DE Package...");
+            SSISEvents ev = new SSISEvents(logger);
+            DTSExecResult rc = pkg.Execute(null, null, ev, null, null);
+            if (rc != DTSExecResult.Success)
+            {
+                logger.WriteDebug("Error: the DE failed to complete successfully.");
+                StringBuilder dtserrors = new StringBuilder();
+                foreach (DtsError error in pkg.Errors)
+                {
+                    logger.WriteDebug(error.Description);
+                    dtserrors.AppendLine(error.Description);
+                }
+                throw new UnexpectedSsisException(dtserrors.ToString());
+                //return false;
+            }
+        }
+
         #endregion
 
     }
