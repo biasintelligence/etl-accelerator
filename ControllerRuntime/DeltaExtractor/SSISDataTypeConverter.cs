@@ -20,9 +20,10 @@ namespace BIAS.Framework.DeltaExtractor
 {
     public class SSISDataConverter : SSISModule
     {
-        private Dictionary<string,int> m_converted = new Dictionary<string,int>();
+        //exColId-vInputColId
+        private Dictionary<int, int> m_converted = new Dictionary<int, int>();
 
-        public SSISDataConverter(MainPipe pipe, IDTSComponentMetaData100 src, int outputID,Dictionary<string,MyColumn> exColumns, IWorkflowLogger logger)
+        public SSISDataConverter(MainPipe pipe, IDTSComponentMetaData100 src, int outputID, IDTSExternalMetadataColumnCollection100 exColumns, IWorkflowLogger logger)
             : base(pipe, "Data Conversion", outputID, logger)
         {
             //create datatype converter component
@@ -36,15 +37,16 @@ namespace BIAS.Framework.DeltaExtractor
 
             this.Reinitialize(dcomp);
             this.ConnectComponents(src, outputID);
+
             this.PropagateInputColumns(exColumns);
         }
 
-        public Dictionary<string, int> ConvertedColumns
+        public Dictionary<int, int> ConvertedColumns
         {
             get { return m_converted; }
         }
 
-        private void PropagateInputColumns(Dictionary<string,MyColumn> exColumns)
+        private void PropagateInputColumns(IDTSExternalMetadataColumnCollection100 exColumns)
         {
 
             IDTSComponentMetaData100 comp = this.MetadataCollection;
@@ -59,36 +61,59 @@ namespace BIAS.Framework.DeltaExtractor
             output.ErrorRowDisposition = DTSRowDisposition.RD_NotUsed;
 
             //create input columns for destination external
-            foreach (KeyValuePair<string,MyColumn> exColumn in exColumns)
+            foreach (IDTSExternalMetadataColumn100 exColumn in exColumns)
             {
-                int vColumnID = FindVirtualInputColumnId(vColumns, exColumn.Key);
+                int vColumnID = FindVirtualInputColumnId(vColumns, exColumn.Name);
                 if (vColumnID != 0)
                 {
                     //do type conversion
                     IDTSVirtualInputColumn100 vColumn = vInput.VirtualInputColumnCollection.GetVirtualInputColumnByLineageID(vColumnID);
-                    if (vColumn.DataType != exColumn.Value.DataType)
+                    if (exColumn.DataType != vColumn.DataType)
                     {
+                        throw new InvalidOperationException(String.Format("Conversion {0} to {1} is not supported", vColumn.DataType.ToString(), exColumn.DataType.ToString()));
+                    }
+                    else if (exColumn.Length != vColumn.Length
+                        || exColumn.Precision != vColumn.Precision
+                        || exColumn.Scale != vColumn.Scale)
+                    {
+
                         dcomp.SetUsageType(input.ID, vInput, vColumnID, DTSUsageType.UT_READONLY);
 
-                        IDTSOutputColumn100 oColumn = output.OutputColumnCollection.New();
-                        oColumn.Name = exColumn.Key;
-                        oColumn.SetDataTypeProperties(exColumn.Value.DataType, exColumn.Value.Length, exColumn.Value.Precision, exColumn.Value.Scale, exColumn.Value.CodePage);
+                        IDTSOutputColumn100 oColumn = dcomp.InsertOutputColumnAt(output.ID, 0, exColumn.Name, String.Empty);
+                        //IDTSOutputColumn100 oColumn = output.OutputColumnCollection.New();
+                        //oColumn.Name = exColumn.Name;
+                        oColumn.SetDataTypeProperties(exColumn.DataType, exColumn.Length, exColumn.Precision, exColumn.Scale, exColumn.CodePage);
                         oColumn.ExternalMetadataColumnID = 0;
+                        oColumn.MappedColumnID = 0;
                         oColumn.ErrorRowDisposition = DTSRowDisposition.RD_FailComponent;
                         oColumn.TruncationRowDisposition = DTSRowDisposition.RD_FailComponent;
-                        IDTSCustomProperty100 property = oColumn.CustomPropertyCollection.New();
-                        property.Name = "SourceInputColumnLineageID";
-                        property.Value = vColumnID;
-                        property = oColumn.CustomPropertyCollection.New();
-                        property.Name = "FastParse";
-                        property.Value = false;
+                        //IDTSCustomProperty100 property = oColumn.CustomPropertyCollection.New();
+                        //property.Name = "SourceInputColumnLineageID";
+                        //property.Value = vColumnID;
+                        //property = oColumn.CustomPropertyCollection.New();
+                        //property.Name = "FastParse";
+                        //property.Value = false;
+
+                        dcomp.SetOutputColumnProperty(
+                            output.ID,
+                            oColumn.ID,
+                            "SourceInputColumnLineageID",
+                            vColumnID);
+
+                        dcomp.SetOutputColumnProperty(
+                            output.ID,
+                            oColumn.ID,
+                            "FastParse",
+                            false);
+
+
                         //set of derived columns
-                        m_converted.Add(oColumn.Name.ToLower(), oColumn.LineageID);
+                        m_converted.Add(exColumn.ID, oColumn.LineageID);
                     }
-                    else
-                    {
-                        m_converted.Add(exColumn.Key.ToLower(), vColumnID);
-                    }
+                    //else
+                    //{
+                    //    m_converted.Add(exColumn.ID, vColumnID);
+                    //}
                 }
                 else
                 {

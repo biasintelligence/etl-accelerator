@@ -117,7 +117,6 @@
     <Compile Include="SSISOdbcSource.cs" />
     <Compile Include="SSISAdoNetSource.cs" />
     <Compile Include="SSISEvents.cs" />
-    <Compile Include="ETLController.cs" />
     <Compile Include="SSISSharePointDestination.cs" />
     <Compile Include="SSISSharePointSource.cs" />
     <Compile Include="SSISExcelDestination.cs" />

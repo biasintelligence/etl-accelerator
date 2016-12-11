@@ -26,7 +26,6 @@ namespace BIAS.Framework.DeltaExtractor
     {
 
         #region Methods
-        public bool Debug { get; set; }
 
         public delegate void DEAction<in T, in L>(T obj, L logger);
 
@@ -35,7 +34,7 @@ namespace BIAS.Framework.DeltaExtractor
             System.Diagnostics.Debug.Assert(p != null);
 
             Dictionary<string, DEAction<Parameters, IWorkflowLogger>> actions =
-                 new Dictionary<string, DEAction<Parameters, IWorkflowLogger>>(StringComparer.OrdinalIgnoreCase) {
+                 new Dictionary<string, DEAction<Parameters, IWorkflowLogger>>(StringComparer.InvariantCultureIgnoreCase) {
                 {"MoveData", MoveDataRun },
                 {"RunPackage", ExecPackageRun }
                  };
@@ -172,20 +171,19 @@ namespace BIAS.Framework.DeltaExtractor
         private void ExecutePackageWithEvents(Package pkg, IWorkflowLogger logger)
         {
             // Throw an exception if we get an error
-
             logger.Write("Executing DE Package...");
             SSISEvents ev = new SSISEvents(logger);
             DTSExecResult rc = pkg.Execute(null, null, ev, null, null);
             if (rc != DTSExecResult.Success)
             {
-                logger.WriteDebug("Error: the DE failed to complete successfully.");
-                StringBuilder dtserrors = new StringBuilder();
+                logger.WriteError("Error: the DE failed to complete successfully.", 50000);
+                //StringBuilder dtserrors = new StringBuilder();
                 foreach (DtsError error in pkg.Errors)
                 {
-                    logger.WriteDebug(error.Description);
-                    dtserrors.AppendLine(error.Description);
+                    logger.WriteError(error.Description, error.ErrorCode);
+                    //dtserrors.AppendLine(error.Description);
                 }
-                throw new UnexpectedSsisException(dtserrors.ToString());
+                throw new UnexpectedSsisException("SSIS Package execution failed");
                 //return false;
             }
         }

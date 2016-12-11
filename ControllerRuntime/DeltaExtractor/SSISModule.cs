@@ -24,7 +24,7 @@ namespace BIAS.Framework.DeltaExtractor
         private int m_ID;
 
 
-        protected SSISModule(MainPipe pipe, string module_name, int module_id,string module_clsid, IWorkflowLogger logger)
+        protected SSISModule(MainPipe pipe, string module_name, int module_id, string module_clsid, IWorkflowLogger logger)
         {
             //create SSIS component
 
@@ -107,30 +107,35 @@ namespace BIAS.Framework.DeltaExtractor
         //Loop through the Virtual Input column Collection, and see if one matches the name
         protected int FindVirtualInputColumnId(IDTSVirtualInputColumnCollection100 in_ColumnCollection, string in_columnName)
         {
-            
-            in_columnName = in_columnName.ToLower();
+
             foreach (IDTSVirtualInputColumn100 inputColumn in in_ColumnCollection)
             {
-                if (inputColumn.Name.ToLower() == in_columnName)
+                if (inputColumn.Name.Equals(in_columnName, StringComparison.InvariantCultureIgnoreCase))
                     return inputColumn.LineageID;
             }
             return 0;
         }
 
-        protected virtual bool needDataTypeChange(IDTSVirtualInput100 vinput, IDTSInput100 input)
+        protected virtual bool needDataTypeChange(IDTSVirtualInput100 vinput, IDTSExternalMetadataColumnCollection100 exColumns)
         {
-            IDTSExternalMetadataColumnCollection100 exColumns = input.ExternalMetadataColumnCollection;
             foreach (IDTSExternalMetadataColumn100 exColumn in exColumns)
             {
                 int vColumnID = FindVirtualInputColumnId(vinput.VirtualInputColumnCollection, exColumn.Name);
                 if (vColumnID != 0)
                 {
+
                     IDTSVirtualInputColumn100 vColumn = vinput.VirtualInputColumnCollection.GetVirtualInputColumnByLineageID(vColumnID);
-                    //allow converter only for simple within datatype change
-                    if ( (exColumn.DataType == vColumn.DataType)
-                            &&((exColumn.Length > 0 && exColumn.Length < vColumn.Length)
-                            || exColumn.Precision != vColumn.Precision
-                            || exColumn.Scale != vColumn.Scale)
+
+                    int exC = exColumn.Length;
+                    int vC = vColumn.Length;
+                    mwrt.DataType exDt = exColumn.DataType;
+                    mwrt.DataType vDt = vColumn.DataType;
+
+                    //allow within the same type conversions only
+                    if (exColumn.DataType != vColumn.DataType
+                        || exColumn.Length != vColumn.Length
+                        || exColumn.Precision != vColumn.Precision
+                        || exColumn.Scale != vColumn.Scale
                         )
                     {
                         return true;
@@ -141,7 +146,7 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
 
-        protected virtual void MatchInputColumns(Dictionary<string, int> converted, bool needschema, IWorkflowLogger logger)
+        protected virtual void MatchInputColumns(Dictionary<int, int> map, bool needschema, IWorkflowLogger logger)
         {
 
             IDTSComponentMetaData100 comp = this.MetadataCollection;
@@ -157,10 +162,10 @@ namespace BIAS.Framework.DeltaExtractor
                 bool hasMatch = false;
                 foreach (IDTSExternalMetadataColumn100 exColumn in exColumns)
                 {
-                    int inputColId;
-                    if (converted.ContainsKey(exColumn.Name.ToLower()))
+                    int inputColId = 0;
+                    if (map.ContainsKey(exColumn.ID))
                     {
-                        inputColId = (int)converted[exColumn.Name.ToLower()];
+                        inputColId = map[exColumn.ID];
                     }
                     else
                     {

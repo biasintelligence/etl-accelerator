@@ -20,10 +20,8 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class DESSISPackage: IDisposable
+    public class DESSISPackage
     {
-        private Application app = new Application();
-        private Package m_p = new Package();
         private MoveData m_movedata;
 
         public DESSISPackage(MoveData p)
@@ -33,25 +31,27 @@ namespace BIAS.Framework.DeltaExtractor
 
         public Package LoadPackage(IWorkflowLogger logger)
         {
+            Application app = new Application();
+            Package package;
             //Load Package from the file
             if (!(m_movedata.SavePackage == null) && m_movedata.SavePackage.Load)
             {
                 if (String.IsNullOrEmpty(m_movedata.SavePackage.File))
                 {
                     logger.Write("Warning: No location to load the package from was supplied. Package can not be loaded.");
-                   m_p = this.BuildPackage(logger);
+                    package = this.BuildPackage(logger);
                 }
                 else if (!File.Exists(m_movedata.SavePackage.File))
                 {
                     logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "Warning: File not found {0}", m_movedata.SavePackage.File));
-                    m_p = this.BuildPackage(logger);
+                    package = this.BuildPackage(logger);
                 }
                 else
                 {
                     logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "DE trying to load the Package {0}", m_movedata.SavePackage.File));
                     try
                     {
-                        m_p = app.LoadPackage(m_movedata.SavePackage.File, null);
+                        package = app.LoadPackage(m_movedata.SavePackage.File, null);
                     }
                     catch (COMException cexp)
                     {
@@ -62,13 +62,15 @@ namespace BIAS.Framework.DeltaExtractor
             }
             else
             {
-                m_p = this.BuildPackage(logger);
+                package = this.BuildPackage(logger);
             }
-            return m_p;
+            return package;
 
         }
         private Package BuildPackage(IWorkflowLogger logger)
         {
+            Application app = new Application();
+            Package package = new Package();
             try
             {
                 logger.WriteDebug("DE building the Package...");
@@ -76,8 +78,10 @@ namespace BIAS.Framework.DeltaExtractor
                 //SSISEvents ev = new SSISEvents();
                 //m_p.DesignEvents = ev;
 
-                Executable ex = m_p.Executables.Add("STOCK:PipelineTask");
-                MainPipe pipe = (MainPipe)(((TaskHost)ex).InnerObject);
+                Executable ex = package.Executables.Add("STOCK:PipelineTask");
+                TaskHost host = ex as TaskHost;
+                host.Name = "DE Data Flow Task";
+                MainPipe pipe = host.InnerObject as MainPipe;
 
                 // Set the IDTSComponentEvent handler to capture the details from any 
                 // COMExceptions raised during package generation
@@ -88,11 +92,11 @@ namespace BIAS.Framework.DeltaExtractor
                 dsv dsv = null;
                 if (!String.IsNullOrEmpty(m_movedata.StagingAreaRoot))
                 {
-                    m_p.Variables.Add("StagingAreaRoot", true, "", m_movedata.StagingAreaRoot);
+                    package.Variables.Add("StagingAreaRoot", true, "", m_movedata.StagingAreaRoot);
                     dsv = new dsv(m_movedata.StagingAreaRoot);
                 }
                 // Add variable RowCount
-                m_p.Variables.Add("RowCount", false, "", 0);
+                package.Variables.Add("RowCount", false, "", 0);
 
 
                 IDTSComponentMetaData100 src = null;
@@ -113,10 +117,10 @@ namespace BIAS.Framework.DeltaExtractor
                     }
 
                     //Connection manager
-                    ConnectionManager cm = m_p.Connections.Add("FLATFILE");
+                    ConnectionManager cm = package.Connections.Add("FLATFILE");
 
-                    Dictionary<string, MyColumn> colCollection =  (bFound) ? dsv.ColumnCollection : null;
-                    SSISFlatFileConnection.ConfigureConnectionManager(cm, m_movedata.DataSource.FlatFileSource.CustomProperties.FlatFileConnectionProperties,colCollection, logger);
+                    Dictionary<string, MyColumn> colCollection = (bFound) ? dsv.ColumnCollection : null;
+                    SSISFlatFileConnection.ConfigureConnectionManager(cm, m_movedata.DataSource.FlatFileSource.CustomProperties.FlatFileConnectionProperties, colCollection, logger);
                     SSISFlatFileSource ssissource = new SSISFlatFileSource(m_movedata.DataSource.FlatFileSource, pipe, cm, logger);
                     src = ssissource.MetadataCollection;
                 }
@@ -125,7 +129,7 @@ namespace BIAS.Framework.DeltaExtractor
                 {
 
                     //Connection manager
-                    ConnectionManager cm = m_p.Connections.Add("EXCEL");
+                    ConnectionManager cm = package.Connections.Add("EXCEL");
                     SSISExcelSource ssissource = new SSISExcelSource(m_movedata.DataSource.ExcelSource, pipe, cm, logger);
                     src = ssissource.MetadataCollection;
                 }
@@ -139,10 +143,10 @@ namespace BIAS.Framework.DeltaExtractor
                 else if (m_movedata.DataSource.Type == SourceType.OleDb)
                 {
                     //Add variable for SQL query if access mode is 3
-                    m_p.Variables.Add("srcSelect", true, "", m_movedata.DataSource.OleDbSource.CustomProperties.SqlCommand);
+                    package.Variables.Add("srcSelect", true, "", m_movedata.DataSource.OleDbSource.CustomProperties.SqlCommand);
 
                     //Connection manager
-                    ConnectionManager cm = m_p.Connections.Add("OLEDB");
+                    ConnectionManager cm = package.Connections.Add("OLEDB");
                     SSISOleDbSource ssissource = new SSISOleDbSource(m_movedata.DataSource.OleDbSource, pipe, cm, logger);
                     src = ssissource.MetadataCollection;
                 }
@@ -150,7 +154,7 @@ namespace BIAS.Framework.DeltaExtractor
                 else if (m_movedata.DataSource.Type == SourceType.AdoNet)
                 {
                     //Connection manager
-                    ConnectionManager cm = m_p.Connections.Add("ADO.NET");
+                    ConnectionManager cm = package.Connections.Add("ADO.NET");
                     SSISAdoNetSource ssissource = new SSISAdoNetSource(m_movedata.DataSource.AdoNetSource, pipe, cm, logger);
                     src = ssissource.MetadataCollection;
                 }
@@ -158,7 +162,7 @@ namespace BIAS.Framework.DeltaExtractor
                 else if (m_movedata.DataSource.Type == SourceType.Odbc)
                 {
                     //Connection manager
-                    ConnectionManager cm = m_p.Connections.Add("ODBC");
+                    ConnectionManager cm = package.Connections.Add("ODBC");
                     SSISOdbcSource ssissource = new SSISOdbcSource(m_movedata.DataSource.OdbcSource, pipe, cm, logger);
                     src = ssissource.MetadataCollection;
                 }
@@ -218,7 +222,7 @@ namespace BIAS.Framework.DeltaExtractor
                         IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
 
                         //Connection manager
-                        ConnectionManager cm = m_p.Connections.Add("FLATFILE");
+                        ConnectionManager cm = package.Connections.Add("FLATFILE");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "FlatFile Destination Connection Manager {0}", output.ID);
                         Dictionary<string, MyColumn> colCollection = (bFound) ? dsv.ColumnCollection : getColumnCollectionFromPipe(src);
                         SSISFlatFileConnection.ConfigureConnectionManager(cm, dst.CustomProperties.FlatFileConnectionProperties, colCollection, logger);
@@ -233,7 +237,7 @@ namespace BIAS.Framework.DeltaExtractor
                         OleDbDestination dst = (OleDbDestination)odst;
                         IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
                         //Connection manager
-                        ConnectionManager cm = m_p.Connections.Add("OLEDB");
+                        ConnectionManager cm = package.Connections.Add("OLEDB");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "OLEDB Destination Connection Manager {0}", output.ID);
                         SSISOleDbDestination ssisdest = new SSISOleDbDestination(dst, pipe, src, output.ID, cm, logger);
                     }
@@ -246,7 +250,7 @@ namespace BIAS.Framework.DeltaExtractor
                         ExcelDestination dst = (ExcelDestination)odst;
                         IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
                         //Connection manager
-                        ConnectionManager cm = m_p.Connections.Add("EXCEL");
+                        ConnectionManager cm = package.Connections.Add("EXCEL");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "Excel Destination Connection Manager {0}", output.ID);
                         SSISExcelDestination ssisdest = new SSISExcelDestination(dst, pipe, src, output.ID, cm, logger);
 
@@ -268,7 +272,7 @@ namespace BIAS.Framework.DeltaExtractor
                         AdoNetDestination dst = (AdoNetDestination)odst;
                         IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
                         //Connection manager
-                        ConnectionManager cm = m_p.Connections.Add("ADO.NET");
+                        ConnectionManager cm = package.Connections.Add("ADO.NET");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "ADONET Destination Connection Manager {0}", output.ID);
                         SSISAdoNetDestination ssisdest = new SSISAdoNetDestination(dst, pipe, src, output.ID, cm, logger);
                     }
@@ -280,7 +284,7 @@ namespace BIAS.Framework.DeltaExtractor
                         OdbcDestination dst = (OdbcDestination)odst;
                         IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
                         //Connection manager
-                        ConnectionManager cm = m_p.Connections.Add("ODBC");
+                        ConnectionManager cm = package.Connections.Add("ODBC");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "ODBC Destination Connection Manager {0}", output.ID);
                         SSISOdbcDestination ssisdest = new SSISOdbcDestination(dst, pipe, src, output.ID, cm, logger);
                     }
@@ -292,7 +296,7 @@ namespace BIAS.Framework.DeltaExtractor
                         SqlBulkDestination dst = (SqlBulkDestination)odst;
                         IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
                         //Connection manager
-                        ConnectionManager cm = m_p.Connections.Add("OLEDB");
+                        ConnectionManager cm = package.Connections.Add("OLEDB");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "OLEDB Destination Connection Manager {0}", output.ID);
                         SSISSqlBulkDestination ssisdest = new SSISSqlBulkDestination(dst, pipe, src, output.ID, cm, logger);
                     }
@@ -306,13 +310,14 @@ namespace BIAS.Framework.DeltaExtractor
             catch (Exception cexp)
             {
                 logger.WriteError("Exception occured : " + cexp.TargetSite + cexp, cexp.HResult);
-                StringBuilder dtserrors = new StringBuilder();
-                foreach (DtsError error in m_p.Errors)
+                //StringBuilder dtserrors = new StringBuilder();
+                foreach (DtsError error in package.Errors)
                 {
-                    //PrintOutput.PrintToError(error.Description);
-                    dtserrors.AppendLine(error.Description);
+                    logger.WriteError(error.Description, error.ErrorCode);
+                    //dtserrors.AppendLine(error.Description);
                 }
-                throw new UnexpectedSsisException(dtserrors.ToString());
+                if (package != null) package.Dispose();
+                throw new UnexpectedSsisException("Failed to build SSIS package.");
             }
             finally
             {
@@ -325,16 +330,16 @@ namespace BIAS.Framework.DeltaExtractor
                     }
                     else
                     {
-                        app.SaveToXml(m_movedata.SavePackage.File, m_p, null);
+                        app.SaveToXml(m_movedata.SavePackage.File, package, null);
                     }
                 }
             }
-            return m_p;
+            return package;
 
         }
 
         private IDTSOutput100 ConfigureOutput(IDTSComponentMetaData100 src, IDeDestination dst)
-        {           
+        {
             return ConfigureOutput(src, dst, null);
         }
 
@@ -381,7 +386,7 @@ namespace BIAS.Framework.DeltaExtractor
             if (vinput.VirtualInputColumnCollection.Count > 0)
             {
                 //define input column
-                 colCollection = new Dictionary<string,MyColumn>();
+                colCollection = new Dictionary<string, MyColumn>();
                 foreach (IDTSVirtualInputColumn100 vCol in vinput.VirtualInputColumnCollection)
                 {
                     MyColumn col = new MyColumn();
@@ -396,29 +401,5 @@ namespace BIAS.Framework.DeltaExtractor
             return colCollection;
         }
 
-        #region Disposal Methods
-        /// <summary>
-        /// Ensures that the DTSPackage is properly disposed of when the object is finalized.
-        /// </summary>
-        /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (m_p != null)
-                {
-                    m_p.Dispose();
-                }
-            }
-        }
-        /// <summary>
-        /// Required method for the IDisposable interface that calls the local method of Dispose.
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        #endregion
     }
 }

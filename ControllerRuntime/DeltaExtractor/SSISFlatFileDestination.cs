@@ -47,31 +47,19 @@ namespace BIAS.Framework.DeltaExtractor
             this.Reinitialize(dcomp);
 
             //Create datatype converter if needed
-            Dictionary<string, int> converted = new Dictionary<string, int>();
+            Dictionary<int, int> map = new Dictionary<int, int>();
             IDTSVirtualInput100 vInput = src.InputCollection[0].GetVirtualInput();
-            if (this.needDataTypeChange(vInput, comp.InputCollection[0]))
+            IDTSExternalMetadataColumnCollection100 exColumns = comp.InputCollection[0].ExternalMetadataColumnCollection;
+            if (this.needDataTypeChange(vInput, exColumns))
             {
-                //create the destination column collection
-                Dictionary<string, MyColumn> exColumns = new Dictionary<string, MyColumn>();
-                foreach (IDTSExternalMetadataColumn100 exColumn in comp.InputCollection[0].ExternalMetadataColumnCollection)
-                {
-                    MyColumn col = new MyColumn();
-                    col.Name = exColumn.Name;
-                    col.DataType = exColumn.DataType;
-                    col.Length = exColumn.Length;
-                    col.Precision = exColumn.Precision;
-                    col.Scale = exColumn.Scale;
-                    col.CodePage = exColumn.CodePage;
-                    exColumns.Add(exColumn.Name, col);
-                }
                 SSISDataConverter ssisdc = new SSISDataConverter(pipe, src, outputID, exColumns, logger);
                 src = ssisdc.MetadataCollection;
-                converted = ssisdc.ConvertedColumns;
+                map = ssisdc.ConvertedColumns;
                 outputID = 0;
             }
 
             this.ConnectComponents(src, outputID);
-            this.MatchInputColumns(converted, false, logger);
+            this.MatchInputColumns(map, true, logger);
         }
     }
 }
