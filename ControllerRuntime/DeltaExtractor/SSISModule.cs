@@ -126,17 +126,18 @@ namespace BIAS.Framework.DeltaExtractor
 
                     IDTSVirtualInputColumn100 vColumn = vinput.VirtualInputColumnCollection.GetVirtualInputColumnByLineageID(vColumnID);
 
-                    int exC = exColumn.Length;
-                    int vC = vColumn.Length;
-                    mwrt.DataType exDt = exColumn.DataType;
-                    mwrt.DataType vDt = vColumn.DataType;
+                    //int exC = exColumn.Length;
+                    //int vC = vColumn.Length;
+                    //mwrt.DataType exDt = exColumn.DataType;
+                    //mwrt.DataType vDt = vColumn.DataType;
 
-                    //allow within the same type conversions only
-                    if (exColumn.DataType != vColumn.DataType
-                        || exColumn.Length != vColumn.Length
-                        || exColumn.Precision != vColumn.Precision
-                        || exColumn.Scale != vColumn.Scale
-                        )
+                    //convert within the same datatype only
+                    if (exColumn.DataType == vColumn.DataType
+                        && (
+                            exColumn.Length < vColumn.Length
+                            || exColumn.Precision != vColumn.Precision
+                            || exColumn.Scale != vColumn.Scale)
+                            )
                     {
                         return true;
                     }

@@ -68,11 +68,8 @@ namespace BIAS.Framework.DeltaExtractor
                 {
                     //do type conversion
                     IDTSVirtualInputColumn100 vColumn = vInput.VirtualInputColumnCollection.GetVirtualInputColumnByLineageID(vColumnID);
-                    if (exColumn.DataType != vColumn.DataType)
-                    {
-                        throw new InvalidOperationException(String.Format("Conversion {0} to {1} is not supported", vColumn.DataType.ToString(), exColumn.DataType.ToString()));
-                    }
-                    else if (exColumn.Length != vColumn.Length
+                    if (exColumn.DataType != vColumn.DataType
+                        || vColumn.Length != exColumn.Length
                         || exColumn.Precision != vColumn.Precision
                         || exColumn.Scale != vColumn.Scale)
                     {
