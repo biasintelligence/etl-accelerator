@@ -131,12 +131,15 @@ namespace BIAS.Framework.DeltaExtractor
                     //mwrt.DataType exDt = exColumn.DataType;
                     //mwrt.DataType vDt = vColumn.DataType;
 
+                    //converter doesnt work on blobs
+                    if (exColumn.Length > 4000)
+                        continue;
+
                     //convert within the same datatype only
-                    if (exColumn.DataType == vColumn.DataType
-                        && (
-                            exColumn.Length < vColumn.Length
+                        if (exColumn.DataType != vColumn.DataType
+                            || exColumn.Length < vColumn.Length
                             || exColumn.Precision != vColumn.Precision
-                            || exColumn.Scale != vColumn.Scale)
+                            || exColumn.Scale != vColumn.Scale
                             )
                     {
                         return true;
