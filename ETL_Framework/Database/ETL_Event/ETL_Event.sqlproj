@@ -18,7 +18,7 @@
     <Name>ETL_Event</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql110DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <ShowWizard>False</ShowWizard>
     <OutputType>Database</OutputType>
@@ -66,7 +66,7 @@
     <AutoUpdateStatistics>True</AutoUpdateStatistics>
     <TornPageDetection>False</TornPageDetection>
     <DatabaseAccess>MULTI_USER</DatabaseAccess>
-    <Recovery>FULL</Recovery>
+    <Recovery>SIMPLE</Recovery>
     <EnableFullTextSearch>True</EnableFullTextSearch>
     <DatabaseChaining>False</DatabaseChaining>
     <DefaultFilegroup>PRIMARY</DefaultFilegroup>
@@ -220,6 +220,7 @@
       <SubType>Code</SubType>
     </Build>
     <None Include="Scripts\Post-Deployment\Misc\EventTypes.sql" />
+    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\prc_CheckEventCondition.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Pre-Deployment\Script.PreDeployment.sql" />

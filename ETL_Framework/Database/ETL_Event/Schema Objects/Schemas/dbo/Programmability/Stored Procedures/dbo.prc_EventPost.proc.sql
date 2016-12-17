@@ -15,7 +15,6 @@ begin
 ** File:	[prc_EventPost].sql
 ** Name:	[dbo].[prc_EventPost]
 
-** SD Location: /procedure/prc_EventPost.sql:
 
 ** Desc:	post an event
 **          
@@ -52,29 +51,26 @@ set @debug = case when CHARINDEX('debug',@Options) > 0 then 1 else 0 end;
 
 begin try
 
-   set @etid = [dbo].[fn_EventTypeCheck] (@EventType)      
+   set @etid = [dbo].[fn_EventTypeCheck] (@EventType);  
    if (@etid is null)
-      raiserror ('Requested EventType %s is not found',11,11,@EventType)
+      raiserror ('Requested EventType %s is not found',11,11,@EventType);
          
    if (@EventArgs is not null)
    begin
       select @EventArgsExpected = EventArgsSchema
         from dbo.EventType
-       where EventTypeID = @etid
+       where EventTypeID = @etid;
          
-      set @EventArgsReceived = @EventArgs.value('namespace-uri(./*[1])','sysname')
+      set @EventArgsReceived = @EventArgs.value('namespace-uri(./*[1])','sysname');
       if (@EventArgsExpected <> @EventArgsReceived)
-         raiserror ('Invalid EventArgs type is received = %s. Expected %s',11,11,@EventArgsReceived,@EventArgsExpected)
+         raiserror ('Invalid EventArgs type is received = %s. Expected %s',11,11,@EventArgsReceived,@EventArgsExpected);
    end
-   
-   begin tran
-   
+          
    insert dbo.EventLog
    (EventTypeID,EventID,ReceiveDT,PostDT,EventArgs)
-   select EventTypeID,EventID,ReceiveDT,PostDT,EventArgs
-     from dbo.[Event]
-    where EventTypeID = @etid;
-    
+   select s.EventTypeID,s.EventID,s.ReceiveDT,s.PostDT,s.EventArgs
+    from
+   (
     merge dbo.[Event] as dst
     using (select @etid,newid(),getdate(),@EventPosted,@EventArgs) as src
     (EventTypeID,EventID,ReceiveDT,PostDT,EventArgs)
@@ -87,17 +83,19 @@ begin try
           ,dst.EventArgs = src.EventArgs
      when not matched by target then
      insert (EventTypeID,EventID,ReceiveDT,PostDT,EventArgs)
-     values (src.EventTypeID,src.EventID,src.ReceiveDT,src.PostDT,src.EventArgs);
-   
-   commit tran  
-    
+     values (src.EventTypeID,src.EventID,src.ReceiveDT,src.PostDT,src.EventArgs)
+	 output deleted.EventTypeId,deleted.EventId,deleted.ReceiveDt,deleted.PostDt,deleted.EventArgs,$action as [Action]
+	 ) s (EventTypeID,EventID,ReceiveDT,PostDT,EventArgs,[Action])
+	 WHERE s.[Action] = 'UPDATE'
+	 ;
+       
 end try
 begin catch
    if @@TRANCOUNT > @trancount
       rollback tran
           
-   set @msg = '%s failed with the message:' + ERROR_MESSAGE()
-   raiserror (@msg,11,11,@proc)
+   set @msg = '%s failed with the message:' + ERROR_MESSAGE();
+   raiserror (@msg,11,11,@proc);
 end catch
 end
 ;
