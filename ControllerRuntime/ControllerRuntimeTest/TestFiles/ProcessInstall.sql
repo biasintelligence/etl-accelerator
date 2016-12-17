@@ -26,6 +26,8 @@ begin
 	,(37,'DefaultActivities.DefaultActivities.BsonSqlLoaderActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(38,'DefaultActivities.DefaultActivities.AzureBlobDownloadActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"SortOrder","Default":"Asc"},{"Name":"Count","Default":"1000"},{"Name":"CounterName","Default":""}]',15)
 	,(39,'DefaultActivities.DefaultActivities.FileListToCounterActivity','Timeout=>Timeout,etl:Timeout',15)
+	,(40,'DefaultActivities.DefaultActivities.PostWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"EventArgs","Default":""}]',15)
+	,(41,'DefaultActivities.DefaultActivities.CheckWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]}]',12)
 
 
 

@@ -82,6 +82,7 @@
     <Compile Include="BsonConverterActivity.cs" />
     <Compile Include="BsonSqlLoaderActivity.cs" />
     <Compile Include="CheckFileActivity.cs" />
+    <Compile Include="CheckWorkflowEventActivity.cs" />
     <Compile Include="ConsoleActivity.cs" />
     <Compile Include="ControllerCounter.cs" />
     <Compile Include="DeltaExtractorActivity.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="FileRegisterActivity.cs" />
     <Compile Include="FileRegisterList.cs" />
     <Compile Include="FileSetProgressStatusActivity.cs" />
+    <Compile Include="PostWorkflowEventActivity.cs" />
     <Compile Include="TGZDecompressActivity.cs" />
     <Compile Include="SqlServerActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

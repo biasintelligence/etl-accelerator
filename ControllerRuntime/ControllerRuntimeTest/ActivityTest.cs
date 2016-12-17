@@ -172,6 +172,43 @@ namespace ControllerRuntimeTest
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
 
+        [TestMethod]
+        public void EventPost_Ok()
+        {
+            PostWorkflowEventActivity activity = new PostWorkflowEventActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_event; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("EventType", @"Process2_FINISHED"));
+            list.Add(new WorkflowAttribute("EventPostDate", @"2016-12-16 18:04"));
+            //list.Add(new WorkflowAttribute("EventArgs", "<dwc:EventArgs xmlns:dwc=\"EventArgs.XSD\" Source=\"Process2 Finished\" PeriodGrain=\"Week\" Period=\"201652\" />"));
+            list.Add(new WorkflowAttribute("EventArgs", ""));
+            list.Add(new WorkflowAttribute("Timeout", "0"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
+
+        [TestMethod]
+        public void EventCheck_Ok()
+        {
+            CheckWorkflowEventActivity activity = new CheckWorkflowEventActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_event; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("EventType", @"Process2_FINISHED"));
+            list.Add(new WorkflowAttribute("WatermarkEventType", @"Process1_FINISHED"));
+            list.Add(new WorkflowAttribute("Timeout", "0"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
 
     }
 
