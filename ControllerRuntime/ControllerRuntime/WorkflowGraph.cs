@@ -330,15 +330,16 @@ namespace ControllerRuntime
 
             while (1 == 1)
             {
-                //max thread constraint
-                if (_workflow.MaxThreads <= base_status_set.Count(kvp => kvp.Value.StatusCode == WfStatus.Running))
-                    break;
                 //all steps submitted
                 if (0 == base_status_set.Count(kvp => kvp.Value.StatusCode == WfStatus.Unknown))
                 {
                     base_queue.CompleteAdding();
                     break;
                 }
+
+                //max thread constraint
+                if (_workflow.MaxThreads <= base_status_set.Count(kvp => kvp.Value.StatusCode == WfStatus.Running))
+                    break;
 
                 WorkflowStep step = base_node_set.FirstOrDefault(item =>
                     //not started
