@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureBlobDownloadActivity.cs" />
+    <Compile Include="AzureTableCopyActivity.cs" />
     <Compile Include="BsonConverterActivity.cs" />
     <Compile Include="BsonSqlLoaderActivity.cs" />
     <Compile Include="CheckFileActivity.cs" />

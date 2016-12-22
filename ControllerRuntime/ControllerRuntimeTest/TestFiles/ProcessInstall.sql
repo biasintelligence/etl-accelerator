@@ -1,3 +1,5 @@
+USE ETL_Controller
+GO
 delete etlprocess where ProcessId between 20 and 50;
 if not exists (select 1 from etlprocess where ProcessId between 20 and 50)
 begin
@@ -12,8 +14,8 @@ begin
 	,(24,'DefaultActivities.DefaultActivities.DeltaExtractorActivity','ConnectionString=>Controller.ConnectionString',3)
 	,(25,'DefaultActivities.DefaultActivities.WaitActivity','Timeout=>WaitTimeout',3)
 	--this is OnSuccess/OnError substitute for #20,#23. For Example Query attribute is substituted with CleanUpQuery.
-	,(26,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>CleanUpQuery',3)
-	,(27,'DefaultActivities.DefaultActivities.ConsoleActivity','Console=>CleanUpConsole;Arg=>CleanUpArg',15)
+	,(26,'DefaultActivities.DefaultActivities.SqlServerActivity','Query=>CleanUpQuery;Timeout=>Timeout,etl:Timeout',3)
+	,(27,'DefaultActivities.DefaultActivities.ConsoleActivity','Console=>CleanUpConsole;Arg=>CleanUpArg;Timeout=>Timeout,etl:Timeout',15)
 	,(28,'DefaultActivities.DefaultActivities.TGZCompressActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(29,'DefaultActivities.DefaultActivities.TGZDecompressActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"Mode","Default":"tgz"},{"Name":"OutputExt","Default":""}]',15)
 	,(30,'DefaultActivities.DefaultActivities.BsonConverterActivity','Timeout=>Timeout,etl:Timeout',15)
@@ -28,6 +30,7 @@ begin
 	,(39,'DefaultActivities.DefaultActivities.FileListToCounterActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(40,'DefaultActivities.DefaultActivities.PostWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"EventArgs","Default":""}]',15)
 	,(41,'DefaultActivities.DefaultActivities.CheckWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]}]',12)
+	,(42,'DefaultActivities.DefaultActivities.AzureTableCopyActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"ControlColumn","Default":""},{"Name":"ControlValue","Default":""},{"Name":"isSasToken","Default":"false"}]',15)
 
 
 
