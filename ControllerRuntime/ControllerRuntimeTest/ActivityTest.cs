@@ -210,6 +210,26 @@ namespace ControllerRuntimeTest
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
 
+        [TestMethod]
+        public void ExecuteSqlQuery_Ok()
+        {
+            SqlServerActivity activity = new SqlServerActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=oxaStaging; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("Query", @"
+print 'this is print test';
+raiserror ('this is err test',0,1);
+"));
+            list.Add(new WorkflowAttribute("Timeout", "0"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
+
     }
 
 

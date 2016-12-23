@@ -93,6 +93,7 @@
     <Compile Include="FileRegisterList.cs" />
     <Compile Include="FileSetProgressStatusActivity.cs" />
     <Compile Include="PostWorkflowEventActivity.cs" />
+    <Compile Include="TableControlToCounterActivity.cs" />
     <Compile Include="TGZDecompressActivity.cs" />
     <Compile Include="SqlServerActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

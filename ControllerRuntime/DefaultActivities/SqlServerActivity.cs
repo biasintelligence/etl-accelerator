@@ -74,6 +74,7 @@ namespace DefaultActivities
             {
                 try
                 {
+                    cn.InfoMessage += new SqlInfoMessageEventHandler(OnInfoMessage);
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
                     {
@@ -99,6 +100,23 @@ namespace DefaultActivities
                 }
             }
             return result;
+        }
+        protected void OnInfoMessage(
+          object sender, SqlInfoMessageEventArgs args)
+        {
+            _logger.Write(args.Message);
+            //if ((args.Errors.Count) == 0)
+            //    return;
+
+            //foreach (SqlError err in args.Errors)
+            //{
+            //    _logger.Write(String.Format(
+            //  "source: {0}, severity: {1}, state: {2} error: {3}\n" +
+            //  "line: {4}, procedure: {5}, server: {6}:\n{7}",
+            //   err.Source, err.Class, err.State, err.Number, err.LineNumber,
+            //   err.Procedure, err.Server, err.Message));
+            //}
+
         }
 
     }

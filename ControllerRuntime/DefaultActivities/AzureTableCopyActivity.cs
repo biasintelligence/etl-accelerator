@@ -23,6 +23,8 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 using System.Data;
 using System.Data.SqlClient;
+
+
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -88,6 +90,7 @@ namespace DefaultActivities
 
             _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
             _logger.Write(String.Format("Copy: {0} -> {1}", _attributes[AZURE_TABLE_NAME], _attributes[SQL_TABLE_NAME]));
+            _logger.Write(String.Format("Delta: {0} > {1}", _attributes[CONTROL_COLUMN], _attributes[CONTROL_VALUE]));
 
         }
 
@@ -127,6 +130,9 @@ namespace DefaultActivities
                 TableQuery<DynamicTableEntity> tableQuery = new TableQuery<DynamicTableEntity>().Select(columnList);
                 if (!String.IsNullOrEmpty(_attributes[CONTROL_COLUMN]))
                 {
+                    if (String.IsNullOrEmpty(_attributes[CONTROL_VALUE]))
+                        throw new ArgumentException(String.Format("ControlValue is expected for {0}", _attributes[CONTROL_COLUMN]));
+
                     tableQuery = tableQuery.Where(this.GenerateFilterCondition(schema, _attributes[CONTROL_COLUMN], _attributes[CONTROL_VALUE]));
                 }
 
@@ -167,7 +173,7 @@ namespace DefaultActivities
                     // continue on the next iteration (or null if it has reached the end).
                     continuationToken = tableQueryResult.ContinuationToken;
 
-                    _logger.Write(String.Format("Rows retrieved {0}", schema.Rows.Count));
+                    _logger.Write(String.Format("Rows copied {0}", schema.Rows.Count));
 
                     // Loop until a null continuation token is received, indicating the end of the table.
                 } while (continuationToken != null);

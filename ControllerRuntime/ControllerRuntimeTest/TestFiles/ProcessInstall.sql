@@ -31,6 +31,7 @@ begin
 	,(40,'DefaultActivities.DefaultActivities.PostWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"EventArgs","Default":""}]',15)
 	,(41,'DefaultActivities.DefaultActivities.CheckWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]}]',12)
 	,(42,'DefaultActivities.DefaultActivities.AzureTableCopyActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"ControlColumn","Default":""},{"Name":"ControlValue","Default":""},{"Name":"isSasToken","Default":"false"}]',15)
+	,(43,'DefaultActivities.DefaultActivities.TableControlToCounterActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"CounterName","Default":"ControlValue"}]',15)
 
 
 
