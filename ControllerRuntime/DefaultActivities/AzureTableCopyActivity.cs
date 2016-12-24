@@ -127,7 +127,8 @@ namespace DefaultActivities
                     //.Union(new string[]{ AZURE_TABLE_PARTITION_KEY_COL,AZURE_TABLE_ROW_KEY_COL,AZURE_TABLE_TIMESTAMP_COL})
                     .ToList();
 
-                TableQuery<DynamicTableEntity> tableQuery = new TableQuery<DynamicTableEntity>().Select(columnList);
+                //TableQuery<DynamicTableEntity> tableQuery = new TableQuery<DynamicTableEntity>().Select(columnList);
+                TableQuery tableQuery = new TableQuery().Select(columnList);
                 if (!String.IsNullOrEmpty(_attributes[CONTROL_COLUMN]))
                 {
                     if (String.IsNullOrEmpty(_attributes[CONTROL_VALUE]))
@@ -139,6 +140,7 @@ namespace DefaultActivities
                 // Initialize the continuation token to null to start from the beginning of the table.
                 TableContinuationToken continuationToken = null;
                 TableRequestOptions requestOptions = GetRequestOptions(schema);
+                OperationContext ctx = new OperationContext();
 
                 EntityResolver<DataRow> resolver = (pk, rk, ts, props, etag) =>
                 {
@@ -150,30 +152,29 @@ namespace DefaultActivities
                     {
                         SetValue(schema, dataRow, prop);
                     }
+                    schema.Rows.Add(dataRow);
                     return dataRow;
                 };
 
                 do
                 {
 
-                    token.ThrowIfCancellationRequested();
-                    schema.Clear();
                     // Retrieve a segment (up to 1,000 entities).
-                    TableQuerySegment<DataRow> tableQueryResult =
-                        table.ExecuteQuerySegmented(tableQuery, resolver, continuationToken, requestOptions);
+                    Task<TableQuerySegment<DataRow>> task =
+                        table.ExecuteQuerySegmentedAsync<DataRow>(tableQuery, resolver, continuationToken, requestOptions, ctx, token);
 
-                    foreach (var row in tableQueryResult.Results)
-                    {
-                        schema.Rows.Add(row);
-                    }
-
-                    BulkLoad(schema);
+                    var tableQueryResult = task.Result;
+                    token.ThrowIfCancellationRequested();
 
                     // Assign the new continuation token to tell the service where to
                     // continue on the next iteration (or null if it has reached the end).
                     continuationToken = tableQueryResult.ContinuationToken;
-
-                    _logger.Write(String.Format("Rows copied {0}", schema.Rows.Count));
+                    if (schema.Rows.Count > 9000 || continuationToken == null)
+                    {
+                        _logger.Write(String.Format("Copy {0} rows", schema.Rows.Count));
+                        BulkLoad(schema);
+                        schema.Clear();
+                    }
 
                     // Loop until a null continuation token is received, indicating the end of the table.
                 } while (continuationToken != null);
@@ -238,45 +239,92 @@ namespace DefaultActivities
                 return;
 
             DataColumn match = schema.Columns[prop.Key];
-            if (match.DataType == typeof(Int32) && (prop.Value.Int32Value != null))
-            {
-                dataRow[match.ColumnName] = prop.Value.Int32Value;
-            }
-            else if (match.DataType == typeof(object) && (prop.Value.PropertyAsObject != null))
+            if (match.DataType == typeof(object) && (prop.Value.PropertyAsObject != null))
             {
                 dataRow[match.ColumnName] = prop.Value.PropertyAsObject;
             }
-            else if (match.DataType == typeof(bool) && (prop.Value.BooleanValue != null))
+            else if (match.DataType == typeof(bool))
             {
-                dataRow[match.ColumnName] = prop.Value.BooleanValue;
+                bool res;
+                if (prop.Value.PropertyType == EdmType.Boolean
+                    && prop.Value.BooleanValue != null)
+                    dataRow[match.ColumnName] = prop.Value.BooleanValue;
+                else if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null
+                    && bool.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
             }
-            else if (match.DataType == typeof(byte[]) && (prop.Value.BinaryValue != null))
+            else if (match.DataType == typeof(byte[])
+                && (prop.Value.PropertyType == EdmType.Binary
+                && prop.Value.BinaryValue != null))
             {
                 dataRow[match.ColumnName] = prop.Value.BinaryValue;
             }
-            else if (match.DataType == typeof(DateTime) && (prop.Value.DateTime != null))
+            else if (match.DataType == typeof(DateTime))
             {
-                dataRow[match.ColumnName] = prop.Value.DateTime;
+                DateTime res;
+                if (prop.Value.PropertyType == EdmType.DateTime
+                    && prop.Value.DateTime != null)
+                    dataRow[match.ColumnName] = prop.Value.DateTime;
+                else if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null
+                    && DateTime.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
             }
-            else if (match.DataType == typeof(DateTimeOffset) && (prop.Value.DateTimeOffsetValue != null))
+            else if (match.DataType == typeof(DateTimeOffset))
             {
-                dataRow[match.ColumnName] = prop.Value.DateTimeOffsetValue;
+                DateTimeOffset res;
+                if (prop.Value.PropertyType == EdmType.DateTime
+                    && prop.Value.DateTimeOffsetValue != null)
+                    dataRow[match.ColumnName] = prop.Value.DateTimeOffsetValue;
+                else if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null
+                    && DateTimeOffset.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
             }
-            else if (match.DataType == typeof(double) && (prop.Value.DoubleValue != null))
+            else if (match.DataType == typeof(double))
             {
-                dataRow[match.ColumnName] = prop.Value.DoubleValue;
+                Double res;
+                if (prop.Value.PropertyType == EdmType.Double
+                    && prop.Value.DoubleValue != null)
+                    dataRow[match.ColumnName] = prop.Value.DoubleValue;
+                else if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null
+                    && Double.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
             }
-            else if (match.DataType == typeof(Guid) && (prop.Value.GuidValue != null))
+            else if (match.DataType == typeof(Guid))
             {
-                dataRow[match.ColumnName] = prop.Value.GuidValue;
+                Guid res;
+                if (prop.Value.PropertyType == EdmType.Guid
+                    && prop.Value.GuidValue != null)
+                    dataRow[match.ColumnName] = prop.Value.GuidValue;
+                else if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null
+                    && Guid.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
             }
-            else if (match.DataType == typeof(int) && (prop.Value.Int32Value != null))
+            else if (match.DataType == typeof(Int32))
             {
-                dataRow[match.ColumnName] = prop.Value.Int32Value;
+                Int32 res;
+                if (prop.Value.PropertyType == EdmType.Int32
+                    && prop.Value.Int32Value != null)
+                    dataRow[match.ColumnName] = prop.Value.Int32Value;
+                else if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null
+                    && Int32.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
             }
-            else if (match.DataType == typeof(long) && (prop.Value.Int64Value != null))
+            else if (match.DataType == typeof(Int64))
             {
-                dataRow[match.ColumnName] = prop.Value.Int64Value;
+                Int64 res;
+                if (prop.Value.PropertyType == EdmType.Int64
+                    && prop.Value.Int64Value != null)
+                    dataRow[match.ColumnName] = prop.Value.Int64Value;
+                else if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null
+                    && Int64.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
             }
             else if (match.DataType == typeof(string) && (prop.Value.StringValue != null))
             {
