@@ -239,11 +239,7 @@ namespace DefaultActivities
                 return;
 
             DataColumn match = schema.Columns[prop.Key];
-            if (match.DataType == typeof(object) && (prop.Value.PropertyAsObject != null))
-            {
-                dataRow[match.ColumnName] = prop.Value.PropertyAsObject;
-            }
-            else if (match.DataType == typeof(bool))
+            if (match.DataType == typeof(bool))
             {
                 bool res;
                 if (prop.Value.PropertyType == EdmType.Boolean
@@ -252,6 +248,9 @@ namespace DefaultActivities
                 else if (prop.Value.PropertyType == EdmType.String
                     && prop.Value.StringValue != null
                     && bool.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
+                else if (prop.Value.PropertyAsObject != null
+                    && bool.TryParse(prop.Value.PropertyAsObject.ToString(), out res))
                     dataRow[match.ColumnName] = res;
             }
             else if (match.DataType == typeof(byte[])
@@ -270,6 +269,9 @@ namespace DefaultActivities
                     && prop.Value.StringValue != null
                     && DateTime.TryParse(prop.Value.StringValue, out res))
                     dataRow[match.ColumnName] = res;
+                else if (prop.Value.PropertyAsObject != null
+                    && DateTime.TryParse(prop.Value.PropertyAsObject.ToString(), out res))
+                    dataRow[match.ColumnName] = res;
             }
             else if (match.DataType == typeof(DateTimeOffset))
             {
@@ -280,6 +282,9 @@ namespace DefaultActivities
                 else if (prop.Value.PropertyType == EdmType.String
                     && prop.Value.StringValue != null
                     && DateTimeOffset.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
+                else if (prop.Value.PropertyAsObject != null
+                    && DateTimeOffset.TryParse(prop.Value.PropertyAsObject.ToString(), out res))
                     dataRow[match.ColumnName] = res;
             }
             else if (match.DataType == typeof(double))
@@ -292,6 +297,9 @@ namespace DefaultActivities
                     && prop.Value.StringValue != null
                     && Double.TryParse(prop.Value.StringValue, out res))
                     dataRow[match.ColumnName] = res;
+                else if (prop.Value.PropertyAsObject != null
+                    && Double.TryParse(prop.Value.PropertyAsObject.ToString(), out res))
+                    dataRow[match.ColumnName] = res;
             }
             else if (match.DataType == typeof(Guid))
             {
@@ -302,6 +310,9 @@ namespace DefaultActivities
                 else if (prop.Value.PropertyType == EdmType.String
                     && prop.Value.StringValue != null
                     && Guid.TryParse(prop.Value.StringValue, out res))
+                    dataRow[match.ColumnName] = res;
+                else if (prop.Value.PropertyAsObject != null
+                    && Guid.TryParse(prop.Value.PropertyAsObject.ToString(), out res))
                     dataRow[match.ColumnName] = res;
             }
             else if (match.DataType == typeof(Int32))
@@ -314,6 +325,9 @@ namespace DefaultActivities
                     && prop.Value.StringValue != null
                     && Int32.TryParse(prop.Value.StringValue, out res))
                     dataRow[match.ColumnName] = res;
+                else if (prop.Value.PropertyAsObject != null
+                    && Int32.TryParse(prop.Value.PropertyAsObject.ToString(), out res))
+                    dataRow[match.ColumnName] = res;
             }
             else if (match.DataType == typeof(Int64))
             {
@@ -325,11 +339,19 @@ namespace DefaultActivities
                     && prop.Value.StringValue != null
                     && Int64.TryParse(prop.Value.StringValue, out res))
                     dataRow[match.ColumnName] = res;
+                else if (prop.Value.PropertyAsObject != null
+                    && Int64.TryParse(prop.Value.PropertyAsObject.ToString(), out res))
+                    dataRow[match.ColumnName] = res;
             }
-            else if (match.DataType == typeof(string) && (prop.Value.StringValue != null))
+            else if (match.DataType == typeof(string))
             {
-                dataRow[match.ColumnName] = prop.Value.StringValue;
+                if (prop.Value.PropertyType == EdmType.String
+                    && prop.Value.StringValue != null)
+                    dataRow[match.ColumnName] = prop.Value.StringValue;
+                else if (prop.Value.PropertyAsObject != null)
+                    dataRow[match.ColumnName] = prop.Value.PropertyAsObject.ToString();
             }
+
         }
 
         private EdmType EdmTypeMap(Type type)
