@@ -1,4 +1,4 @@
-﻿create procedure dbo.prc_ExportMetadataScript
+﻿create procedure [dbo].[prc_ExportMetadataScript]
  @BatchName nvarchar(100) = null
 ,@BatchId int = null
 ,@Script nvarchar(max) = null out
@@ -111,6 +111,7 @@ from dbo.ETLBatchAttribute ba
 where ba.batchId = @batchId
 and  ba.AttributeName in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY');
 
+if (len(@sql) > 0)
 set @Script += '
 -------------------------------------------------------
 --Define workflow level system attributes
@@ -130,6 +131,7 @@ from dbo.ETLBatchAttribute ba
 where ba.batchId = @batchId
 and  ba.AttributeName not in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY');
 
+if (len(@sql) > 0)
 set @Script += '
 -------------------------------------------------------
 --Define workflow level user attributes
@@ -161,6 +163,7 @@ from dbo.ETLBatchConstraint where batchId = @batchId
 order by constId;
 
 
+if (len(@sql) > 0)
 set @Script += '
 set identity_insert dbo.ETLBatchConstraint on
 insert dbo.ETLBatchConstraint
@@ -268,6 +271,7 @@ from dbo.ETLStepAttribute sa
 where sa.batchId = @batchId and sa.stepId = @stepId
 and  sa.AttributeName in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP');
 
+if (len(@sql) > 0)
 set @Script += '
 -------------------------------------------------------
 --Define workflow step level system attributes
@@ -287,6 +291,7 @@ from dbo.ETLStepAttribute sa
 where sa.batchId = @batchId and sa.stepId = @stepId
 and  sa.AttributeName not in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP');
 
+if (len(@sql) > 0)
 set @Script += '
 -------------------------------------------------------
 --Define workflow step level user attributes
@@ -316,6 +321,7 @@ from dbo.ETLStepConstraint where batchId = @batchId and stepId = @stepId
 order by ConstId;
 
 
+if (len(@sql) > 0)
 set @Script += '
 set identity_insert dbo.ETLStepConstraint on
 insert dbo.ETLStepConstraint
@@ -391,4 +397,3 @@ begin catch
    set @msg = 'Failed to script etadata: ' + error_message();
    throw 50001, @msg, 1;
 end catch
-
