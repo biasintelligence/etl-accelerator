@@ -133,12 +133,12 @@ namespace ControllerRuntime
             set { this.is_disabled = value; }
         }
 
-        private int wf_max_thread;
+        private int wf_max_thread = 4;
         [XmlAttribute("MaxThread")]
         public int MaxThreads
         {
             get { return this.wf_max_thread; }
-            set { this.wf_max_thread = value; }
+            set { this.wf_max_thread = (value <= 0) ? 4 : value; }
         }
 
         private int wf_timeout = 7200; //sec
@@ -165,12 +165,12 @@ namespace ControllerRuntime
             set { this.wf_ping = (value <= 0) ? 10 : value; }
         }
 
-        private int wf_history_retention;
+        private int wf_history_retention = 30;
         [XmlAttribute("HistRet")]
         public int HistoryRetention
         {
             get { return this.wf_history_retention; }
-            set { this.wf_history_retention = value; }
+            set { this.wf_history_retention = (value <= 0) ? 30 : value; }
         }
 
         private int wf_retry = 0;

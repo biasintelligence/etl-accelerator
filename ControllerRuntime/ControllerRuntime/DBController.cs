@@ -209,7 +209,7 @@ end try
 begin catch
 	declare @msg nvarchar(1000);
 	declare @ProcessInfo xml;
-	SET @msg = 'Failed to ititialize new run for the Workflow ' + @batchName + ': ' + error_message();
+	SET @msg = 'Failed to initialize new run for the Workflow ' + @batchName + ': ' + error_message();
 	exec dbo.prc_CreateProcessInfo @ProcessInfo out,@BatchHeader,@msg;
 	exec dbo.prc_Print @ProcessInfo;
 	raiserror (@msg,11,11);
