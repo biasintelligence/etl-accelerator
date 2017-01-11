@@ -230,6 +230,36 @@ raiserror ('this is err test',0,1);
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
 
+        [TestMethod]
+        public void AzureFileDownload_Ok()
+        {
+            AzureFileDownloadActivity activity = new AzureFileDownloadActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_Controller; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("Prefix", @""));
+            list.Add(new WorkflowAttribute("Modified", @""));
+            list.Add(new WorkflowAttribute("OutputFolder", "C:\\Builds\\ZipFiles"));
+            list.Add(new WorkflowAttribute("FileShare", "xxx"));
+            list.Add(new WorkflowAttribute("AccountKey", "key"));
+            list.Add(new WorkflowAttribute("AccountName", "name"));
+            list.Add(new WorkflowAttribute("isSasToken", "true"));
+            list.Add(new WorkflowAttribute("Timeout", "0"));
+            list.Add(new WorkflowAttribute("SortOrder", "Desc"));
+            list.Add(new WorkflowAttribute("Count", ""));
+            list.Add(new WorkflowAttribute("CounterName", ""));
+            list.Add(new WorkflowAttribute("etl:BatchId", "1006"));
+            list.Add(new WorkflowAttribute("etl:StepId", "11"));
+            list.Add(new WorkflowAttribute("@RunId", "0"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
+
+
     }
 
 

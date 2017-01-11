@@ -103,11 +103,11 @@ namespace DefaultActivities
             {
 
                 CloudStorageAccount account;
-                ;
+
                 if (Boolean.Parse(_attributes[IS_SAS_TOKEN]))
                 {
                     StorageCredentials credentials = new StorageCredentials(_attributes[ACCOUNT_KEY]);
-                    account = new CloudStorageAccount(credentials, _attributes[ACCOUNT_NAME], useHttps: true);
+                    account = new CloudStorageAccount(credentials, _attributes[ACCOUNT_NAME], endpointSuffix: null, useHttps: true);
                 }
                 else
                 {
