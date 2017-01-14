@@ -64,6 +64,8 @@ namespace ControllerRuntime
                                     //do thread hard abort if it is stuck on Run
                                     //constraint logic should never allow this to happen thou
                                     const_result = runner.Run(linkedCts.Token);
+                                    logger.WriteDebug(String.Format("Constraint {0} current status = {1}", _item.Key, const_result.StatusCode.ToString()));
+
                                     if (const_result.StatusCode == WfStatus.Succeeded)
                                         break;
                                 }
@@ -93,10 +95,10 @@ namespace ControllerRuntime
             }
             finally
             {
+                logger.Write(String.Format("Finish Processing Workflow Constraint {0} with result - {1}", _item.Key, result.StatusCode.ToString()));
                 cts.Dispose();
             }
 
-            logger.Write(String.Format("Finish Processing Workflow Constraint {0} with result - {1}", _item.Key, result.StatusCode.ToString()));
             return result;
         }
 
