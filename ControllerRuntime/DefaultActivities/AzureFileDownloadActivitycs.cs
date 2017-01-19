@@ -49,7 +49,7 @@ namespace DefaultActivities
         private const string ETL_BATCHID = "etl:BatchId";
         private const string ETL_STEPID = "etl:StepId";
 
-        private static readonly List<string> sortList = new List<string>(2) { "Asc", "Desc" };
+        private static readonly List<string> sortList = new List<string>(2) { "Asc", "Desc", "None" };
         private const int MAX_COUNT = 0;
 
 

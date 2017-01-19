@@ -259,6 +259,34 @@ raiserror ('this is err test',0,1);
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
 
+        public void AwsS3Download_Ok()
+        {
+            AwsS3DownloadActivity activity = new AwsS3DownloadActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_Controller; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("Prefix", @"events-2017-01"));
+            list.Add(new WorkflowAttribute("OutputFolder", "C:\\Builds\\ZipFiles\\AWS"));
+            list.Add(new WorkflowAttribute("BucketName", "edx-course-data"));
+            //list.Add(new WorkflowAttribute("ProfileName", "testRunner"));
+            list.Add(new WorkflowAttribute("AccountName", "xxx"));
+            list.Add(new WorkflowAttribute("AccountKey", "yyy"));
+            list.Add(new WorkflowAttribute("RegionName", "us-east-1"));
+            list.Add(new WorkflowAttribute("Timeout", "0"));
+            list.Add(new WorkflowAttribute("SortOrder", "Desc"));
+            list.Add(new WorkflowAttribute("Count", ""));
+            list.Add(new WorkflowAttribute("CounterName", ""));
+            list.Add(new WorkflowAttribute("etl:BatchId", "1006"));
+            list.Add(new WorkflowAttribute("etl:StepId", "11"));
+            list.Add(new WorkflowAttribute("@RunId", "0"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
+
 
     }
 

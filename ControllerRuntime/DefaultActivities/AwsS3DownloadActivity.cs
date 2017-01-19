@@ -17,9 +17,10 @@ using System.Text;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Blob;
+using Amazon;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.Runtime;
 
 
 using ControllerRuntime;
@@ -29,15 +30,16 @@ namespace DefaultActivities
     /// <summary>
     /// returns true if file exists
     /// </summary>
-    public class AzureBlobDownloadActivity : IWorkflowActivity
+    public class AwsS3DownloadActivity : IWorkflowActivity
     {
         private const string CONNECTION_STRING = "ConnectionString";
         private const string INPUT_PREFIX = "Prefix";
         private const string OUTPUT_FOLDER = "OutputFolder";
-        private const string CONTAINER_NAME = "Container";
+        private const string CONTAINER_NAME = "BucketName";
+        //private const string PROFILE_NAME = "ProfileName";
+        private const string REGION_NAME = "RegionName";
         private const string ACCOUNT_NAME = "AccountName";
         private const string ACCOUNT_KEY = "AccountKey";
-        private const string IS_SAS_TOKEN = "isSasToken";
         private const string TIMEOUT = "Timeout";
         private const string SORT_ORDER = "SortOrder";
         private const string COUNT = "Count";
@@ -58,9 +60,10 @@ namespace DefaultActivities
             INPUT_PREFIX,
             OUTPUT_FOLDER,
             CONTAINER_NAME,
-            ACCOUNT_NAME,
+            REGION_NAME,
+            //PROFILE_NAME,
             ACCOUNT_KEY,
-            IS_SAS_TOKEN,
+            ACCOUNT_NAME,
             TIMEOUT,
             SORT_ORDER,
             COUNT,
@@ -139,60 +142,90 @@ namespace DefaultActivities
 
             try
             {
-                CloudStorageAccount account;
-                if (Boolean.Parse(_attributes[IS_SAS_TOKEN]))
+
+                //if(!Amazon.Util.ProfileManager.IsProfileKnown(_attributes[PROFILE_NAME]))
+                //{
+                //    Amazon.Util.ProfileManager.RegisterProfile(_attributes[PROFILE_NAME], _attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY]);
+                //}
+
+                //var credentials = new StoredProfileAWSCredentials(_attributes[PROFILE_NAME]);
+                RegionEndpoint endpoint = RegionEndpoint.GetBySystemName(_attributes[REGION_NAME]);
+                //using (var client = new AmazonS3Client(credentials, endpoint))
+                using (var client = new AmazonS3Client(_attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY], endpoint))
                 {
-                    StorageCredentials credentials = new StorageCredentials(_attributes[ACCOUNT_KEY]);
-                    account = new CloudStorageAccount(credentials, _attributes[ACCOUNT_NAME], endpointSuffix: null, useHttps: true);
-                }
-                else
-                {
-                    StorageCredentials credentials = new StorageCredentials(_attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY]);
-                    account = new CloudStorageAccount(credentials, useHttps: true);
-                }
 
-                CloudBlobClient blobClient = account.CreateCloudBlobClient();
+                    //ListBucketsRequest bucketRequest = new ListBucketsRequest();
+                    //ListBucketsResponse backetResponse;
+                    //backetResponse = client.ListBuckets(bucketRequest);
+                    //var buckets = backetResponse.Buckets;
 
-                //var container_list = blobClient.ListContainers();
-                //List<string> containerItems = container_list.OfType<CloudBlobContainer>().Select(b => b.Name).ToList();
+                    //GetBucketLocationResponse bucketLocationResponse = client.GetBucketLocation(_attributes[CONTAINER_NAME]);
 
+                    ListObjectsV2Request objectRequest = new ListObjectsV2Request
+                    {
+                        BucketName = _attributes[CONTAINER_NAME],
+                        MaxKeys = 100,
+                        Prefix = String.IsNullOrEmpty(_attributes[INPUT_PREFIX]) ? null : _attributes[INPUT_PREFIX]
+                    };
 
-                CloudBlobContainer container = blobClient.GetContainerReference(_attributes[CONTAINER_NAME]);
-                var list = container.ListBlobs(_attributes[INPUT_PREFIX], true);
-                //List<string> blobParents = list.OfType<CloudBlob>().Select(b => b.Parent.Prefix).Distinct().ToList();
+                    List<S3Object> objectlist = new List<S3Object>();
+                    ListObjectsV2Response objectResponse;
+                    do
+                    {
+                        objectResponse = client.ListObjectsV2(objectRequest);
+                        objectlist.AddRange(objectResponse.S3Objects);
+                        objectRequest.ContinuationToken = objectResponse.NextContinuationToken;
+                    } while (objectResponse.IsTruncated == true);
 
-                if (_attributes[SORT_ORDER].Equals(sortList[0], StringComparison.InvariantCultureIgnoreCase))
-                {
-                    list = list.OfType<CloudBlob>().OrderBy(b => b.Name);
-                }
-                if (_attributes[SORT_ORDER].Equals(sortList[1], StringComparison.InvariantCultureIgnoreCase))
-                {
-                    list = list.OfType<CloudBlob>().OrderByDescending(b => b.Name);
-                }
+                    IEnumerable<S3Object> list = objectlist;
+                    if (_attributes[SORT_ORDER].Equals(sortList[0], StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        list = list.OfType<S3Object>().OrderBy(b => b.Key);
+                    }
+                    if (_attributes[SORT_ORDER].Equals(sortList[1], StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        list = list.OfType<S3Object>().OrderByDescending(b => b.Key);
+                    }
 
-                if (count > 0)
-                {
-                    list = list.OfType<CloudBlob>().Take(count);
-                }
+                    if (count > 0)
+                    {
+                        list = list.OfType<S3Object>().Take(count);
+                    }
 
-                Dictionary<string, string> files = new Dictionary<string, string>();
-                Directory.CreateDirectory(_attributes[OUTPUT_FOLDER]);
-                int i = 0;
-                foreach (var blobItem in list.OfType<CloudBlob>())
-                {
-                    token.ThrowIfCancellationRequested();
-                    string outputFile = Path.Combine(_attributes[OUTPUT_FOLDER], blobItem.Name.Replace('/', '-'));
-                    if (File.Exists(outputFile))
-                        continue;
+                    Dictionary<string, string> files = new Dictionary<string, string>();
+                    Directory.CreateDirectory(_attributes[OUTPUT_FOLDER]);
+                    int i = 0;
+                    foreach (var blobItem in list.OfType<S3Object>())
+                    {
+                        token.ThrowIfCancellationRequested();
+                        string outputFile = Path.Combine(_attributes[OUTPUT_FOLDER], Path.GetFileName(blobItem.Key));
+                        if (File.Exists(outputFile))
+                            continue;
 
-                    //CloudBlob blob = container.GetBlobReference(blobItem);
-                    blobItem.DownloadToFile(outputFile, FileMode.OpenOrCreate);
+                        GetObjectRequest blobRequest = new GetObjectRequest
+                        {
+                            BucketName = _attributes[CONTAINER_NAME],
+                            Key = blobItem.Key
+                        };
+
+                        using (FileStream outputFileStream = File.Create(outputFile))
+                        using (GetObjectResponse blobResponse = client.GetObject(blobRequest))
+                        using (Stream responseStream = blobResponse.ResponseStream)
+                        //using (StreamReader reader = new StreamReader(responseStream))
+                        {
+                            responseStream.CopyTo(outputFileStream);
+                            //responseBody = reader.ReadToEnd();
+                        }
+
+                        _logger.WriteDebug(String.Format("downloaded: {0}", outputFile));
+
+                        if (setCounterInd)
+                            files.Add(String.Format("{0}_{1}", _attributes[COUNTER_NAME], i++), outputFile);
+                    }
+
                     if (setCounterInd)
-                        files.Add(String.Format("{0}_{1}", _attributes[COUNTER_NAME], i++), outputFile);
+                        counter.SetCounters(files);
                 }
-
-                if (setCounterInd)
-                    counter.SetCounters(files);
 
             }
             catch (Exception ex)

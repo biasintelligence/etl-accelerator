@@ -108,14 +108,11 @@ namespace DefaultActivities
                        FileAttributes.Hidden) != FileAttributes.Hidden & fileToCompress.Extension != ".gz")
                     {
                         using (FileStream compressedFileStream = File.Create(outputFile))
-                        {
-                            using (GZipStream compressionStream = new GZipStream(compressedFileStream,
+                        using (GZipStream compressionStream = new GZipStream(compressedFileStream,
                                CompressionMode.Compress))
-                            {
-                                originalFileStream.CopyTo(compressionStream);
-
-                            }
-                        }
+                       {
+                        originalFileStream.CopyTo(compressionStream);
+                       }
 
                         FileInfo info = new FileInfo(outputFile);
                         _logger.Write(String.Format("Compressed {0} from {1} to {2} bytes.",
@@ -137,45 +134,41 @@ namespace DefaultActivities
             string archive_name = archive.Replace(".tar.gz", "") + ".tar.gz";
             string outputFile = Path.Combine(output, archive_name);
 
-                using (Stream outStream = File.Create(outputFile))
+            using (Stream outStream = File.Create(outputFile))
+            using (Stream gzoStream = new GZipOutputStream(outStream))
+            using (TarArchive tarArchive = TarArchive.CreateOutputTarArchive(gzoStream))
+            {
+                try
                 {
-                    using (Stream gzoStream = new GZipOutputStream(outStream))
+                    // Note that the RootPath is currently case sensitive and must be forward slashes e.g. "c:/temp"
+                    // and must not end with a slash, otherwise cuts off first char of filename
+                    // This is scheduled for fix in next release
+                    tarArchive.RootPath = sourceDirectory.Replace('\\', '/');
+                    if (tarArchive.RootPath.EndsWith("/"))
+                        tarArchive.RootPath = tarArchive.RootPath.Remove(tarArchive.RootPath.Length - 1);
+
+                    TarEntry tarEntry = TarEntry.CreateEntryFromFile(sourceDirectory);
+                    tarArchive.WriteEntry(tarEntry, false);
+
+                    // Write each file to the tar.
+                    string[] files = Directory.GetFiles(sourceDirectory, Path.GetFileName(input), SearchOption.TopDirectoryOnly);
+                    foreach (string file in files)
                     {
-                        using (TarArchive tarArchive = TarArchive.CreateOutputTarArchive(gzoStream))
-                        {
-                        try
-                        {
-                            // Note that the RootPath is currently case sensitive and must be forward slashes e.g. "c:/temp"
-                            // and must not end with a slash, otherwise cuts off first char of filename
-                            // This is scheduled for fix in next release
-                            tarArchive.RootPath = sourceDirectory.Replace('\\', '/');
-                            if (tarArchive.RootPath.EndsWith("/"))
-                                tarArchive.RootPath = tarArchive.RootPath.Remove(tarArchive.RootPath.Length - 1);
-
-                            TarEntry tarEntry = TarEntry.CreateEntryFromFile(sourceDirectory);
-                            tarArchive.WriteEntry(tarEntry, false);
-
-                            // Write each file to the tar.
-                            string[] files = Directory.GetFiles(sourceDirectory, Path.GetFileName(input), SearchOption.TopDirectoryOnly);
-                            foreach (string file in files)
-                            {
-                                token.ThrowIfCancellationRequested();
+                        token.ThrowIfCancellationRequested();
  
-                                tarEntry = TarEntry.CreateEntryFromFile(file);
-                                tarArchive.WriteEntry(tarEntry, true);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
+                        tarEntry = TarEntry.CreateEntryFromFile(file);
+                        tarArchive.WriteEntry(tarEntry, true);
                     }
                 }
-
-                FileInfo info = new FileInfo(outputFile);
-                _logger.Write(String.Format("Compressed to {0} ({1} bytes)", info, info.Length.ToString()));
-
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
             }
+
+            FileInfo info = new FileInfo(outputFile);
+            _logger.Write(String.Format("Compressed to {0} ({1} bytes)", info, info.Length.ToString()));
+
         }
 
     }

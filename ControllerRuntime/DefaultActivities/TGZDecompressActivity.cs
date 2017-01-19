@@ -119,15 +119,11 @@ namespace DefaultActivities
                 string outputFile = Path.Combine(output, Path.GetFileNameWithoutExtension(file));
                 outputFile = String.Concat(outputFile, ext);
                 using (FileStream originalFileStream = fileToDecompress.OpenRead())
+                using (FileStream decompressedFileStream = File.Create(outputFile))
+                using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
                 {
-                    using (FileStream decompressedFileStream = File.Create(outputFile))
-                    {
-                        using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
-                        {
-                            decompressionStream.CopyTo(decompressedFileStream);
-                            _logger.Write(String.Format("Decompressed: {0}", fileToDecompress.Name));
-                        }
-                    }
+                    decompressionStream.CopyTo(decompressedFileStream);
+                    _logger.Write(String.Format("Decompressed: {0}", fileToDecompress.Name));
                 }
             }
         }
@@ -145,24 +141,19 @@ namespace DefaultActivities
                 token.ThrowIfCancellationRequested();
 
                 using (Stream inStream = File.OpenRead(file))
+                using (Stream gzipStream = new GZipInputStream(inStream))
+                using (TarArchive tarArchive = TarArchive.CreateInputTarArchive(gzipStream))
                 {
-                    using (Stream gzipStream = new GZipInputStream(inStream))
+                    try
                     {
-                        using (TarArchive tarArchive = TarArchive.CreateInputTarArchive(gzipStream))
-                        {
-                            try
-                            {
-                                tarArchive.ExtractContents(output);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex;
-                            }
-                        }
+                        tarArchive.ExtractContents(output);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
                     }
                 }
                 _logger.Write(String.Format("Decompressed to {0}", output));
-
             }
         }
 
