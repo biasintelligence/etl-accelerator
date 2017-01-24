@@ -32,9 +32,9 @@ begin
 ** ****************************************************************************  
 ** Date        Author   version  #bug   Description
 ** ----------------------------------------------------------------------------------------------------------  
-** 20011-12-29 andreys                  added type2 logic. Type2 columns are included columns in the UQ_SPK index
+** 20011-12-29 andrey                  added type2 logic. Type2 columns are included columns in the UQ_SPK index
                                                          also RecordStartDate, RecordEndDate columns are required  
-   2012-03-08       andreys             add extended property metadata
+   2012-03-08       andreys            add extended property metadata
 														table: hasMetadata = 1
 														column: isSPK = ordinal(1,2,3) --source PK ordinal
 															    isType2 = 1 -- type2 column
@@ -42,9 +42,10 @@ begin
 																isAction = 1 -- action column
 																isType2StartPeriod -- Type2 start period column
 																isType2EndPeriod -- Type2 end period column
-  2012-05-30		andreys				fix Soft Delete. After Soft Delete set ActionId to 1 - insert
-  2013-05-13		andreys				check for type2 columns
-  2013-05-21		andreys				move type2 filter from join to match clause
+  2012-05-30		andrey				fix Soft Delete. After Soft Delete set ActionId to 1 - insert
+  2013-05-13		andrey				check for type2 columns
+  2013-05-21		andrey				move type2 filter from join to match clause
+  2017-01-21		andrey				fix merge when table has only PK or SPK columns
 */  
   
    set nocount on  
@@ -402,7 +403,9 @@ begin catch
 end catch  
      '  
 --<appendnew> option
-   if (@appendnew = 0)
+--or dst only has pk/spk columns (no need for update)
+   if (@appendnew = 0
+   and exists (select 1 from #dstcol where spk = 0 and has_src = 1))
       set @query = replace(@query,'--1','')
 
 
@@ -463,8 +466,8 @@ begin
          (<dstlist>)
       on (<joinlist>)
 	 and (dst.' + @RecordEndCol + ' is null)
-	when matched <type1checksum> then
-  update Set <updatelist>
+--1	when matched <type1checksum> then
+--1  update Set <updatelist>
        when not matched by target then 
       insert (<dstlist>)
       values (<dstlist>);
@@ -494,6 +497,11 @@ begin catch
 end catch  
      '  
 
+--dst only has pk/spk columns (no need for update)
+   if exists (select 1 from #dstcol where spk = 0 and has_src = 1)
+      set @query = replace(@query,'--1','')
+
+
 --<type2checksum>
    set @sql1 = ''
    set @sql2 = ''
@@ -501,11 +509,13 @@ end catch
        ,@sql2 = @sql2 + ',dst.' + quotename([name])  
     from  #dstcol where [has_src] = 1 and [is_type2] = 1
       
-   set @sql1 = right(@sql1,len(@sql1) -1)
-   set @sql2 = right(@sql2,len(@sql2) -1)
-   set @sql1 = ' and binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
-   set @query = replace(@query,'<type2checksum>',@sql1)
-
+   if (len(@sql1) > 0)
+   begin
+	   set @sql1 = right(@sql1,len(@sql1) -1)
+	   set @sql2 = right(@sql2,len(@sql2) -1)
+	   set @sql1 = ' and binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
+	   set @query = replace(@query,'<type2checksum>',@sql1)
+   end
 
    end
 
@@ -518,7 +528,8 @@ end catch
       select @sql1 = @sql1 + ',' + quotename([src_name])
         from  #dstcol where [spk] > 0 and [is_type2] = 0
         order by [spk]
-      select @sql1 = 'create unique clustered index [uq_spk_' + parsename(@src,1) + '] on <src>(' + right(@sql1,len(@sql1) -1) +')'
+      
+	  select @sql1 = 'create unique clustered index [uq_spk_' + parsename(@src,1) + '] on <src>(' + right(@sql1,len(@sql1) -1) +')'
    end
 
    set @query = replace(@query,'<performanceindex>',@sql1)
@@ -533,11 +544,13 @@ end catch
             ,@sql2 = @sql2 + ',dst.' + quotename([name])  
       from  #dstcol where [has_src] = 1 and [spk] = 0 --and [is_type2] = 0
       
-      set @sql1 = right(@sql1,len(@sql1) -1)
-      set @sql2 = right(@sql2,len(@sql2) -1)
-      set @sql1 = ' and (binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
-                + case when @ActionCol is not null then ' or dst.' + @ActionCol + ' = 3' else '' end + ')'
-                
+      if (len(@sql1) > 0)
+	  begin
+		  set @sql1 = right(@sql1,len(@sql1) -1)
+		  set @sql2 = right(@sql2,len(@sql2) -1)
+		  set @sql1 = ' and (binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
+					+ case when @ActionCol is not null then ' or dst.' + @ActionCol + ' = 3' else '' end + ')'
+      end          
    end
    set @query = replace(@query,'<type1checksum>',@sql1)
 
@@ -557,9 +570,12 @@ end catch
          ,@sql2 = @sql2 + ',' + quotename([name])  
    from  #dstcol where [has_src] = 1 and [spk] = 0 --and [is_type2] = 0
 
-   set @sql1 = right(@sql1,len(@sql1) -1)
-   set @query = replace(@query,'<updatelist>',@sql1)
-
+   
+   if (len(@sql1) > 0)
+   begin
+	   set @sql1 = right(@sql1,len(@sql1) -1)
+	   set @query = replace(@query,'<updatelist>',@sql1)
+   end
 end
 
 --<selectlist>

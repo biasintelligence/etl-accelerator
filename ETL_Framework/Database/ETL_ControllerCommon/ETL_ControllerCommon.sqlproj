@@ -62,7 +62,7 @@
     <ChangeTrackingRetentionPeriod>2</ChangeTrackingRetentionPeriod>
     <ChangeTrackingRetentionUnit>Days</ChangeTrackingRetentionUnit>
     <CloseCursorOnCommitEnabled>False</CloseCursorOnCommitEnabled>
-    <CompatibilityMode>100</CompatibilityMode>
+    <CompatibilityMode>120</CompatibilityMode>
     <ConcatNullYieldsNull>True</ConcatNullYieldsNull>
     <DatabaseAccess>MULTI_USER</DatabaseAccess>
     <DatabaseChaining>False</DatabaseChaining>
@@ -71,7 +71,7 @@
     <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
     <DefaultCursor>GLOBAL</DefaultCursor>
     <DefaultFilegroup>PRIMARY</DefaultFilegroup>
-    <EnableFullTextSearch>True</EnableFullTextSearch>
+    <EnableFullTextSearch>False</EnableFullTextSearch>
     <IsBrokerPriorityHonored>False</IsBrokerPriorityHonored>
     <IsChangeTrackingAutoCleanupOn>True</IsChangeTrackingAutoCleanupOn>
     <IsChangeTrackingOn>False</IsChangeTrackingOn>

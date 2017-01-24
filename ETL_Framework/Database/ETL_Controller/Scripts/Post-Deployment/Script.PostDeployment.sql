@@ -11,23 +11,24 @@ Post-Deployment Script Template
 */
 
 :r .\Environment.sql
-:r .\Misc\PopulateImportProcess.sql
+:r .\Misc\PopulateWFRunnerImportProcess.sql
+--:r .\Misc\PopulateLegacyImportProcess.sql
 :r .\Misc\ETLMonitorPermissions.sql
-:r .\Workflows\Test.sql
-:r .\Workflows\Call_BCP.sql
-:r .\Workflows\Call_Powershell.sql
-:r .\Workflows\Call_SP.sql
-:r .\Workflows\FileCheck.sql
-:r .\Workflows\IncrementalStaging.sql
-:r .\Workflows\MoveData_Excel.sql
-:r .\Workflows\MoveData_TableToFile.sql
-:r .\Workflows\MoveData_TableToTable.sql
-:r .\Workflows\Process1.sql
-:r .\Workflows\Process2.sql
-:r .\Workflows\QueryType_MDX.sql
-:r .\Workflows\SeqGroup.sql
-:r .\Workflows\Step_WaitConstraint_Met.sql
-:r .\Workflows\Loop.sql
+--:r .\Workflows\Test.sql
+--:r .\Workflows\Call_BCP.sql
+--:r .\Workflows\Call_Powershell.sql
+--:r .\Workflows\Call_SP.sql
+--:r .\Workflows\FileCheck.sql
+--:r .\Workflows\IncrementalStaging.sql
+--:r .\Workflows\MoveData_Excel.sql
+--:r .\Workflows\MoveData_TableToFile.sql
+--:r .\Workflows\MoveData_TableToTable.sql
+--:r .\Workflows\Process1.sql
+--:r .\Workflows\Process2.sql
+--:r .\Workflows\QueryType_MDX.sql
+--:r .\Workflows\SeqGroup.sql
+--:r .\Workflows\Step_WaitConstraint_Met.sql
+--:r .\Workflows\Loop.sql
 
 
 
