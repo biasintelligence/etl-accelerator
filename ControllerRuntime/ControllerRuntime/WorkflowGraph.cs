@@ -233,7 +233,7 @@ namespace ControllerRuntime
             if (!(wf.WorkflowSteps == null))
             {
                 foreach (WorkflowStep wfs in wf.WorkflowSteps.OrderBy(key1 => key1.PriorityGroup)
-                    .ThenBy(key2 => key2.SequenceGroup)
+                    //.ThenBy(key2 => key2.SequenceGroup)
                     .ThenBy(key3 => key3.StepOrder))
                 {
                     if (wfs.IsDisabled)
