@@ -9,6 +9,7 @@
 *******************************************************************
 **  Date:            Author:            Description:
 *******************************************************************/
+// 2017-01-25       andrey              add delay logic to retries
 
 using System;
 using System.Collections.Generic;
@@ -87,10 +88,9 @@ namespace ControllerRuntime
                     attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.RunId);
                     WorkflowActivity step_activity = new WorkflowActivity(_step.StepProcess, attributes, _logger);
                     IWorkflowActivity step_runner = step_activity.Activate();
-
                     using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
                     {
-                        result = (ProcessRunAsync(step_runner, linkedCts.Token, _step.StepRetry, _logger)).Result;
+                        result = (ProcessRunAsync(step_runner, linkedCts.Token, _step.StepRetry, _step.StepDelayOnRetry, _logger)).Result;
                     }
 
                 }
@@ -115,7 +115,7 @@ namespace ControllerRuntime
 
                     using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
                     {
-                        WfResult task_result = (ProcessRunAsync(success_runner, linkedCts.Token, 0, _logger)).Result;
+                        WfResult task_result = (ProcessRunAsync(success_runner, linkedCts.Token, 0, 0, _logger)).Result;
                         if (task_result.StatusCode == WfStatus.Failed)
                             result = task_result;
                     }
@@ -139,7 +139,7 @@ namespace ControllerRuntime
 
                     using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
                     {
-                        WfResult task_result = (ProcessRunAsync(failure_runner, linkedCts.Token, 0, _logger)).Result;
+                        WfResult task_result = (ProcessRunAsync(failure_runner, linkedCts.Token, 0, 0, _logger)).Result;
                         if (task_result.StatusCode == WfStatus.Failed)
                             result = task_result;
                     }
@@ -167,7 +167,7 @@ namespace ControllerRuntime
             return result;
         }
 
-        private async Task<WfResult> ProcessRunAsync(IWorkflowActivity runner, CancellationToken token, int retry, IWorkflowLogger logger)
+        private async Task<WfResult> ProcessRunAsync(IWorkflowActivity runner, CancellationToken token, int retry, int delay, IWorkflowLogger logger)
         {
             return await Task.Factory.StartNew(() =>
             {
@@ -178,6 +178,10 @@ namespace ControllerRuntime
                     {
                         for (int i = 0; i <= retry && result.StatusCode != WfStatus.Succeeded; i++)
                         {
+
+                            if (i > 0 && delay > 0)
+                                Task.Delay(TimeSpan.FromSeconds(delay)).Wait();
+
                             //do thread hard abort if it is stuck on Run
                             result = runner.Run(token);
                             token.ThrowIfCancellationRequested();

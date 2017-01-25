@@ -9,6 +9,7 @@
 *******************************************************************
 **  Date:            Author:            Description:
 *******************************************************************/
+// 2017-01-25       andrey              fix cancel ping logic
 
 using System;
 using System.Collections.Generic;
@@ -181,7 +182,7 @@ namespace ControllerRuntime
 
                     while (!_cts.IsCancellationRequested)
                     {
-                        Thread.Sleep(_wf.Ping);
+                        Thread.Sleep(TimeSpan.FromSeconds(_wf.Ping));
                         WfResult cancel_result = _db.WorkflowExitEventCheck(_wf.WorkflowId, 0, _wf.RunId);
                         if (cancel_result.StatusCode != WfStatus.Running)
                         {

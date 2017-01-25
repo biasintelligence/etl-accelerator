@@ -9,6 +9,7 @@
 *******************************************************************
 **  Date:            Author:            Description:
 *******************************************************************/
+// 2017-01-25       andrey              set step retry = wf retry if not defined
 
 using System;
 using System.Collections.Generic;
@@ -241,6 +242,12 @@ namespace ControllerRuntime
 
                     if (!wfs.IsSetToRun)
                         continue;
+
+                    if (wfs.StepRetry == 0 && wf.Retry > 0)
+                    {
+                        wfs.StepRetry = wf.Retry;
+                        wfs.StepDelayOnRetry = wf.DelayOnRetry;
+                    }
 
                     base_node_set.Add(wfs);
                     base_status_set.Add(wfs.Key, WfResult.Unknown);
