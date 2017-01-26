@@ -16,7 +16,7 @@ namespace ETL_Framework
     {
         private string m_server = Settings.Default.Server;
         private string m_database = Settings.Default.Database;
-        private SqlConnection m_conn = new SqlConnection();
+        private string m_connectionString;
         private bool disposed = false;
 
         public ETLDBMonitor()
@@ -48,7 +48,6 @@ namespace ETL_Framework
 
         private void Connect(string Server,string Database)
         {
-            Disconnect();
             if (Server == "")
             {
                 throw new InvalidArgumentException("Server is required");
@@ -58,25 +57,13 @@ namespace ETL_Framework
                 throw new InvalidArgumentException("Database is required");
             }
 
-            m_conn.ConnectionString = String.Format("Persist Security Info=False;Integrated Security=SSPI;database={0};server={1}", Database, Server);
-                        
-            try
-            {
-                if (m_conn.State == ConnectionState.Closed)
-                {
-                    m_conn.Open();
-                }
-            }
-            catch (Exception)
-            {
-                throw new CouldNotConnectToDBController(Server, Database);
-            }
+            m_connectionString = String.Format("Persist Security Info=False;Integrated Security=SSPI;database={0};server={1}", Database, Server);
 
             // Create a dependency
             try
             {
-                SqlDependency.Stop(m_conn.ConnectionString);
-                SqlDependency.Start(m_conn.ConnectionString);
+                SqlDependency.Stop(m_connectionString);
+                SqlDependency.Start(m_connectionString);
             }
             catch (Exception)
             {
@@ -88,11 +75,12 @@ namespace ETL_Framework
 
         public void StartWorkflow(string batch,string options)
         {
+            using (SqlConnection con = new SqlConnection(m_connectionString))
             using (SqlCommand cmd = new SqlCommand())
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "[dbo].[prc_Execute]";
-                cmd.Connection = m_conn;
+                cmd.Connection = con;
                 cmd.Parameters.AddWithValue("@pBatchName", batch);
                 cmd.Parameters.AddWithValue("@Options", options);
                 cmd.ExecuteNonQuery();
@@ -102,11 +90,12 @@ namespace ETL_Framework
         public void CancelWorkflow(int batch, int runid)
         {
             if (batch == 0 || runid == 0) return;
+            using (SqlConnection con = new SqlConnection(m_connectionString))
             using (SqlCommand cmd = new SqlCommand())
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandText = "[dbo].[prc_ETLCounterSet]";
-                cmd.Connection = m_conn;
+                cmd.Connection = con;
                 cmd.Parameters.AddWithValue("@pBatchID", batch);
                 cmd.Parameters.AddWithValue("@pStepID", 0);
                 cmd.Parameters.AddWithValue("@pRunID", runid);
@@ -123,9 +112,9 @@ namespace ETL_Framework
             Connect(m_server,m_database);
         }
 
-        public SqlConnection Connection
+        public string ConnectionString
         {
-            get {return m_conn;}
+            get { return m_connectionString; }
         }
 
         public String Server
@@ -143,10 +132,9 @@ namespace ETL_Framework
 
         public void Disconnect()
         {
-            if (m_conn != null && m_conn.ConnectionString != String.Empty)
+            if (!String.IsNullOrEmpty(m_connectionString))
             {
-                SqlDependency.Stop(m_conn.ConnectionString);
-                m_conn.Close();
+                SqlDependency.Stop(m_connectionString);
             }
         }
 
