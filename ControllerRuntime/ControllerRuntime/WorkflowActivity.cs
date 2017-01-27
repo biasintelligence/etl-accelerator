@@ -9,6 +9,7 @@
 *******************************************************************
 **  Date:            Author:            Description:
 *******************************************************************/
+// 2017-01-26       andrey              allow default param value to be empty string
 
 using System;
 using System.Collections.Generic;
@@ -201,7 +202,7 @@ namespace ControllerRuntime
 
                     if (!ret)
                     {
-                        if (curr_param == null || String.IsNullOrEmpty(curr_param.Default))
+                        if (curr_param == null || curr_param.Default == null)
                         {
                             _logger.WriteError(String.Format("Attribute {0} is not found", name), -11);
                             break;
