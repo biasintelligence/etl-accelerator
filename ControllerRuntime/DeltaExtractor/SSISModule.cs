@@ -110,7 +110,11 @@ namespace BIAS.Framework.DeltaExtractor
 
             foreach (IDTSVirtualInputColumn100 inputColumn in in_ColumnCollection)
             {
-                if (inputColumn.Name.Equals(in_columnName, StringComparison.InvariantCultureIgnoreCase))
+                //[] brakets are removed to support MDX column name convention
+                //ssis doesnt like destination names with []
+                string inputCol = inputColumn.Name.Replace("[", "").Replace("]", "");
+                string outputCol = in_columnName.Replace("[", "").Replace("]", "");
+                if (inputCol.Equals(outputCol, StringComparison.InvariantCultureIgnoreCase))
                     return inputColumn.LineageID;
             }
             return 0;
