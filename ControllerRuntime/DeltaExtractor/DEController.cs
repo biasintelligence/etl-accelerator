@@ -43,10 +43,6 @@ namespace BIAS.Framework.DeltaExtractor
             {
                 actions[p.Action](p, logger);
             }
-            else
-            {
-                DERun.DisplayHelp(logger);
-            }
 
         }
 

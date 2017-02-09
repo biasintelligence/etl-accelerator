@@ -33,7 +33,6 @@ namespace DefaultActivities
     {
         //External Attributes
         private const string CONNECTION_STRING = "ConnectionString";
-        private const string XMLParameter = "XML";
 
         //For DE Parameter call
         private const string BATCH_ID = "@BatchID";
@@ -41,30 +40,12 @@ namespace DefaultActivities
         private const string RUN_ID = "@RunID";
 
 
-        private string _connection_string;
-
-
-        private const string DE_PARAMETER_QUERY = @"
-            declare @pHeader xml;
-            declare @pContext xml;
-            declare @pProcessRequest xml;
-            declare @pParameters xml;
-            exec dbo.prc_CreateHeader @pHeader out,{0},{1},null,{2},{3},15;
-            exec dbo.prc_CreateContext @pContext out,@pHeader;
-            exec dbo.prc_CreateProcessRequest @pProcessRequest out,@pHeader,@pContext;
-            exec dbo.prc_de_CreateParameters @pParameters out, @pProcessRequest;
-            select cast(@pParameters as nvarchar(max));
-            ";
-
-        private const string XML_HEADER = "<?xml version=\"1.0\"?>";
-
         //Require validation
         private WorkflowActivityParameters _parameters = WorkflowActivityParameters.Create();
 
         private IWorkflowLogger _logger;
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private List<string> _required_attributes = new List<string>() { CONNECTION_STRING, BATCH_ID, STEP_ID, RUN_ID };
-        //private List<string> _required_attributes = new List<string>() { BATCH_ID, STEP_ID, RUN_ID };
 
         #region IWorkflowActivity
         public string[] RequiredAttributes
@@ -88,13 +69,13 @@ namespace DefaultActivities
             foreach (WorkflowAttribute attribute in args.RequiredAttributes)
             {
                 if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
+                {
                     _attributes.Add(attribute.Name, attribute.Value);
+                    _parameters.Add(attribute.Name, attribute.Value);
+                }
             }
 
-            DeParameters();
-
             _logger.WriteDebug(String.Format("Conn: {0}", _attributes[CONNECTION_STRING]));
-            _logger.WriteDebug(String.Format("DE Command: {0}", _parameters.Get(XMLParameter)));
 
         }
 
@@ -109,53 +90,6 @@ namespace DefaultActivities
             return runner.Start(_parameters,_logger);
         }
         #endregion
-
-        private void DeParameters()
-        {
-            var settings = ConfigurationManager.AppSettings;
-            _connection_string = _attributes[CONNECTION_STRING]; //settings["Controller"];
-
-            StringBuilder sb = new StringBuilder(XML_HEADER);
-            SqlConnection cn = new SqlConnection(_connection_string);
-            string cmd_text = String.Format(DE_PARAMETER_QUERY,
-                _attributes[BATCH_ID],
-                _attributes[STEP_ID],
-                _attributes[RUN_ID],
-                ((_logger.Mode) ? 1 : 0));
-            try
-            {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
-                {
-                    cmd.CommandTimeout = 30;
-                    sb.Append(cmd.ExecuteScalar().ToString());
-                    //sb.Replace("\"","\\\"");
-                    //sb.Insert(0, '\"').Append('\"');
-
-                    _logger.WriteDebug(String.Format("CommandText : {0}", cmd.CommandText));
-                    _logger.WriteDebug(String.Format("sb : {0}", sb.ToString()));
-
-                    if (_parameters == null)
-                    {
-                        _logger.WriteDebug("_parameters is null!");
-                    }
-
-                    _parameters.Add(XMLParameter, sb.ToString());
-                }
-            }
-            catch (SqlException ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (cn.State != ConnectionState.Closed)
-                    cn.Close();
-            }
-        }
-
-
-
 
     }
 }

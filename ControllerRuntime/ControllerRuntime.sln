@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowRunner", "WorkflowR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeltaExtractor", "DeltaExtractor\DeltaExtractor.csproj", "{3E531402-D292-4E5B-9F46-9CAB914C5CD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeltaExtractorConsole", "DeltaExtractorConsole\DeltaExtractorConsole.csproj", "{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,14 @@ Global
 		{3E531402-D292-4E5B-9F46-9CAB914C5CD7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E531402-D292-4E5B-9F46-9CAB914C5CD7}.Release|x64.ActiveCfg = Release|Any CPU
 		{3E531402-D292-4E5B-9F46-9CAB914C5CD7}.Release|x64.Build.0 = Release|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Debug|x64.Build.0 = Debug|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Release|x64.ActiveCfg = Release|Any CPU
+		{154E3F3F-EB5C-4F09-BE1E-82B8CB97A6DB}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
