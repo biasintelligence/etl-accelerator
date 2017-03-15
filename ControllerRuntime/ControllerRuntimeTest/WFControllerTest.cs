@@ -11,17 +11,17 @@ namespace ControllerRuntimeTest
     [TestClass]
     public class WFControllerTest
     {
-        const string connectionString = @"Server=.\Sql14;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
+        const string connectionString = @"Server=.;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
 
         [TestMethod]
         public void WFRun_Ok()
         {
             string runnerName = "UTTest";
-            string WFName = "Test100";
+            string WFName = "Dreamspark-imaging-sync";
             WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
             wfp.ConnectionString = connectionString;
             wfp.WorkflowName = WFName;
-            WfResult wr = wfp.Run(new string[] { "debug" });
+            WfResult wr = wfp.Run(new string[] { "debug","forcestart" });
             Assert.IsTrue(wr.StatusCode == WfStatus.Succeeded);
 
         }

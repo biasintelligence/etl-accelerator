@@ -1,5 +1,4 @@
-﻿--exec [prc_StagingTableUpload] 'dbo.staging_TestProperty','dbo.TestProperty',0,'debug'
-create procedure [dbo].[prc_StagingTableUpload] (  
+﻿create procedure [dbo].[prc_StagingTableUpload] (  
     @src      sysname  
    ,@dst      sysname
    ,@RunId    int = 0
@@ -46,6 +45,8 @@ begin
   2013-05-13		andrey				check for type2 columns
   2013-05-21		andrey				move type2 filter from join to match clause
   2017-01-21		andrey				fix merge when table has only PK or SPK columns
+  2017-03-13		andrey				comment audit calls + allow identity on pk
+
 */  
   
    set nocount on  
@@ -303,7 +304,7 @@ set @dt = getdate();
 begin try
 if exists (select 1 from <src>)
 begin
-   exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId out,@AuditMode = 1,@AuditObject = ''<dst>'',@Op = ''<op>'',@RunId = @RunID,@Options = @Options
+   --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId out,@AuditMode = 1,@AuditObject = ''<dst>'',@Op = ''<op>'',@RunId = @RunID,@Options = @Options
 '
 + case when @reload = 1 then ' truncate table <dst> ' else '' end
 + '  
@@ -317,18 +318,19 @@ begin
   --raiserror(''%d rows reloaded into <dst> table'',0,1,@rows) with nowait 
   <IdentityOff>
 
-   exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
-   exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Options = @Options
+   --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
+   --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Options = @Options
 
 end  
 end try  
-begin catch  
+begin catch
+  <IdentityOff>
    declare @msg nvarchar(500)  
    set @msg = error_message()
    set @Err = error_number()
   
-   if (@AuditId is not null) 
-      exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Err = @Err,@Options = @Options
+   --if (@AuditId is not null) 
+   --   exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Err = @Err,@Options = @Options
    raiserror (@msg,11,17) 
 end catch  
      '  
@@ -366,7 +368,7 @@ begin
 begin try
 if exists (select 1 from <src>)
 begin
-  exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId out,@AuditMode = 1,@AuditObject = ''<dst>'',@Op = ''<op>'',@RunId = @RunID,@Options = @Options
+  --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId out,@AuditMode = 1,@AuditObject = ''<dst>'',@Op = ''<op>'',@RunId = @RunID,@Options = @Options
   <performanceindex>
 
   <IdentityOn>
@@ -387,18 +389,19 @@ begin
   --raiserror(''%d rows merged into <dst> table'',0,1,@rows) with nowait 
   <IdentityOff>
 
-  exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
-  exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Options = @Options
+  --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
+  --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Options = @Options
 
 end  
 end try  
 begin catch  
+  <IdentityOff>
    declare @msg nvarchar(500)  
    set @msg = error_message()
    set @Err = error_number()
   
-   if (@AuditId is not null) 
-      exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Err = @Err,@Options = @Options
+   --if (@AuditId is not null) 
+   --   exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Err = @Err,@Options = @Options
    raiserror (@msg,11,17) 
 end catch  
      '  
@@ -446,7 +449,7 @@ end catch
 begin try
 if exists (select 1 from <src>)
 begin
-  exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId out,@AuditMode = 1,@AuditObject = ''<dst>'',@Op = ''<op>'',@RunId = @RunID,@Options = @Options
+  --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId out,@AuditMode = 1,@AuditObject = ''<dst>'',@Op = ''<op>'',@RunId = @RunID,@Options = @Options
   <performanceindex>
 
    begin tran;
@@ -477,8 +480,8 @@ begin
 
   commit tran;
 
-  exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
-  exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Options = @Options
+  --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
+  --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Options = @Options
 
 end  
 end try  
@@ -491,8 +494,8 @@ begin catch
    set @msg = error_message()
    set @Err = error_number()
   
-   if (@AuditId is not null) 
-      exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Err = @Err,@Options = @Options
+   --if (@AuditId is not null) 
+   --   exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Err = @Err,@Options = @Options
    raiserror (@msg,11,17) 
 end catch  
      '  
@@ -597,10 +600,10 @@ set @query = replace(@query, '<selectlist>', @sql1)
 set @query = replace(@query, '<dstlist>', @sql2)  
 
 --<Identity>
-if exists(select 1 from  #dstcol where [is_ident] = 1 and [pk] = 0 and [has_src] = 1)
+if exists(select 1 from  #dstcol where [is_ident] = 1 and [has_src] = 1) -- and [pk] = 0
 begin
-   set @query = replace(@query, '<IdentityOn>', 'set identity_insert <dst> on')  
-   set @query = replace(@query, '<IdentityOff>', 'set identity_insert <dst> off')  
+   set @query = replace(@query, '<IdentityOn>', 'set identity_insert <dst> on;')  
+   set @query = replace(@query, '<IdentityOff>', 'set identity_insert <dst> off;')  
 end
 else
 begin
@@ -642,5 +645,5 @@ begin catch
 end catch  
   
    return @err  
-end  
-go
+end
+;

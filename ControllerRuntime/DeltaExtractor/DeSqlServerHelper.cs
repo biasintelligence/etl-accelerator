@@ -135,7 +135,11 @@ namespace BIAS.Framework.DeltaExtractor
         {
             get
             {
-                return String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}.{1}", (this.tbl_database == UNKNOWN) ? this.database : this.tbl_database, TableName);
+                if (this.tbl_database == UNKNOWN)
+                    return $"{this.database.AddQuotes()}.{TableName}";
+                else
+                    return $"{this.tbl_database}.{TableName}";
+
             }
         }
 
@@ -143,7 +147,7 @@ namespace BIAS.Framework.DeltaExtractor
         {
             get
             {
-                return String.Format(System.Globalization.CultureInfo.InvariantCulture, "{0}.{1}", this.server, CanonicTableName);
+                return $"{this.server}.{CanonicTableName}";
             }
         }
 
@@ -189,18 +193,23 @@ namespace BIAS.Framework.DeltaExtractor
                 //string[] tempTableName = ParseTableName(TableName);
                 using (SqlConnection cn = new SqlConnection())
                 {
-                    //cn.ConnectionString = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Server={0};Database={1};Trusted_Connection=yes", tempTableName[tempTableName.Length - 4], tempTableName[tempTableName.Length - 3]);
-                    //overide cn database if Staging and Destination are different
-                    if (this.tbl_database == UNKNOWN)
-                    {
-                        cn.ConnectionString = ConnectionString;
-                    }
-                    else
-                    {
-                        cn.ConnectionString = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Server={0};Database={1};Trusted_Connection=yes", this.server, this.tbl_database);
-                    }
+                    cn.ConnectionString = ConnectionString;
+                    //if (this.tbl_database == UNKNOWN)
+                    //{
+                    //    cn.ConnectionString = ConnectionString;
+                    //}
+                    //else
+                    //{
+                    //    cn.ConnectionString = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Server={0};Database={1};Trusted_Connection=yes", this.server, this.tbl_database.RemoveQuotes());
+                    //}
                     cn.Open();
-                    using (SqlCommand cmd = new SqlCommand(String.Format(System.Globalization.CultureInfo.InvariantCulture, "select OBJECTPROPERTY(object_id('{0}'),'IsTable')", this.tablename), cn))
+                    using (SqlCommand cmd = new SqlCommand(String.Format(System.Globalization.CultureInfo.InvariantCulture,
+@"if(object_id('{0}','U') is not null)
+    select 1
+else if (object_id('{0}', 'V') is not null)
+    select 0
+else select cast(null as int)",
+                        this.CanonicTableName), cn))
                     {
                         cmd.CommandTimeout = this.DBConnection.QueryTimeout;
                         cmd.CommandType = CommandType.Text;
@@ -374,8 +383,8 @@ namespace BIAS.Framework.DeltaExtractor
                 strTableName = strTableName.Replace("..", ".dbo.");
             }
 
-            strTableName = strTableName.Replace("[", "");
-            strTableName = strTableName.Replace("]", "");
+            //strTableName = strTableName.Replace("[", "");
+            //strTableName = strTableName.Replace("]", "");
 
             string[] retarr = strTableName.Split('.');
 

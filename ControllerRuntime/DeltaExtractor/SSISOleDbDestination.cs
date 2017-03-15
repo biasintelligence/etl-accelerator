@@ -46,11 +46,11 @@ namespace BIAS.Framework.DeltaExtractor
             //default - OpenRowset; ovveride OpenRowset with stagingtablename if staging is used
             if (!(dbdst.StagingBlock == null) && dbdst.StagingBlock.Staging)
             {
-                dcomp.SetComponentProperty("OpenRowset", dbdst.StagingBlock.StagingTableName);
+                dcomp.SetComponentProperty("OpenRowset", dbdst.StagingBlock.StagingTableName.RemoveQuotes());
             }
             else
             {
-                dcomp.SetComponentProperty("OpenRowset", dbdst.TableName);
+                dcomp.SetComponentProperty("OpenRowset", dbdst.TableName.RemoveQuotes());
             }
 
             if (comp.RuntimeConnectionCollection.Count > 0)
