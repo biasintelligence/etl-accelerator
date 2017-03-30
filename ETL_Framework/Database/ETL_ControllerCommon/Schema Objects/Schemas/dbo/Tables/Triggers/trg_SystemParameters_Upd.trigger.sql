@@ -64,13 +64,13 @@ CREATE TRIGGER [trg_SystemParameters_Upd] ON [dbo].[SystemParameters] FOR UPDATE
             IF UPDATE(ParameterValue_Current)
 			BEGIN
 				SET @msg = 'Operation is not allowed: update @ParameterName: ' + @ParameterName + ' = ' + @ParameterValue_Current;
-                RAISERROR (50025, @msg, 0,1);
+                THROW 50025, @msg, 1;
 			END
 
             IF UPDATE(ParameterValue_New)
 			BEGIN
 				SET @msg = 'Operation is not allowed: update @ParameterName: ' + @ParameterName + ' = ' + @ParameterValue_New;
-                RAISERROR (50025, @msg, 0,1);
+                THROW 50025, @msg, 1;
 			END
 
             FETCH hC INTO @ParameterName, @ParameterValue_Current, @ParameterValue_New

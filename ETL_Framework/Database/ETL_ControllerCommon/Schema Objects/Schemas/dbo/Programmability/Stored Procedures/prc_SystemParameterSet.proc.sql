@@ -22,7 +22,7 @@ CREATE PROCEDURE [dbo].[prc_SystemParameterSet] (
     */
 
     DECLARE @FAIL smallint                      -- Failure code for RETURN.
-    DECLARE @SUCCEED int                        -- Success code for RETURN.
+    DECLARE @SUCCEED smallint                   -- Success code for RETURN.
 
     DECLARE @ProcedureName sysname              -- This procedure.
 	DECLARE @msg nvarchar(1000)
@@ -83,8 +83,9 @@ CREATE PROCEDURE [dbo].[prc_SystemParameterSet] (
     RETURN @SUCCEED;
 	END TRY
 	BEGIN CATCH
-		SET @msg = ERROR_MESSAGE();
 		SET @err = ERROR_NUMBER();
+		SET @msg = CAST(@err AS NVARCHAR(100)) + ': ' + ERROR_MESSAGE();
+		THROW 50000, @msg,1;
 		THROW @Err, @msg,1;
 		RETURN @FAIL;
 	END CATCH
