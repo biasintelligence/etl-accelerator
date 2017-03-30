@@ -46,8 +46,9 @@ begin
   2013-05-21		andrey				move type2 filter from join to match clause
   2017-01-21		andrey				fix merge when table has only PK or SPK columns
   2017-03-13		andrey				comment audit calls + allow identity on pk
-
-*/  
+  2017-03-30		andrey				remove src/dst db if the same to support azure dbs 
+*/
+--exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
   
    set nocount on  
   
@@ -99,21 +100,24 @@ begin
 -----------------------------------------------------------------------------------------------------  
    if (charindex('#',parsename(@src,1)) > 0)  
    begin  
-      set @srcdb = quotename('tempdb')  
+      set @srcdb = quotename('tempdb') + '.';  
       set @src = quotename(parsename(@src,1))  
    end  
    else  
    begin  
-      set @srcdb = quotename(isnull(parsename(@src,3),db_name()))  
+      set @srcdb = isnull(parsename(@src,3),db_name())
+      set @srcdb = case when @srcdb = db_name() then '' else quotename(@srcdb) + '.' end;
+
       set @src = @srcdb  
-               + '.' + quotename(isnull(parsename(@src,2),'dbo'))  
-               + '.' + quotename(parsename(@src,1))  
+               + quotename(isnull(parsename(@src,2),'dbo')) + '.'
+			   + quotename(parsename(@src,1));
    end  
   
-   set @dstdb = quotename(isnull(parsename(@dst,3),db_name()))  
+   set @dstdb = isnull(parsename(@dst,3),db_name());
+   set @dstdb = case when @dstdb = db_name() then '' else quotename(@dstdb) + '.' end;
    set @dst = @dstdb  
-            + '.' + quotename(isnull(parsename(@dst,2),'dbo'))  
-            + '.' + quotename(parsename(@dst,1))  
+            + quotename(isnull(parsename(@dst,2),'dbo')) + '.'
+			+ quotename(parsename(@dst,1))  
   
   
   create table #srccol  
@@ -151,9 +155,9 @@ begin
 begin try 
   
    set @is_tbl = 0;
-   if (object_id(case when @srcdb = quotename('tempdb') then @srcdb + '..' else '' end + @src,'U') is not null)
+   if (object_id(case when @srcdb = quotename('tempdb') + '.' then @srcdb + '.' else '' end + @src,'U') is not null)
       set @is_tbl = 1;
-   else if (object_id(case when @srcdb = quotename('tempdb') then @srcdb + '..' else '' end + @src) is null)  
+   else if (object_id(case when @srcdb = quotename('tempdb') + '.' then @srcdb + '.' else '' end + @src) is null)  
       raiserror('ERROR: unknown source table in %s',11,10,@src)  
      
    if (object_id(@dst) is null)  
@@ -168,13 +172,13 @@ begin try
    set @query = '  
       insert #srccol  
       select s.[name],s.system_type_id,s.max_length,s.[precision],s.[scale],isnull(ispkc.[key_ordinal],0)  
-        from ' + @srcdb + '.sys.columns s
-    left join ' + @srcdb + '.sys.indexes ispk on ispk.[object_id] = s.[object_id] and  ispk.name like ''UQ_SPK_%''
-    left join ' + @srcdb + '.sys.index_columns ispkc
+        from ' + @srcdb + 'sys.columns s
+    left join ' + @srcdb + 'sys.indexes ispk on ispk.[object_id] = s.[object_id] and  ispk.name like ''UQ_SPK_%''
+    left join ' + @srcdb + 'sys.index_columns ispkc
            on ispk.[object_id] = ispkc.[object_id]
           and ispk.[index_id] = ispkc.[index_id]
           and s.[column_id] = ispkc.[column_id] 
-       where s.[object_id] = object_id(''' + case when @srcdb = quotename('tempdb') then @srcdb + '..' else '' end + @src + ''')  
+       where s.[object_id] = object_id(''' + case when @srcdb = quotename('tempdb') + '.' then @srcdb + '.' else '' end + @src + ''')  
      '  
   
    --if (@debug = 1)  
@@ -266,7 +270,7 @@ begin
 end
 '
   
-   set @query = replace(@query,'<db>',@dstdb)
+   set @query = replace(@query,'<db>.',@dstdb)
    exec sp_executesql @query,N'@dst sysname',@dst = @dst
 
    --if (@debug is not null)
@@ -616,7 +620,7 @@ end
 --<dstdb>  
 set @query = replace(@query, '<dst>', @dst)  
 set @query = replace(@query, '<src>', @src)  
-set @query = replace(@query, '<dstdb>', @dstdb)  
+set @query = replace(@query, '<dstdb>.', @dstdb)  
   
 --<op>
 set @sql1 = case when @reload = 1 then 'RELOAD'

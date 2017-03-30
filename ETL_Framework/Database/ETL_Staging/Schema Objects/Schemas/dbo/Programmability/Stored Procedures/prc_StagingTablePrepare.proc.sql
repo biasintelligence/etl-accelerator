@@ -1,5 +1,4 @@
-﻿--exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
-create procedure [dbo].[prc_StagingTablePrepare] (
+﻿create procedure [dbo].[prc_StagingTablePrepare] (
     @src           sysname
    ,@dst           sysname = null output
    ,@runid         int = null
@@ -9,8 +8,6 @@ begin
 /******************************************************************************
 ** File:	[prc_StagingTablePrepare].sql
 ** Name:	[dbo].[prc_StagingTablePrepare]
-
-** SD Location: VSS/Development/SubjectAreas/BI/Database/Schema/Procedure/[prc_StagingTablePrepare].sql:
 
 ** Desc:	prepare staging table. Create one or tructate if present. Proc uses @src table as template
 **          
@@ -37,7 +34,10 @@ begin
 																isType2EndPeriod -- Type2 end period column
 																isAction = 1 -- action column
 
+  2017-03-13		andrey								add ident column back
+  2017-03-30		andrey								remove src/dst db if the same to support azure dbs 
 */
+--exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
 
    set nocount on
 
@@ -81,9 +81,11 @@ begin
 -----------------------------------------------------------------------------------------------------
 --table name normalization
 -----------------------------------------------------------------------------------------------------
-   set @srcDB = quotename(isnull(parsename(@src,3),DB_NAME()))
+   set @srcDB = isnull(parsename(@src,3),DB_NAME())
+   set @srcdb = case when @srcdb = db_name() then '' else quotename(@srcdb) + '.' end;
+
    set @srcSchema = quotename(isnull(parsename(@src,2),'dbo'))
-   set @src = @srcDB+ '.' + @srcSchema+ '.' + quotename(parsename(@src,1))
+   set @src = case when len(@srcDB) > 0 then @srcDB + '.' else '' end + @srcSchema+ '.' + quotename(parsename(@src,1))
    if (@quotename = 0)
    	   set @dst = isnull(parsename(isnull(@dst,@src),2),'dbo')
 				+ '.' + isnull(parsename(@dst,1),'staging_' + parsename(@src,1))
@@ -169,7 +171,7 @@ begin
 end
 '
     
-   set @query = replace(@query,'<db>',@srcDB)
+   set @query = replace(@query,'<db>.',@srcDB)
    --print @query
    exec sp_executesql @query,N'@src sysname',@src = @src
 
@@ -190,7 +192,8 @@ end
    --remove dw specific columns
    delete #srccol where [name] in (@AuditCol,@ActionCol,@RecordStartCol,@RecordEndCol)
    --remove identity column
-   delete #srccol where [is_ident] = 1
+   --need it for sync processing
+   --delete #srccol where [is_ident] = 1
 
    --use spk as pk if provided
    if (exists(select 1 from #srccol where [spk] > 0))
@@ -318,4 +321,3 @@ end catch
 
    return @err
 end
-go
