@@ -78,12 +78,25 @@ namespace ETL_Framework
             using (SqlConnection con = new SqlConnection(m_connectionString))
             using (SqlCommand cmd = new SqlCommand())
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = "[dbo].[prc_Execute]";
-                cmd.Connection = con;
-                cmd.Parameters.AddWithValue("@pBatchName", batch);
-                cmd.Parameters.AddWithValue("@Options", options);
-                cmd.ExecuteNonQuery();
+                try
+                {
+                    con.Open();
+                    cmd.Connection = con;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "[dbo].[prc_Execute]";
+                    cmd.Parameters.AddWithValue("@pBatchName", batch);
+                    cmd.Parameters.AddWithValue("@Options", options);
+                    cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    if (con.State != ConnectionState.Closed)
+                        con.Close();
+                }
             }
         }
 
@@ -93,15 +106,28 @@ namespace ETL_Framework
             using (SqlConnection con = new SqlConnection(m_connectionString))
             using (SqlCommand cmd = new SqlCommand())
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandText = "[dbo].[prc_ETLCounterSet]";
-                cmd.Connection = con;
-                cmd.Parameters.AddWithValue("@pBatchID", batch);
-                cmd.Parameters.AddWithValue("@pStepID", 0);
-                cmd.Parameters.AddWithValue("@pRunID", runid);
-                cmd.Parameters.AddWithValue("@pName", "ExitEvent");
-                cmd.Parameters.AddWithValue("@pValue", "4");
-                cmd.ExecuteNonQuery();
+                try
+                {
+                    con.Open();
+                    cmd.Connection = con;
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "[dbo].[prc_ETLCounterSet]";
+                    cmd.Parameters.AddWithValue("@pBatchID", batch);
+                    cmd.Parameters.AddWithValue("@pStepID", 0);
+                    cmd.Parameters.AddWithValue("@pRunID", runid);
+                    cmd.Parameters.AddWithValue("@pName", "ExitEvent");
+                    cmd.Parameters.AddWithValue("@pValue", "4");
+                    cmd.ExecuteNonQuery();
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    if (con.State != ConnectionState.Closed)
+                        con.Close();
+                }
             }
         }
 
