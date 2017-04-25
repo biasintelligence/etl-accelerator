@@ -20,7 +20,7 @@ namespace BIAS.Framework.DeltaExtractor
     {
 
         public SSISSharePointDestination(SharePointDestination spdst, MainPipe pipe, IDTSComponentMetaData100 src, int outputID)
-            : base(pipe, "SharePoint List Destination", outputID, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2012.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47")
+            : base(pipe, "SharePoint List Destination", outputID, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2016.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47")
         {
             //Create a new SharePointDestination component
 
