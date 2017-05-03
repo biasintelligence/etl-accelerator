@@ -31,6 +31,8 @@ As
 **  Date:            Author:            Description:
 2010-05-16           andrey@biasintelligence.com           change the mapping logic to allow for pattern mapping
                                         to support multiple destinations
+2017-05-02			 andrey								   add OData source support
+
 ******************************************************************/
 SET NOCOUNT ON
 DECLARE @Err INT
@@ -119,6 +121,9 @@ union all select 'Source.SPList.SharePointCulture',null,null
 union all select 'Source.SPList.SiteListName',null,null
 union all select 'Source.SPList.SiteListViewName',null,null
 union all select 'Source.SPList.SiteUrl',null,null
+union all select 'Source.SPList.DecodeLookupColumns',null,null
+union all select 'Source.SPList.IncludeHiddenColumns',null,null
+union all select 'Source.SPList.UseConnectionManager',null,null
 --ExcelSource
 union all select 'Source.Excel.FilePath',null,null
 union all select 'Source.Excel.Header',null,null
@@ -144,7 +149,12 @@ union all select 'Source.ODBC.FetchMethod',null,null
 union all select 'Source.ODBC.DefaultCodePage',null,null
 union all select 'Source.ODBC.BindNumericAs',null,null
 union all select 'Source.ODBC.BindCharColumnsAs',null,null
-
+--ODataSource
+union all select 'Source.OData.DefaultStringLength',null,null
+union all select 'Source.OData.CollectionName',null,null
+union all select 'Source.OData.Query',null,null
+union all select 'Source.OData.ResourcePath',null,null
+union all select 'Source.OData.UseResourcePath',null,null
 
 union all select 'Destination%.StagingAreaTable','StagingAreaTable','StagingAreaTableName'
 union all select 'Destination%.Component',null,null
@@ -176,6 +186,7 @@ union all select 'Destination%.SPList.SharePointCulture',null,null
 union all select 'Destination%.SPList.SiteListName',null,null
 union all select 'Destination%.SPList.SiteListViewName',null,null
 union all select 'Destination%.SPList.SiteUrl',null,null
+union all select 'Destination%.SPList.UseConnectionManager',null,null
 --ExcelDestination
 union all select 'Destination%.Excel.AccessMode',null,null
 union all select 'Destination%.Excel.OpenRowset',null,null

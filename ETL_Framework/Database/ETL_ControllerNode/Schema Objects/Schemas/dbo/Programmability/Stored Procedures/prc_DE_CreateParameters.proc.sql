@@ -34,6 +34,7 @@ As
 *******************************************************************
 **  Date:            Author:            Description:
 2010-05-16           andrey@biasintelligence.com           add multiple destination support
+2017-05-02			 andrey								   add OData source support
 ******************************************************************/
 SET NOCOUNT ON
 DECLARE @Err INT
@@ -136,7 +137,8 @@ select @pParameters =
       when (isnull((select top 1 AttributeValue from @attr where AttributeName = 'Source.Component' and AttributeValue = 'SPList'),'') <> '')
       then
     (select
-   (select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.BatchSize') as 'de:SharePointSource/de:CustomProperties/de:BatchSize'
+   (select top 1 AttributeValue from @attr where AttributeName = 'Source.ConnectionString') as 'de:SharePointSource/de:ConnectionString'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.BatchSize') as 'de:SharePointSource/de:CustomProperties/de:BatchSize'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.CamlQuery') as 'de:SharePointSource/de:CustomProperties/de:CamlQuery'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.IncludeFolders') as 'de:SharePointSource/de:CustomProperties/de:IncludeFolders'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.IsRecursive') as 'de:SharePointSource/de:CustomProperties/de:IsRecursive'
@@ -144,6 +146,9 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.SiteListName') as 'de:SharePointSource/de:CustomProperties/de:SiteListName'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.SiteListViewName') as 'de:SharePointSource/de:CustomProperties/de:SiteListViewName'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.SiteUrl') as 'de:SharePointSource/de:CustomProperties/de:SiteUrl'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.DecodeLookupColumns') as 'de:SharePointSource/de:CustomProperties/de:DecodeLookupColumns'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.IncludeHiddenColumns') as 'de:SharePointSource/de:CustomProperties/de:IncludeHiddenColumns'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.SPList.UseConnectionManager') as 'de:SharePointSource/de:CustomProperties/de:UseConnectionManager'
   for xml path('de:DataSource'),type)
 --Excel source
       when (isnull((select top 1 AttributeValue from @attr where AttributeName = 'Source.Component' and AttributeValue = 'Excel'),'') <> '')
@@ -193,6 +198,17 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.ODBC.BindNumericAs') as 'de:OdbcSource/de:CustomProperties/de:BindNumericAs'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.ODBC.BindCharColumnsAs') as 'de:OdbcSource/de:CustomProperties/de:BindCharColumnsAs'
   for xml path('de:DataSource'),type)
+--OData source  
+      when (isnull((select top 1 AttributeValue from @attr where AttributeName = 'Source.Component' and AttributeValue = 'ODATA'),'') <> '')
+      then
+    (select
+   (select top 1 AttributeValue from @attr where AttributeName = 'Source.ConnectionString') as 'de:ODataSource/de:ConnectionString'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.OData.DefaultStringLength') as 'de:ODataSource/de:CustomProperties/de:DefaultStringLength'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.OData.CollectionName') as 'de:ODataSource/de:CustomProperties/de:CollectionName'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.OData.Query') as 'de:ODataSource/de:CustomProperties/de:Query'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.OData.ResourcePath') as 'de:ODataSource/de:CustomProperties/de:ResourcePath'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.OData.UseResourcePath') as 'de:ODataSource/de:CustomProperties/de:UseResourcePath'
+  for xml path('de:DataSource'),type)
       end
 
 --define destinations
@@ -241,7 +257,8 @@ select @pParameters =
   for xml path('de:FlatFileDestination'),type)
 --Sharepoint destination 
    ,(select 
-   (select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.BatchSize') as 'de:CustomProperties/de:BatchSize'
+   (select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.ConnectionString') as 'de:ConnectionString'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.BatchSize') as 'de:CustomProperties/de:BatchSize'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.CamlQuery') as 'de:CustomProperties/de:CamlQuery'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.IncludeFolders') as 'de:CustomProperties/de:IncludeFolders'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.IsRecursive') as 'de:CustomProperties/de:IsRecursive'
@@ -249,6 +266,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.SiteListName') as 'de:CustomProperties/de:SiteListName'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.SiteListViewName') as 'de:CustomProperties/de:SiteListViewName'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.SiteUrl') as 'de:CustomProperties/de:SiteUrl'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.UseConnectionManager') as 'de:CustomProperties/de:UseConnectionManager'
   from @dst dst where dst.DestinationType = 'SPList'
   for xml path('de:SharePointDestination'),type)
 -- Excel destination

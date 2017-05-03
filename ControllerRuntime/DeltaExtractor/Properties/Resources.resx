@@ -239,9 +239,29 @@
     &lt;xsd:attribute name="Max" type="xsd:int" use="optional"/&gt;
   &lt;/xsd:complexType&gt;
 
+
+  &lt;!-- ODataSource --&gt;
+  &lt;xsd:complexType name="ODataSource"&gt;
+    &lt;xsd:sequence&gt;
+      &lt;xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="CustomProperties"&gt;
+        &lt;xsd:complexType&gt;
+          &lt;xsd:sequence&gt;
+            &lt;xsd:element name="DefaultStringLength" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="CollectionName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="Query" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="ResourcePath" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="UseResourcePath" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+          &lt;/xsd:sequence&gt;
+        &lt;/xsd:complexType&gt;
+      &lt;/xsd:element&gt;
+    &lt;/xsd:sequence&gt;
+  &lt;/xsd:complexType&gt;
+
   &lt;!-- SharePointSource --&gt;
   &lt;xsd:complexType name="SharePointSource"&gt;
     &lt;xsd:sequence&gt;
+      &lt;xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
       &lt;xsd:element name="CustomProperties"&gt;
         &lt;xsd:complexType&gt;
           &lt;xsd:sequence&gt;
@@ -253,6 +273,9 @@
             &lt;xsd:element name="SiteListName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="SiteListViewName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="SiteUrl" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="DecodeLookupColumns" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="IncludeHiddenColumns" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="UseConnectionManager" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
@@ -262,6 +285,7 @@
   &lt;!-- SharePointDestination --&gt;
   &lt;xsd:complexType name="SharePointDestination"&gt;
     &lt;xsd:sequence&gt;
+      &lt;xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
       &lt;xsd:element name="CustomProperties"&gt;
         &lt;xsd:complexType&gt;
           &lt;xsd:sequence&gt;
@@ -271,6 +295,7 @@
             &lt;xsd:element name="SiteListName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="SiteListViewName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="SiteUrl" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="UseConnectionManager" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
@@ -576,11 +601,11 @@
 
 	&lt;!-- Complex type for sources --&gt;
 	&lt;xsd:complexType name="DataSource"&gt;
-		&lt;xsd:choice&gt;
-			&lt;xsd:sequence&gt;
-				&lt;xsd:element name="OleDbSource" type="OleDbSource" minOccurs="0" maxOccurs="1"/&gt;
-			&lt;/xsd:sequence&gt;
-			&lt;xsd:sequence&gt;
+	 &lt;xsd:choice&gt;
+	  &lt;xsd:sequence&gt;
+	    &lt;xsd:element name="OleDbSource" type="OleDbSource" minOccurs="0" maxOccurs="1"/&gt;
+	  &lt;/xsd:sequence&gt;
+	  &lt;xsd:sequence&gt;
         &lt;xsd:element name="FlatFileSource" type="FlatFileSource" minOccurs="0" maxOccurs="1" /&gt;
       &lt;/xsd:sequence&gt;
       &lt;xsd:sequence&gt;
@@ -594,6 +619,9 @@
       &lt;/xsd:sequence&gt;
       &lt;xsd:sequence&gt;
         &lt;xsd:element name="OdbcSource" type="OdbcSource" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;/xsd:sequence&gt;
+      &lt;xsd:sequence&gt;
+        &lt;xsd:element name="ODataSource" type="ODataSource" minOccurs="0" maxOccurs="1"/&gt;
       &lt;/xsd:sequence&gt;
     &lt;/xsd:choice&gt;
   &lt;/xsd:complexType&gt;

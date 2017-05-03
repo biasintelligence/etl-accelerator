@@ -120,9 +120,29 @@
     <xsd:attribute name="Max" type="xsd:int" use="optional"/>
   </xsd:complexType>
 
+
+  <!-- ODataSource -->
+  <xsd:complexType name="ODataSource">
+    <xsd:sequence>
+      <xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="CustomProperties">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="DefaultStringLength" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="CollectionName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="Query" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="ResourcePath" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="UseResourcePath" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
   <!-- SharePointSource -->
   <xsd:complexType name="SharePointSource">
     <xsd:sequence>
+      <xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/>
       <xsd:element name="CustomProperties">
         <xsd:complexType>
           <xsd:sequence>
@@ -134,6 +154,9 @@
             <xsd:element name="SiteListName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SiteListViewName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SiteUrl" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="DecodeLookupColumns" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="IncludeHiddenColumns" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="UseConnectionManager" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
@@ -143,6 +166,7 @@
   <!-- SharePointDestination -->
   <xsd:complexType name="SharePointDestination">
     <xsd:sequence>
+      <xsd:element name="ConnectionString" type="xsd:string" minOccurs="0" maxOccurs="1"/>
       <xsd:element name="CustomProperties">
         <xsd:complexType>
           <xsd:sequence>
@@ -152,6 +176,7 @@
             <xsd:element name="SiteListName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SiteListViewName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SiteUrl" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="UseConnectionManager" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
@@ -457,11 +482,11 @@
 
 	<!-- Complex type for sources -->
 	<xsd:complexType name="DataSource">
-		<xsd:choice>
-			<xsd:sequence>
-				<xsd:element name="OleDbSource" type="OleDbSource" minOccurs="0" maxOccurs="1"/>
-			</xsd:sequence>
-			<xsd:sequence>
+	 <xsd:choice>
+	  <xsd:sequence>
+	    <xsd:element name="OleDbSource" type="OleDbSource" minOccurs="0" maxOccurs="1"/>
+	  </xsd:sequence>
+	  <xsd:sequence>
         <xsd:element name="FlatFileSource" type="FlatFileSource" minOccurs="0" maxOccurs="1" />
       </xsd:sequence>
       <xsd:sequence>
@@ -475,6 +500,9 @@
       </xsd:sequence>
       <xsd:sequence>
         <xsd:element name="OdbcSource" type="OdbcSource" minOccurs="0" maxOccurs="1"/>
+      </xsd:sequence>
+      <xsd:sequence>
+        <xsd:element name="ODataSource" type="ODataSource" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:choice>
   </xsd:complexType>
