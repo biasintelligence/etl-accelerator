@@ -10,6 +10,8 @@
 **  Date:            Author:            Description:
 *******************************************************************/
 // 2017-01-25       andrey              fix cancel ping logic
+// 2017-05-03       andrey              do not wait for cancel thread.
+//                                      Use Task.Delay instead of thread.sleep
 
 using System;
 using System.Collections.Generic;
@@ -182,12 +184,16 @@ namespace ControllerRuntime
 
                     while (!_cts.IsCancellationRequested)
                     {
-                        Thread.Sleep(TimeSpan.FromSeconds(_wf.Ping));
+                        Task.Delay(TimeSpan.FromSeconds(_wf.Ping), _cts.Token).Wait();
+                        if (_cts.IsCancellationRequested) break;
+
+                        //Thread.Sleep(TimeSpan.FromSeconds(_wf.Ping));
                         WfResult cancel_result = _db.WorkflowExitEventCheck(_wf.WorkflowId, 0, _wf.RunId);
                         if (cancel_result.StatusCode != WfStatus.Running)
                         {
                             _cts.Cancel();
-                            _cts.Token.ThrowIfCancellationRequested();
+                            if (_cts.IsCancellationRequested) break;
+                            //_cts.Token.ThrowIfCancellationRequested();
                         }
                     }
 
@@ -241,13 +247,13 @@ namespace ControllerRuntime
                 {
                     _cts.Cancel();
                     Task.WaitAll(_tasks.Values.ToArray());
-                    cancel_task.Wait();
+                    //cancel_task.Wait();
                     throw new TimeoutException("Timeout was reached");
                 }
                 else
                 {
                     _cts.Cancel();
-                    cancel_task.Wait();
+                    //cancel_task.Wait();
                 }
 
             }

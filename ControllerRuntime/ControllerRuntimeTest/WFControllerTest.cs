@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using DefaultActivities;
+//using DefaultActivities;
 using ControllerRuntime;
 
 namespace ControllerRuntimeTest
@@ -17,7 +17,7 @@ namespace ControllerRuntimeTest
         public void WFRun_Ok()
         {
             string runnerName = "UTTest";
-            string WFName = "Dreamspark-imaging-sync";
+            string WFName = "AgcySvsc_SharePoint_DLZ_Load";
             WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
             wfp.ConnectionString = connectionString;
             wfp.WorkflowName = WFName;

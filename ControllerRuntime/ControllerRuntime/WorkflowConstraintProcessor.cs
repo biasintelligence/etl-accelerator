@@ -76,7 +76,11 @@ namespace ControllerRuntime
                             }
 
                             //cts.Token.ThrowIfCancellationRequested();
-                            Thread.Sleep(sleep);
+                            Task.Delay(sleep, linkedCts.Token).Wait();
+                            if (linkedCts.IsCancellationRequested)
+                                break;
+
+                            //Thread.Sleep(sleep);
                         }
                         return const_result;
                     }, linkedCts.Token);

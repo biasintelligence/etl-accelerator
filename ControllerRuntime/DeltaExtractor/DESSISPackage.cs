@@ -85,7 +85,7 @@ namespace BIAS.Framework.DeltaExtractor
 
                 // Set the IDTSComponentEvent handler to capture the details from any 
                 // COMExceptions raised during package generation
-                SSISEventHandler events = new SSISEventHandler();
+                SSISEventHandler events = new SSISEventHandler(logger);
                 pipe.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
 
                 // Add variable to point to staging area root
@@ -164,6 +164,15 @@ namespace BIAS.Framework.DeltaExtractor
                     //Connection manager
                     ConnectionManager cm = package.Connections.Add("ODBC");
                     SSISOdbcSource ssissource = new SSISOdbcSource(m_movedata.DataSource.OdbcSource, pipe, cm, logger);
+                    src = ssissource.MetadataCollection;
+                }
+                //create OData source
+                else if (m_movedata.DataSource.Type == SourceType.OData)
+                {
+
+                    //Connection manager
+                    ConnectionManager cm = package.Connections.Add("ODATA");
+                    SSISODataSource ssissource = new SSISODataSource(m_movedata.DataSource.ODataSource, pipe, cm, logger);
                     src = ssissource.MetadataCollection;
                 }
                 else

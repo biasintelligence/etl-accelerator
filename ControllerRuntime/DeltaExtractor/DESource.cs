@@ -25,6 +25,7 @@ namespace BIAS.Framework.DeltaExtractor
         SPList = 4,
         AdoNet = 5,
         Odbc = 6,
+        OData = 7
     }
 
     public interface IDeSource
@@ -77,6 +78,12 @@ namespace BIAS.Framework.DeltaExtractor
         public OdbcSource OdbcSource
         {
             get { return (((IDeSource)source).Type == SourceType.Odbc) ? (OdbcSource)source : null; }
+            set { source = value; }
+        }
+
+        public ODataSource ODataSource
+        {
+            get { return (((IDeSource)source).Type == SourceType.OData) ? (ODataSource)source : null; }
             set { source = value; }
         }
         #endregion
@@ -556,6 +563,21 @@ namespace BIAS.Framework.DeltaExtractor
             get { return (string)this.property["SiteUrl"]; }
             set { this.property.Add("SiteUrl", value); }
         }
+        public bool DecodeLookUpColumns
+        {
+            get { return (bool)this.property["DecodeLookUpColumns"]; }
+            set { this.property.Add("DecodeLookUpColumns", value); }
+        }
+        public bool IncludeHiddenColumns
+        {
+            get { return (bool)this.property["IncludeHiddenColumns"]; }
+            set { this.property.Add("IncludeHiddenColumns", value); }
+        }
+        public bool UseConnectionManager
+        {
+            get { return (bool)this.property["UseConnectionManager"]; }
+            set { this.property.Add("UseConnectionManager", value); }
+        }
 
         public DECustomPropertyCollection CustomPropertyCollection
         {
@@ -861,6 +883,83 @@ namespace BIAS.Framework.DeltaExtractor
             }
         }
         #endregion
+    }
+
+    [XmlRoot(Namespace = "DeltaExtractor.XSD")]
+    public class ODataSourceProperties
+    {
+        private DECustomPropertyCollection property = new DECustomPropertyCollection();
+
+        public string CollectionName
+        {
+            get { return (string)this.property["CollectionName"]; }
+            set { this.property.Add("CollectionName", value); }
+        }
+        public string Query
+        {
+            get { return (string)this.property["Query"]; }
+            set { this.property.Add("Query", value); }
+        }
+        public bool ResourcePath
+        {
+            get { return (bool)this.property["ResourcePath"]; }
+            set { this.property.Add("ResourcePath", value); }
+        }
+        public int DefaultStringLength
+        {
+            get { return (int)this.property["DefaultStringLength"]; }
+            set { this.property.Add("DefaultStringLength", value); }
+        }
+        public bool UseResourcePath
+        {
+            get { return (bool)this.property["UseResourcePath"]; }
+            set { this.property.Add("UseResourcePath", value); }
+        }
+
+        public DECustomPropertyCollection CustomPropertyCollection
+        {
+            get { return this.property; }
+        }
+
+    }
+
+    [XmlRoot(Namespace = "DeltaExtractor.XSD")]
+    public class ODataSource : IDeSource
+    {
+
+        public ODataSourceProperties CustomProperties { get; set; }
+        [XmlElement("ConnectionString")]
+        public string ODataConnectionString { get; set; }
+
+        #region IDeSource
+        public bool IsValid { get; set; }
+        public bool Test(IWorkflowLogger logger)
+        {
+            logger.WriteDebug("Not implemented");
+            return true;
+        }
+        public SourceType Type
+        {
+            get { return SourceType.OData; }
+        }
+
+        public string Description
+        {
+            get
+            {
+                return String.Format(CultureInfo.InvariantCulture, "Extracting from {0} source", Type.ToString());
+            }
+        }
+        public string ConnectionString
+        {
+            get
+            {
+                return ODataConnectionString;
+            }
+        }
+
+        #endregion
+
     }
 
 }

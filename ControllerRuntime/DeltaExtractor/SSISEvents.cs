@@ -61,13 +61,22 @@ namespace BIAS.Framework.DeltaExtractor
 
     class SSISEventHandler : IDTSComponentEvents
     {
+        private IWorkflowLogger _logger;
+        public SSISEventHandler(IWorkflowLogger logger)
+        {
+            _logger = logger;
+        }
+
+
         private void HandleEvent(string type, string subComponent, string description)
         {
+            _logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "[{0}] {1}: {2}", type, subComponent, description));
             //PrintOutput.PrintToOutput(String.Format(CultureInfo.InvariantCulture, "[{0}] {1}: {2}", type, subComponent, description), DERun.Debug);
         }
 
         private void HandleError(string type, int errorCode, string subComponent, string description)
         {
+            _logger.WriteError(String.Format(CultureInfo.InvariantCulture, "[{0}] {1}: {2}", type, subComponent, description),errorCode);
             //PrintOutput.PrintToError(String.Format(CultureInfo.InvariantCulture, "[{0}-{1}] {2}: {3}", type, errorCode, subComponent, description), DERun.Debug);
         }
 
