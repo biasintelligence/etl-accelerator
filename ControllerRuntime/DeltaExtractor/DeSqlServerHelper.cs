@@ -38,6 +38,7 @@ namespace BIAS.Framework.DeltaExtractor
         const string UNKNOWN = "Unknown";
         private string connectionstring;
         private string tablename = UNKNOWN;
+        private string inputtablename = UNKNOWN;
         private string server = UNKNOWN;
         private string database = UNKNOWN;
         private string tbl_database = UNKNOWN;
@@ -54,6 +55,7 @@ namespace BIAS.Framework.DeltaExtractor
             }
             set
             {
+                inputtablename = value;
                 string[] tempTableName = ParseTableName(value);
                 this.tablename = tempTableName[tempTableName.Length - 2] + "." + tempTableName[tempTableName.Length - 1];
 
@@ -120,8 +122,8 @@ namespace BIAS.Framework.DeltaExtractor
                         this.database = db.ToString();
                     }
                 }
-                //this.connectionstring = dbsb.ConnectionString;
-                this.connectionstring = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Server={0};Database={1};Trusted_Connection=yes", this.server, this.database);
+                this.connectionstring = dbsb.ConnectionString;
+                //this.connectionstring = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Server={0};Database={1};Trusted_Connection=yes", this.server, this.database);
             }
 
             private get
@@ -142,6 +144,7 @@ namespace BIAS.Framework.DeltaExtractor
 
             }
         }
+
 
         public string FullName
         {
@@ -209,7 +212,7 @@ namespace BIAS.Framework.DeltaExtractor
 else if (object_id('{0}', 'V') is not null)
     select 0
 else select cast(null as int)",
-                        this.CanonicTableName), cn))
+                        this.inputtablename), cn))
                     {
                         cmd.CommandTimeout = this.DBConnection.QueryTimeout;
                         cmd.CommandType = CommandType.Text;
@@ -249,12 +252,12 @@ else select cast(null as int)",
                 if (this.IsView)
                 {
                     logger.WriteDebug("Deleting view data " + FullName);
-                    query = "delete from " + this.CanonicTableName;
+                    query = "delete from " + this.inputtablename;
                 }
                 else
                 {
                     logger.WriteDebug("Truncating table data " + FullName);
-                    query = "truncate table " + this.CanonicTableName;
+                    query = "truncate table " + this.inputtablename;
                 }
 
                 using (SqlConnection cn = new SqlConnection())
