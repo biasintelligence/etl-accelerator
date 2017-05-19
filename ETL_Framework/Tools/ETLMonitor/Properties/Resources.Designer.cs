@@ -61,7 +61,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select BatchID, BatchName from dbo.ETLBatch.
+        ///   Looks up a localized string similar to select BatchID, BatchName from dbo.ETLBatch with (nolock).
         /// </summary>
         internal static string QueryBatch {
             get {
@@ -70,7 +70,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select RunID,BatchID,StatusID, StatusDT from dbo.ETLBatchRun where (StatusDT &gt; @StatusDT or @StatusDT is null) and StatusDT &gt; @TheDate.
+        ///   Looks up a localized string similar to select RunID,BatchID,StatusID, StatusDT from dbo.ETLBatchRun with (nolock) where (StatusDT &gt; @StatusDT or @StatusDT is null) and StatusDT &gt; @TheDate.
         /// </summary>
         internal static string QueryBatchRun {
             get {
@@ -79,7 +79,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select case StepID when 0 then &apos;*&apos; else &apos;&apos; end + CounterName as CounterName,CounterValue from dbo.ETLStepRunCounter  where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID.
+        ///   Looks up a localized string similar to select case StepID when 0 then &apos;*&apos; else &apos;&apos; end + CounterName as CounterName,CounterValue from dbo.ETLStepRunCounter with (nolock) where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID.
         /// </summary>
         internal static string QueryCounters {
             get {
@@ -88,7 +88,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select LogID,Err,LogDT,LogMessage from dbo.ETLStepRunHistoryLog  where BatchID = @BatchID and StepId = @StepID and RunID= @RunID and LogID &gt; @LogID.
+        ///   Looks up a localized string similar to select LogID,Err,LogDT,LogMessage from dbo.ETLStepRunHistoryLog with (nolock) where BatchID = @BatchID and StepId = @StepID and RunID= @RunID and LogID &gt; @LogID.
         /// </summary>
         internal static string QueryLog {
             get {
@@ -97,7 +97,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRun r join dbo.ETLStep s on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder.
+        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRun r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder.
         /// </summary>
         internal static string QueryStepRun {
             get {
@@ -106,7 +106,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRunHistory r join dbo.ETLStep s on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder.
+        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRunHistory r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder.
         /// </summary>
         internal static string QueryStepRunHistory {
             get {

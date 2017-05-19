@@ -112,27 +112,27 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="QueryBatch" xml:space="preserve">
-    <value>select BatchID, BatchName from dbo.ETLBatch</value>
+    <value>select BatchID, BatchName from dbo.ETLBatch with (nolock)</value>
   </data>
   <data name="QueryBatchRun" xml:space="preserve">
-    <value>select RunID,BatchID,StatusID, StatusDT from dbo.ETLBatchRun where (StatusDT &gt; @StatusDT or @StatusDT is null) and StatusDT &gt; @TheDate</value>
+    <value>select RunID,BatchID,StatusID, StatusDT from dbo.ETLBatchRun with (nolock) where (StatusDT &gt; @StatusDT or @StatusDT is null) and StatusDT &gt; @TheDate</value>
   </data>
   <data name="QueryCounters" xml:space="preserve">
-    <value>select case StepID when 0 then '*' else '' end + CounterName as CounterName,CounterValue from dbo.ETLStepRunCounter  where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID</value>
+    <value>select case StepID when 0 then '*' else '' end + CounterName as CounterName,CounterValue from dbo.ETLStepRunCounter with (nolock) where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID</value>
   </data>
   <data name="QueryLog" xml:space="preserve">
-    <value>select LogID,Err,LogDT,LogMessage from dbo.ETLStepRunHistoryLog  where BatchID = @BatchID and StepId = @StepID and RunID= @RunID and LogID &gt; @LogID</value>
+    <value>select LogID,Err,LogDT,LogMessage from dbo.ETLStepRunHistoryLog with (nolock) where BatchID = @BatchID and StepId = @StepID and RunID= @RunID and LogID &gt; @LogID</value>
   </data>
   <data name="QueryStepRun" xml:space="preserve">
-    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRun r join dbo.ETLStep s on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder</value>
+    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRun r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder</value>
   </data>
   <data name="QueryStepRunHistory" xml:space="preserve">
-    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRunHistory r join dbo.ETLStep s on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder</value>
+    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRunHistory r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder</value>
   </data>
 </root>

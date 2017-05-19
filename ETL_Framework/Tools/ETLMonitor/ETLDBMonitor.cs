@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Security;
-using System.Security.Permissions;
+//using System.Security;
+//using System.Security.Permissions;
 using System.Data;
 using System.Data.Sql;
 using System.Data.SqlTypes;
@@ -32,18 +32,19 @@ namespace ETL_Framework
 
         private bool CanRequestNotifications()
         {
-            SqlClientPermission permission =
-                new SqlClientPermission(
-                PermissionState.Unrestricted);
-            try
-            {
-                permission.Demand();
-                return true;
-            }
-            catch (System.Exception)
-            {
-                return false;
-            }
+            //SqlClientPermission permission =
+            //    new SqlClientPermission(
+            //    PermissionState.Unrestricted);
+            //try
+            //{
+            //    permission.Demand();
+            //    return true;
+            //}
+            //catch (System.Exception)
+            //{
+            //    return false;
+            //}
+            return true;
         }
 
         private void Connect(string Server,string Database)
@@ -60,15 +61,15 @@ namespace ETL_Framework
             m_connectionString = String.Format("Persist Security Info=False;Integrated Security=SSPI;database={0};server={1}", Database, Server);
 
             // Create a dependency
-            try
-            {
-                SqlDependency.Stop(m_connectionString);
-                SqlDependency.Start(m_connectionString);
-            }
-            catch (Exception)
-            {
-                throw new CouldNotReceiveNotifications(Server, Database);
-            }
+            //try
+            //{
+            //    SqlDependency.Stop(m_connectionString);
+            //    SqlDependency.Start(m_connectionString);
+            //}
+            //catch (Exception)
+            //{
+            //    throw new CouldNotReceiveNotifications(Server, Database);
+            //}
 
 
         }
@@ -158,10 +159,10 @@ namespace ETL_Framework
 
         public void Disconnect()
         {
-            if (!String.IsNullOrEmpty(m_connectionString))
-            {
-                SqlDependency.Stop(m_connectionString);
-            }
+            //if (!String.IsNullOrEmpty(m_connectionString))
+            //{
+            //    SqlDependency.Stop(m_connectionString);
+            //}
         }
 
         public void Dispose()

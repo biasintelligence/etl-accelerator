@@ -85,7 +85,7 @@
             // 
             // timerRefresh
             // 
-            this.timerRefresh.Interval = 100000;
+            this.timerRefresh.Interval = 120000;
             // 
             // statusBar
             // 

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Data.SqlClient;
-using System.Security.Permissions;
+//using System.Security.Permissions;
 using System.Data.SqlTypes;
 using ETL_Framework.Properties;
 
@@ -30,7 +30,7 @@ namespace ETL_Framework
         bool m_StepRunHistoryChanged = false;
         bool m_CountersChanged = false;
         bool m_LogChanged = false;
-        bool m_StepRunMode = false;
+        //bool m_StepRunMode = false;
 
         public ETLMonitor()
         {
@@ -115,8 +115,8 @@ namespace ETL_Framework
                 cmd.Notification = null;
                 cmd.Parameters["@StatusDT"].Value = m_BatchRunStatusDT;
 
-                SqlDependency dependency = new SqlDependency(cmd);
-                dependency.OnChange += new OnChangeEventHandler(dependency_OnBatchRunChange);
+                //SqlDependency dependency = new SqlDependency(cmd);
+                //dependency.OnChange += new OnChangeEventHandler(dependency_OnBatchRunChange);
 
                 using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
@@ -179,11 +179,11 @@ namespace ETL_Framework
                 cmd.Notification = null;
                 cmd.Parameters["@BatchID"].Value = m_BatchID;
                 cmd.Parameters["@StatusDT"].Value = m_StepRunStatusDT;
-                m_StepRunMode = true;
+                //m_StepRunMode = true;
 
 
-                SqlDependency dependency = new SqlDependency(cmd);
-                dependency.OnChange += new OnChangeEventHandler(dependency_OnStepRunChange);
+                //SqlDependency dependency = new SqlDependency(cmd);
+                //dependency.OnChange += new OnChangeEventHandler(dependency_OnStepRunChange);
 
                 using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
@@ -264,7 +264,7 @@ namespace ETL_Framework
 
                 cmd.Parameters["@BatchID"].Value = m_BatchID;
                 cmd.Parameters["@RunID"].Value = m_RunID;
-                m_StepRunMode = false;
+                //m_StepRunMode = false;
 
                 dataGridStepRun.Rows.Clear();
 
@@ -319,8 +319,8 @@ namespace ETL_Framework
 
                 dataGridCounters.Rows.Clear();
 
-                SqlDependency dependency = new SqlDependency(cmd);
-                dependency.OnChange += new OnChangeEventHandler(dependency_OnCountersChange);
+                //SqlDependency dependency = new SqlDependency(cmd);
+                //dependency.OnChange += new OnChangeEventHandler(dependency_OnCountersChange);
 
                 using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
@@ -368,8 +368,8 @@ namespace ETL_Framework
                     dataGridLog.Rows.Clear();
                 }
 
-                SqlDependency dependency = new SqlDependency(cmd);
-                dependency.OnChange += new OnChangeEventHandler(dependency_OnLogChange);
+                //SqlDependency dependency = new SqlDependency(cmd);
+                //dependency.OnChange += new OnChangeEventHandler(dependency_OnLogChange);
 
                 using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
@@ -413,38 +413,38 @@ namespace ETL_Framework
             this.Invoke(uidel, null);
         }
 
-        private void dependency_OnBatchRunChange(object sender, SqlNotificationEventArgs e)
-        {
-            //Remove the handler as it is used for a single notification.
-            m_BatchRunChanged = true;
-            SqlDependency dependency = (SqlDependency)sender;
-            dependency.OnChange -= dependency_OnBatchRunChange;
+        //private void dependency_OnBatchRunChange(object sender, SqlNotificationEventArgs e)
+        //{
+        //    //Remove the handler as it is used for a single notification.
+        //    m_BatchRunChanged = true;
+        //    SqlDependency dependency = (SqlDependency)sender;
+        //    dependency.OnChange -= dependency_OnBatchRunChange;
 
-        }        
-        private void dependency_OnStepRunChange(object sender, SqlNotificationEventArgs e)
-        {
-            //Remove the handler as it is used for a single notification.
-            m_StepRunChanged = m_StepRunMode;
-            SqlDependency dependency = (SqlDependency)sender;
-            dependency.OnChange -= dependency_OnStepRunChange;
+        //}        
+        //private void dependency_OnStepRunChange(object sender, SqlNotificationEventArgs e)
+        //{
+        //    //Remove the handler as it is used for a single notification.
+        //    m_StepRunChanged = m_StepRunMode;
+        //    SqlDependency dependency = (SqlDependency)sender;
+        //    dependency.OnChange -= dependency_OnStepRunChange;
 
-        }
-        private void dependency_OnCountersChange(object sender, SqlNotificationEventArgs e)
-        {
-            //Remove the handler as it is used for a single notification.
-            m_CountersChanged = true;
-            SqlDependency dependency = (SqlDependency)sender;
-            dependency.OnChange -= dependency_OnCountersChange;
+        //}
+        //private void dependency_OnCountersChange(object sender, SqlNotificationEventArgs e)
+        //{
+        //    //Remove the handler as it is used for a single notification.
+        //    m_CountersChanged = true;
+        //    SqlDependency dependency = (SqlDependency)sender;
+        //    dependency.OnChange -= dependency_OnCountersChange;
 
-        }
-        private void dependency_OnLogChange(object sender, SqlNotificationEventArgs e)
-        {
-            //Remove the handler as it is used for a single notification.
-            m_LogChanged = true;
-            SqlDependency dependency = (SqlDependency)sender;
-            dependency.OnChange -= dependency_OnLogChange;
+        //}
+        //private void dependency_OnLogChange(object sender, SqlNotificationEventArgs e)
+        //{
+        //    //Remove the handler as it is used for a single notification.
+        //    m_LogChanged = true;
+        //    SqlDependency dependency = (SqlDependency)sender;
+        //    dependency.OnChange -= dependency_OnLogChange;
 
-        }
+        //}
 
 
         private void RefreshData()
@@ -452,6 +452,14 @@ namespace ETL_Framework
 
             try
             {
+                m_BatchChanged = true;
+                m_BatchRunChanged = true;
+                m_StepRunChanged = true;
+                m_StepRunHistoryChanged = true;
+                m_CountersChanged = true;
+                m_LogChanged = true;
+
+
                 if (m_BatchChanged)
                 {
                     m_BatchChanged = false;
