@@ -30,7 +30,7 @@ namespace ETL_Framework
         bool m_StepRunHistoryChanged = false;
         bool m_CountersChanged = false;
         bool m_LogChanged = false;
-        //bool m_StepRunMode = false;
+        bool m_StepRunMode = false;
 
         public ETLMonitor()
         {
@@ -179,7 +179,7 @@ namespace ETL_Framework
                 cmd.Notification = null;
                 cmd.Parameters["@BatchID"].Value = m_BatchID;
                 cmd.Parameters["@StatusDT"].Value = m_StepRunStatusDT;
-                //m_StepRunMode = true;
+                m_StepRunMode = true;
 
 
                 //SqlDependency dependency = new SqlDependency(cmd);
@@ -264,7 +264,7 @@ namespace ETL_Framework
 
                 cmd.Parameters["@BatchID"].Value = m_BatchID;
                 cmd.Parameters["@RunID"].Value = m_RunID;
-                //m_StepRunMode = false;
+                m_StepRunMode = false;
 
                 dataGridStepRun.Rows.Clear();
 
@@ -409,7 +409,7 @@ namespace ETL_Framework
         delegate void UIDelegate();
         private void refresh_OnTimer(object sender, EventArgs e)
         {
-            UIDelegate uidel = new UIDelegate(RefreshData);
+            UIDelegate uidel = new UIDelegate(RefreshOnTimer);
             this.Invoke(uidel, null);
         }
 
@@ -446,19 +446,20 @@ namespace ETL_Framework
 
         //}
 
+        private void RefreshOnTimer()
+        {
+            m_BatchRunChanged = true;
+            m_StepRunChanged = m_StepRunMode;
+            m_CountersChanged = true;
+            m_LogChanged = true;
+            RefreshData();
+        }
 
         private void RefreshData()
         {
 
             try
             {
-                m_BatchChanged = true;
-                m_BatchRunChanged = true;
-                m_StepRunChanged = true;
-                m_StepRunHistoryChanged = true;
-                m_CountersChanged = true;
-                m_LogChanged = true;
-
 
                 if (m_BatchChanged)
                 {

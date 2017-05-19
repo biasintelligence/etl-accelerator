@@ -143,9 +143,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>md "$(ProjectDir)..\..\PublishedReferences\ETLMonitor"
-copy /Y "$(TargetPath)" "$(ProjectDir)..\..\PublishedReferences\ETLMonitor"
-copy /Y "$(TargetDir)\$(TargetFileName).config" "$(ProjectDir)..\..\PublishedReferences\ETLMonitor"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
