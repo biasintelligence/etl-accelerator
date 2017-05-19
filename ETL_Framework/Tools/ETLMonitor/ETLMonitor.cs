@@ -31,6 +31,7 @@ namespace ETL_Framework
         bool m_CountersChanged = false;
         bool m_LogChanged = false;
         bool m_StepRunMode = false;
+        bool m_ActiveRun = false;
 
         public ETLMonitor()
         {
@@ -147,6 +148,10 @@ namespace ETL_Framework
                             treeViewBatchRun.Nodes[bIdx].ImageIndex = iidx;
                             treeViewBatchRun.Nodes[bIdx].Nodes[rIdx].SelectedImageIndex = GetSelectedImageIndex(iidx);
                             treeViewBatchRun.Nodes[bIdx].SelectedImageIndex = GetSelectedImageIndex(iidx);
+                            if (treeViewBatchRun.Nodes[bIdx].Nodes[rIdx].IsSelected && iidx == 1)
+                            {
+                                m_ActiveRun = true;
+                            }
 
                         }
 
@@ -449,9 +454,12 @@ namespace ETL_Framework
         private void RefreshOnTimer()
         {
             m_BatchRunChanged = true;
-            m_StepRunChanged = m_StepRunMode;
-            m_CountersChanged = true;
-            m_LogChanged = true;
+            if (m_ActiveRun)
+            {
+                m_StepRunChanged = m_StepRunMode;
+                m_CountersChanged = true;
+                m_LogChanged = true;
+            }
             RefreshData();
         }
 
@@ -555,11 +563,13 @@ namespace ETL_Framework
             if (e.Node.ImageIndex == 1)
             {
                 m_StepRunChanged = true;
+                m_ActiveRun = true;
             }
                 //show step run history
             else
             {
                 m_StepRunHistoryChanged = true;
+                m_ActiveRun = false;
             }
 
             if(e.Node.Level == 0)
