@@ -17,7 +17,7 @@ namespace ControllerRuntimeTest
         public void WFRun_Ok()
         {
             string runnerName = "UTTest";
-            string WFName = "AgcySvsc_SharePoint_DLZ_Load";
+            string WFName = "FAILURE_TEST";
             WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
             wfp.ConnectionString = connectionString;
             wfp.WorkflowName = WFName;

@@ -8,7 +8,10 @@
 **      Change History
 *******************************************************************
 **  Date:            Author:            Description:
-*******************************************************************/
+*******************************************************************
+    6/7/2017        andrey              add with nowait to command InfoMessage
+
+ */
 
 using System;
 using System.Collections.Generic;
@@ -75,6 +78,7 @@ namespace DefaultActivities
                 try
                 {
                     cn.InfoMessage += new SqlInfoMessageEventHandler(OnInfoMessage);
+                    cn.FireInfoMessageEventOnUserErrors = true;
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
                     {
