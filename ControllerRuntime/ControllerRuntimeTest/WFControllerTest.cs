@@ -17,7 +17,7 @@ namespace ControllerRuntimeTest
         public void WFRun_Ok()
         {
             string runnerName = "UTTest";
-            string WFName = "FAILURE_TEST";
+            string WFName = "Test103";
             WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
             wfp.ConnectionString = connectionString;
             wfp.WorkflowName = WFName;

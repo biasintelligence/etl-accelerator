@@ -115,6 +115,7 @@
     <Content Include="TestFiles\TestWorkflow100.sql" />
     <Content Include="TestFiles\TestWorkflow101.sql" />
     <Content Include="TestFiles\TestWorkflow102.sql" />
+    <Content Include="TestFiles\TestWorkflow103.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
