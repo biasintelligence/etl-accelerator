@@ -11,7 +11,7 @@ exec prc_SystemParameterLet
 	,@ParameterValue = 'DEV'
 	,@ParameterDefault = ''
 	,@ParameterDesc = 'Current Environment'
-	,@AffectiveImmediately = 1
+	,@EffectiveImmediately = 1
 	,@EnvironmentName = 'ALL';
 
 -------------------------------------------------------------------
@@ -23,7 +23,7 @@ exec prc_SystemParameterLet
 	,@ParameterValue = 'c:\Builds'
 	,@ParameterDefault = ''
 	,@ParameterDesc = 'Build location'
-	,@AffectiveImmediately = 1
+	,@EffectiveImmediately = 1
 	,@EnvironmentName = 'DEV';
 
 exec prc_SystemParameterLet
@@ -32,7 +32,7 @@ exec prc_SystemParameterLet
 	,@ParameterValue = 'DW'
 	,@ParameterDefault = ''
 	,@ParameterDesc = 'Datawarehouse'
-	,@AffectiveImmediately = 1
+	,@EffectiveImmediately = 1
 	,@EnvironmentName = 'DEV';
 
 exec prc_SystemParameterLet
@@ -41,7 +41,7 @@ exec prc_SystemParameterLet
 	,@ParameterValue = 'ETL_Staging'
 	,@ParameterDefault = ''
 	,@ParameterDesc = 'Staging DB'
-	,@AffectiveImmediately = 1
+	,@EffectiveImmediately = 1
 	,@EnvironmentName = 'DEV';
 
 exec prc_SystemParameterLet
@@ -50,7 +50,7 @@ exec prc_SystemParameterLet
 	,@ParameterValue = '.'
 	,@ParameterDefault = ''
 	,@ParameterDesc = 'DW Server'
-	,@AffectiveImmediately = 1
+	,@EffectiveImmediately = 1
 	,@EnvironmentName = 'DEV';
 
 
@@ -60,7 +60,7 @@ exec prc_SystemParameterLet
 	@ParameterName = 'EventServer',
 	@ParameterValue = '.',
 	@ParameterDesc = 'Event Server ',
-	@AffectiveImmediately = 1
+	@EffectiveImmediately = 1
 	,@EnvironmentName = 'DEV';
 
 
@@ -70,7 +70,7 @@ exec prc_SystemParameterLet
 	@ParameterName = 'EventDB',
 	@ParameterValue = 'ETL_Event', 
 	@ParameterDesc = 'Event database',
-	@AffectiveImmediately = 1
+	@EffectiveImmediately = 1
 	,@EnvironmentName = 'DEV';
 
 -------------------------------------------------------------------
