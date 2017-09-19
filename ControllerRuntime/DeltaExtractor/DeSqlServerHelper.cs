@@ -69,60 +69,8 @@ namespace BIAS.Framework.DeltaExtractor
         public string ConnectionString
         {
             set
-            {
-                DbConnectionStringBuilder dbsb = new DbConnectionStringBuilder();
-                dbsb.ConnectionString = value;
-                object srv = null;
-                object db = null;
-
-                if (dbsb.TryGetValue("Dsn", out srv))
-                {
-                    //User ODBC
-
-                    RegistryKey dsn = Registry.CurrentUser.OpenSubKey("Software").OpenSubKey("ODBC").OpenSubKey("ODBC.INI").OpenSubKey(srv.ToString());
-                    if (dsn == null)
-                    {
-                        dsn = Registry.LocalMachine.OpenSubKey("SOFTWARE").OpenSubKey("ODBC").OpenSubKey("ODBC.INI").OpenSubKey(srv.ToString());
-                    }
-                    if (dsn == null)
-                    {
-                        throw new InvalidArgumentException(String.Format("Dsn={0} is not found", srv.ToString()));
-                    }
-
-                    try
-                    {
-                        srv = dsn.GetValue("Server");
-                        db = dsn.GetValue("Database");
-                        if (srv != null) this.server = srv.ToString();
-                        if (db != null) this.database = db.ToString();
-                    }
-                    catch
-                    {
-                        throw new InvalidArgumentException(String.Format("Dsn={0} is not configured properly: Server and Database properties are required for SqlServer connection", srv.ToString()));
-                    }
-                }
-                else
-                {
-
-                    if (dbsb.TryGetValue("Data Source", out srv))
-                    {
-                        this.server = srv.ToString();
-                    }
-                    else if (dbsb.TryGetValue("server", out srv))
-                    {
-                        this.server = srv.ToString();
-                    }
-
-                    if (dbsb.TryGetValue("Initial Catalog", out db))
-                    {
-                        this.database = db.ToString();
-                    }
-                    else if (dbsb.TryGetValue("database", out db))
-                    {
-                        this.database = db.ToString();
-                    }
-                }
-                this.connectionstring = dbsb.ConnectionString;
+            {             
+                this.connectionstring = PrepareSqlConnectionString(value);
                 //this.connectionstring = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Server={0};Database={1};Trusted_Connection=yes", this.server, this.database);
             }
 
@@ -131,6 +79,108 @@ namespace BIAS.Framework.DeltaExtractor
                 return this.connectionstring;
             }
         }
+
+        private string PrepareSqlConnectionString(string connectionString)
+        {
+            DbConnectionStringBuilder dbsb = new DbConnectionStringBuilder();
+            SqlConnectionStringBuilder sqlsb = new SqlConnectionStringBuilder();
+            dbsb.ConnectionString = connectionString;
+            object prop = null;
+
+            if (dbsb.TryGetValue("Dsn", out prop))
+            {
+                //User ODBC
+
+                RegistryKey dsn = Registry.CurrentUser.OpenSubKey("Software").OpenSubKey("ODBC").OpenSubKey("ODBC.INI").OpenSubKey(prop.ToString());
+                if (dsn == null)
+                {
+                    dsn = Registry.LocalMachine.OpenSubKey("SOFTWARE").OpenSubKey("ODBC").OpenSubKey("ODBC.INI").OpenSubKey(prop.ToString());
+                }
+                if (dsn == null)
+                {
+                    throw new InvalidArgumentException(String.Format("Dsn={0} is not found", prop.ToString()));
+                }
+
+                try
+                {
+                    prop = dsn.GetValue("Server");
+                    if (prop != null) this.server = prop.ToString();
+
+                    prop = dsn.GetValue("Database");
+                    if (prop != null) this.database = prop.ToString();
+
+                    sqlsb.DataSource = this.server;
+                    sqlsb.InitialCatalog = this.database;
+
+                }
+                catch
+                {
+                    throw new InvalidArgumentException(String.Format("Dsn={0} is not configured properly: Server and Database properties are required for SqlServer connection", prop.ToString()));
+                }
+            }
+            else
+            {
+
+
+                if (dbsb.TryGetValue("Data Source", out prop))
+                {
+                    this.server = prop.ToString();
+                }
+                else if (dbsb.TryGetValue("server", out prop))
+                {
+                    this.server = prop.ToString();
+                }
+                sqlsb.DataSource = this.server;
+
+                if (dbsb.TryGetValue("Initial Catalog", out prop))
+                {
+                    this.database = prop.ToString();
+                }
+                else if (dbsb.TryGetValue("database", out prop))
+                {
+                    this.database = prop.ToString();
+                }
+                sqlsb.InitialCatalog = this.database;
+
+                if (dbsb.TryGetValue("Trusted_Connection", out prop))
+                {
+                    sqlsb.IntegratedSecurity = (bool)prop;
+                }
+                else if (dbsb.TryGetValue("Integrated Security", out prop))
+                {
+                    sqlsb.IntegratedSecurity = (prop.ToString().Equals("SSPI")) ? true : false;
+                }
+
+                if (!sqlsb.IntegratedSecurity)
+                {
+                    if (dbsb.TryGetValue("User ID", out prop))
+                    {
+                        sqlsb.UserID = prop.ToString();
+                    }
+                    else if (dbsb.TryGetValue("Usr", out prop))
+                    {
+                        sqlsb.UserID = prop.ToString();
+                    }
+
+                    if (dbsb.TryGetValue("Password", out prop))
+                    {
+                        sqlsb.Password = prop.ToString();
+                    }
+                    else if (dbsb.TryGetValue("Pwd", out prop))
+                    {
+                        sqlsb.Password = prop.ToString();
+                    }
+
+                }
+
+                if (dbsb.TryGetValue("Connection Timeout", out prop))
+                {
+                    sqlsb.ConnectTimeout = (int)prop;
+                }
+            }
+            return sqlsb.ConnectionString;
+        }
+
 
 
         public string CanonicTableName
