@@ -202,10 +202,6 @@
     <Build Include="Schema Objects\Schemas\dbo\Tables\Keys\PK_Dsv.pkey.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\prc_CLRExecuteDE.proc.sql">
-      <SubType>Code</SubType>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="Schema Objects\Schemas\dbo\Programmability\Stored Procedures\prc_CLREventReceive.proc.sql">
       <SubType>Code</SubType>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -404,28 +400,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\120\SqlSchemas\master.dacpac">
+      <HintPath>$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\120\SqlSchemas\master.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
+    </ArtifactReference>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Tools\ControllerClrExtensions\ControllerClrExtensions.csproj">
       <Name>ControllerClrExtensions</Name>
       <Project>{951676cb-9604-4b8f-8514-da5b327fe786}</Project>
       <Private>True</Private>
       <IsModelAware>True</IsModelAware>
       <GenerateSqlClrDdl>True</GenerateSqlClrDdl>
-      <SqlPermissionSet>UNSAFE</SqlPermissionSet>
     </ProjectReference>
-    <ProjectReference Include="..\..\Tools\DeSqlClr\DeSqlClr.csproj">
-      <Name>DeSqlClr</Name>
-      <Project>{388acf35-c0f1-4c98-81ee-a7d97e1dccfb}</Project>
-      <Private>True</Private>
-      <IsModelAware>True</IsModelAware>
-      <GenerateSqlClrDdl>True</GenerateSqlClrDdl>
-      <SqlPermissionSet>UNSAFE</SqlPermissionSet>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ArtifactReference Include="$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\120\SqlSchemas\master.dacpac">
-      <HintPath>$(DacPacRootPath)\Extensions\Microsoft\SQLDB\Extensions\SqlServer\120\SqlSchemas\master.dacpac</HintPath>
-      <SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
-      <DatabaseVariableLiteralValue>master</DatabaseVariableLiteralValue>
-    </ArtifactReference>
   </ItemGroup>
 </Project>
