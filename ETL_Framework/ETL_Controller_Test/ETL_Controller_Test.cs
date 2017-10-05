@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 using System.Configuration;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Excel = Microsoft.Office.Interop.Excel;
+//using Excel = Microsoft.Office.Interop.Excel;
 using Microsoft.AnalysisServices.AdomdClient;
 
 namespace ETL_Controller_Test
@@ -449,53 +449,53 @@ namespace ETL_Controller_Test
         }
 
 
-        [TestMethod, Timeout(500000)]
-        public void MoveData_Excel()
-        {
-            string cs = s_cs;
-            int ret = -1;
+        //[TestMethod, Timeout(500000)]
+        //public void MoveData_Excel()
+        //{
+        //    string cs = s_cs;
+        //    int ret = -1;
 
-            Excel.Application excelApp = new Excel.Application();
-            Excel.Workbook wb = excelApp.Workbooks.Add();
-            Excel.Worksheet WithHeaderSheet = wb.Sheets[1];
+        //    Excel.Application excelApp = new Excel.Application();
+        //    Excel.Workbook wb = excelApp.Workbooks.Add();
+        //    Excel.Worksheet WithHeaderSheet = wb.Sheets[1];
 
-            WithHeaderSheet.Name = "WithHeaders";
-            excelApp.Cells[1, 1] = "BatchID";
-            excelApp.Cells[1, 2] = "BatchName";
+        //    WithHeaderSheet.Name = "WithHeaders";
+        //    excelApp.Cells[1, 1] = "BatchID";
+        //    excelApp.Cells[1, 2] = "BatchName";
 
-            Excel.Worksheet WithOutHeaderSheet = wb.Sheets[2];
-            WithOutHeaderSheet.Name = "WithOutHeaders";
+        //    Excel.Worksheet WithOutHeaderSheet = wb.Sheets[2];
+        //    WithOutHeaderSheet.Name = "WithOutHeaders";
 
-            string workbookPath = @"c:\builds\ExcelBatchTest.xls";
-            if (System.IO.File.Exists(workbookPath))
-                System.IO.File.Delete(workbookPath);
+        //    string workbookPath = @"c:\builds\ExcelBatchTest.xls";
+        //    if (System.IO.File.Exists(workbookPath))
+        //        System.IO.File.Delete(workbookPath);
 
-            wb.SaveAs(
-                workbookPath,
-                Excel.XlFileFormat.xlWorkbookNormal, "", "", false, false,
-                Excel.XlSaveAsAccessMode.xlNoChange,
-                Excel.XlSaveConflictResolution.xlLocalSessionChanges, false, "", "", true);
+        //    wb.SaveAs(
+        //        workbookPath,
+        //        Excel.XlFileFormat.xlWorkbookNormal, "", "", false, false,
+        //        Excel.XlSaveAsAccessMode.xlNoChange,
+        //        Excel.XlSaveConflictResolution.xlLocalSessionChanges, false, "", "", true);
 
-            wb.Close();
+        //    wb.Close();
 
-            using (SqlConnection connection = new SqlConnection(cs))
-            {
-                connection.Open();
-                using (SqlCommand cmd = new SqlCommand("exec dbo.prc_Execute 'MoveData_Excel';", connection))
-                {
-                    cmd.Parameters.Add("@RETVAL", SqlDbType.Int).Direction = ParameterDirection.ReturnValue;
+        //    using (SqlConnection connection = new SqlConnection(cs))
+        //    {
+        //        connection.Open();
+        //        using (SqlCommand cmd = new SqlCommand("exec dbo.prc_Execute 'MoveData_Excel';", connection))
+        //        {
+        //            cmd.Parameters.Add("@RETVAL", SqlDbType.Int).Direction = ParameterDirection.ReturnValue;
 
-                    cmd.ExecuteNonQuery();
-                    ret = (int)cmd.Parameters["@RETVAL"].Value;
-                }
-            }
+        //            cmd.ExecuteNonQuery();
+        //            ret = (int)cmd.Parameters["@RETVAL"].Value;
+        //        }
+        //    }
 
-            Assert.AreEqual(ret, 0);
+        //    Assert.AreEqual(ret, 0);
 
-            if (System.IO.File.Exists(workbookPath))
-                System.IO.File.Delete(workbookPath);
+        //    if (System.IO.File.Exists(workbookPath))
+        //        System.IO.File.Delete(workbookPath);
 
-        }
+        //}
 
 
 

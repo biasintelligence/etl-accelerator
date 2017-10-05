@@ -8,11 +8,5 @@
     <ProfileVersionNumber>1</ProfileVersionNumber>
   </PropertyGroup>
   <ItemGroup>
-    <SqlCmdVariable Include="ETL_ControllerCommon">
-      <Value>ETL_Controller</Value>
-    </SqlCmdVariable>
-    <SqlCmdVariable Include="ETL_ControllerNode">
-      <Value>ETL_Controller</Value>
-    </SqlCmdVariable>
   </ItemGroup>
 </Project>
