@@ -301,7 +301,7 @@ raiserror ('this is err test',0,1);
             list.Add(new WorkflowAttribute("AccountKey", ""));
             list.Add(new WorkflowAttribute("RegionName", "us-west-2"));
             list.Add(new WorkflowAttribute("Timeout", "0"));
-            list.Add(new WorkflowAttribute("SqsUrl", "));
+            list.Add(new WorkflowAttribute("SqsUrl", ""));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);
 
