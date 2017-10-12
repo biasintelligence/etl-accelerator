@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using DefaultActivities;
 using ControllerRuntime;
+using THLActivities;
 
 namespace ControllerRuntimeTest
 {
@@ -259,19 +260,20 @@ raiserror ('this is err test',0,1);
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
 
+        [TestMethod]
         public void AwsS3Download_Ok()
         {
             AwsS3DownloadActivity activity = new AwsS3DownloadActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
             list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_Controller; Trusted_Connection = True; Connection Timeout = 120; "));
-            list.Add(new WorkflowAttribute("Prefix", @"events-2017-01"));
+            list.Add(new WorkflowAttribute("Prefix", @""));
             list.Add(new WorkflowAttribute("OutputFolder", "C:\\Builds\\ZipFiles\\AWS"));
-            list.Add(new WorkflowAttribute("BucketName", "edx-course-data"));
+            list.Add(new WorkflowAttribute("BucketName", "thl-bias-messages-staging/bias-integration"));
             //list.Add(new WorkflowAttribute("ProfileName", "testRunner"));
-            list.Add(new WorkflowAttribute("AccountName", "xxx"));
-            list.Add(new WorkflowAttribute("AccountKey", "yyy"));
-            list.Add(new WorkflowAttribute("RegionName", "us-east-1"));
+            list.Add(new WorkflowAttribute("AccountName", ""));
+            list.Add(new WorkflowAttribute("AccountKey", ""));
+            list.Add(new WorkflowAttribute("RegionName", "us-west-2"));
             list.Add(new WorkflowAttribute("Timeout", "0"));
             list.Add(new WorkflowAttribute("SortOrder", "Desc"));
             list.Add(new WorkflowAttribute("Count", ""));
@@ -286,6 +288,28 @@ raiserror ('this is err test',0,1);
             WfResult result = activity.Run(CancellationToken.None);
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
+
+        [TestMethod]
+        public void ThlDownload_Ok()
+        {
+            ThlDownloadActivity activity = new ThlDownloadActivity();
+            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
+            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_staging; Trusted_Connection = True; Connection Timeout = 120; "));
+            //list.Add(new WorkflowAttribute("ProfileName", "testRunner"));
+            list.Add(new WorkflowAttribute("AccountName", "AKIAIDLCARDKMGY5KOAQ"));
+            list.Add(new WorkflowAttribute("AccountKey", "G1AbfsbtFXGNXQP1UB6DMLFT1Jtm/bulfR1qBrtb"));
+            list.Add(new WorkflowAttribute("RegionName", "us-west-2"));
+            list.Add(new WorkflowAttribute("Timeout", "0"));
+            list.Add(new WorkflowAttribute("SqsUrl", "https://us-west-2.queue.amazonaws.com/790419452862/bias-external-staging-pointUpdated"));
+            wfa.RequiredAttributes = list.ToArray();
+            wfa.Logger = new WorkflowConsoleLogger(true, true);
+
+            activity.Configure(wfa);
+            WfResult result = activity.Run(CancellationToken.None);
+            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
+        }
+
 
 
     }

@@ -105,6 +105,10 @@
       <Project>{b358b4bf-3f25-4d1e-8f89-594a8437aa73}</Project>
       <Name>DefaultActivities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\THLActivities\THLActivities.csproj">
+      <Project>{32cf64c4-a5dd-4892-8dc9-5f1a58ecd8bc}</Project>
+      <Name>THLActivities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WorkflowConsoleRunner\WorkflowConsoleRunner.csproj">
       <Project>{44e4af0a-34fe-4253-917c-dc52b4fc847f}</Project>
       <Name>WorkflowConsoleRunner</Name>

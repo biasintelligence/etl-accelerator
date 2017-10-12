@@ -8,7 +8,7 @@ using System.Data;
 using System.Data.SqlClient;
 using ControllerRuntime;
 
-namespace DefaultActivities
+namespace ControllerRuntime
 {
     public class ControllerCounter
     {

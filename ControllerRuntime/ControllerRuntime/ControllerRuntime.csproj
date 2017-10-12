@@ -84,6 +84,7 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ControllerCounter.cs" />
     <Compile Include="DBController.cs" />
     <Compile Include="WorkflowActivity.cs" />
     <Compile Include="WorkflowActivityParameters.cs" />

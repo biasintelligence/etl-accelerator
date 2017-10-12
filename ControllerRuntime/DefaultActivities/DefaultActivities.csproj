@@ -132,7 +132,6 @@
     <Compile Include="CheckFileActivity.cs" />
     <Compile Include="CheckWorkflowEventActivity.cs" />
     <Compile Include="ConsoleActivity.cs" />
-    <Compile Include="ControllerCounter.cs" />
     <Compile Include="DeltaExtractorActivity.cs" />
     <Compile Include="FileGetProcessListActivity.cs" />
     <Compile Include="FileListToCounterActivity.cs" />
