@@ -217,10 +217,10 @@ namespace ControllerRuntimeTest
             SqlServerActivity activity = new SqlServerActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=oxaStaging; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_staging; Trusted_Connection = True; Connection Timeout = 120; "));
             list.Add(new WorkflowAttribute("Query", @"
 print 'this is print test';
-raiserror ('this is err test',0,1);
+raiserror ('this is err test',11,11);
 "));
             list.Add(new WorkflowAttribute("Timeout", "0"));
             wfa.RequiredAttributes = list.ToArray();

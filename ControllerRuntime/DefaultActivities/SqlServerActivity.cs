@@ -78,7 +78,7 @@ namespace DefaultActivities
                 try
                 {
                     cn.InfoMessage += new SqlInfoMessageEventHandler(OnInfoMessage);
-                    cn.FireInfoMessageEventOnUserErrors = true;
+                    cn.FireInfoMessageEventOnUserErrors = false;
                     cn.Open();
                     using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
                     {
