@@ -136,6 +136,9 @@ values (@messageId,@organizationId,@operationType,@objectType,@timestamp,@reques
 
                                 foreach (var message in receiveMessageResponse.Messages)
                                 {
+                                    if (token.IsCancellationRequested)
+                                        return WfResult.Canceled;
+
                                     Guid messageId = Guid.Parse(message.MessageId);
                                     dynamic body = JsonConvert.DeserializeObject(message.Body);
                                     DateTime timestamp = body.Timestamp;
@@ -146,7 +149,7 @@ values (@messageId,@organizationId,@operationType,@objectType,@timestamp,@reques
                                     //ignore all messages without HRef
                                     if (String.IsNullOrEmpty(href))
                                     {
-                                        _logger.WriteDebug($"no href property found for message: {messageId}");
+                                        _logger.Write($"No Href property found for message: {messageId}");
                                         continue;
 
                                     }

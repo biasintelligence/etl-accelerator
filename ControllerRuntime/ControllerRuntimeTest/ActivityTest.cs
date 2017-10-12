@@ -297,11 +297,11 @@ raiserror ('this is err test',0,1);
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
             list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_staging; Trusted_Connection = True; Connection Timeout = 120; "));
             //list.Add(new WorkflowAttribute("ProfileName", "testRunner"));
-            list.Add(new WorkflowAttribute("AccountName", "AKIAIDLCARDKMGY5KOAQ"));
-            list.Add(new WorkflowAttribute("AccountKey", "G1AbfsbtFXGNXQP1UB6DMLFT1Jtm/bulfR1qBrtb"));
+            list.Add(new WorkflowAttribute("AccountName", ""));
+            list.Add(new WorkflowAttribute("AccountKey", ""));
             list.Add(new WorkflowAttribute("RegionName", "us-west-2"));
             list.Add(new WorkflowAttribute("Timeout", "0"));
-            list.Add(new WorkflowAttribute("SqsUrl", "https://us-west-2.queue.amazonaws.com/790419452862/bias-external-staging-pointUpdated"));
+            list.Add(new WorkflowAttribute("SqsUrl", "));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);
 
