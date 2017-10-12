@@ -237,13 +237,13 @@ select @pContext =
 ,b.BatchDesc as '@BatchDesc'
 ,b.IgnoreErr as '@IgnoreErr'
 ,b.RestartOnErr as '@Restart'
-,ba1.AttributeValue as '@HistRet'
-,ba2.AttributeValue as '@MaxThread'
-,ba3.AttributeValue as '@Ping'
-,ba4.AttributeValue as '@Timeout'
-,ba5.AttributeValue as '@Lifetime'
-,ba6.AttributeValue as '@Retry'
-,ba7.AttributeValue as '@Delay'
+,(select top 1 ba1.AttributeValue from dbo.[ETLBatchAttribute] ba1 where b.BatchID = ba1.BatchID and ba1.AttributeName in ('HISTRET','etl:HistRet')) as '@HistRet'
+,(select top 1 ba2.AttributeValue from dbo.[ETLBatchAttribute] ba2 where b.BatchID = ba2.BatchID and ba2.AttributeName in ('MaxThread','etl:MaxThread')) as '@MaxThread'
+,(select top 1 ba3.AttributeValue from dbo.[ETLBatchAttribute] ba3 where b.BatchID = ba3.BatchID and ba3.AttributeName in ('Ping','etl:Ping')) as '@Ping'
+,(select top 1 ba4.AttributeValue from dbo.[ETLBatchAttribute] ba4 where b.BatchID = ba4.BatchID and ba4.AttributeName in ('Timeout','etl:Timeout')) as '@Timeout'
+,(select top 1 ba5.AttributeValue from dbo.[ETLBatchAttribute] ba5 where b.BatchID = ba5.BatchID and ba5.AttributeName in ('Lifetime','etl:Lifetime')) as '@Lifetime'
+,(select top 1 ba6.AttributeValue from dbo.[ETLBatchAttribute] ba6 where b.BatchID = ba6.BatchID and ba6.AttributeName in ('Retry','etl:Retry')) as '@Retry'
+,(select top 1 ba7.AttributeValue from dbo.[ETLBatchAttribute] ba7 where b.BatchID = ba7.BatchID and ba7.AttributeName in ('Delay','etl:Delay')) as '@Delay'
 --,b.BatchDesc as 'Desc'
 ,p1.ProcessID as 'etl:OnSuccess/@ProcessID', p1.ScopeID as 'etl:OnSuccess/@ScopeID',p1.Process as 'etl:OnSuccess/etl:Process',p1.Param as 'etl:OnSuccess/etl:Param'
 ,p2.ProcessID as 'etl:OnFailure/@ProcessID', p2.ScopeID as 'etl:OnFailure/@ScopeID',p2.Process as 'etl:OnFailure/etl:Process',p2.Param as 'etl:OnFailure/etl:Param'
@@ -254,7 +254,8 @@ select @pContext =
 --     for xml path('etl:Attribute'),type) as 'etl:Attributes'
 ,(select ba.AttributeName as '@Name',ba.AttributeValue as '*' from @a ba
    where b.BatchID = ba.BatchID and ba.StepID is null and ba.ConstID is null
-     and ba.AttributeName not in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY')
+     and ba.AttributeName not in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY',
+     'etl:HISTRET','etl:MAXTHREAD','etl:PING','etl:TIMEOUT','etl:LIFETIME','etl:RETRY','etl:DELAY')
      for xml path('etl:Attribute'),type) as 'etl:Attributes'
 
 --
@@ -263,8 +264,8 @@ select @pContext =
  bc.ConstID as '@ConstID'
 ,bc.ConstOrder as '@ConstOrder'
 ,bc.WaitPeriod as '@WaitPeriod'
-,bca1.AttributeValue as '@Disabled'
-,bca2.AttributeValue as '@Ping'
+,(select top 1 bca1.AttributeValue from dbo.[ETLBatchConstraintAttribute] bca1 where bc.BatchID = bca1.BatchID and bc.ConstID = bca1.ConstID and bca1.AttributeName in ('Disabled','etl:Disabled')) as '@Disabled'
+,(select top 1 bca2.AttributeValue from dbo.[ETLBatchConstraintAttribute] bca2 where bc.BatchID = bca2.BatchID and bc.ConstID = bca2.ConstID and bca2.AttributeName in ('Ping','etl:Ping')) as '@Ping'
 ,p0.ProcessID as 'etl:Process/@ProcessID', p0.ScopeID as 'etl:Process/@ScopeID',p0.Process as 'etl:Process/etl:Process',p0.Param as 'etl:Process/etl:Param'
 --batch constraint attributes
 --,(select bca.AttributeName as '@Name',bca.AttributeValue as '*'
@@ -275,13 +276,11 @@ select @pContext =
 ,(select bca.AttributeName as '@Name',bca.AttributeValue as '*'
     from @a bca
    where bc.BatchID = bca.BatchID and bc.ConstID = bca.ConstID and bca.StepID is null
-     and bca.AttributeName not in ('DISABLED','PING')
+     and bca.AttributeName not in ('DISABLED','PING','etl:DISABLED','etl:PING')
      for xml path('etl:Attribute'),type) as 'etl:Attributes'
 --
    from dbo.[ETLBatchConstraint] bc
    left join dbo.[ETLProcess] p0 on bc.ProcessID = p0.ProcessID
-   left join dbo.[ETLBatchConstraintAttribute] bca1 on bc.BatchID = bca1.BatchID and bc.ConstID = bca1.ConstID and bca1.AttributeName = 'DISABLED'
-   left join dbo.[ETLBatchConstraintAttribute] bca2 on bc.BatchID = bca2.BatchID and bc.ConstID = bca2.ConstID and bca2.AttributeName = 'PING'
   where b.BatchID = bc.BatchID and (@StepID is null and (bc.ConstID = @ConstID or @ConstID is null)) and (@Scope is null or @Scope & 4 = 4) 
   for xml path('etl:Constraint'),type) as 'etl:Constraints'
 --
@@ -291,13 +290,13 @@ select @pContext =
 ,s.StepDesc as '@StepDesc'
 ,s.IgnoreErr as '@IgnoreErr'
 ,s.StepOrder as '@StepOrder'
-,sa1.AttributeValue as '@Disabled'
-,sa2.AttributeValue as '@SeqGroup'
-,sa3.AttributeValue as '@PriGroup'
-,sa4.AttributeValue as '@Retry'
-,sa6.AttributeValue as '@Delay'
-,sa5.AttributeValue as '@Restart'
-,sa7.AttributeValue as '@LoopGroup'
+,(select top 1 sa1.AttributeValue from dbo.[ETLStepAttribute] sa1 where s.BatchID = sa1.BatchID and s.StepID = sa1.StepID and sa1.AttributeName in ('DISABLED','etl:Disabled')) as '@Disabled'
+,(select top 1 sa2.AttributeValue from dbo.[ETLStepAttribute] sa2 where s.BatchID = sa2.BatchID and s.StepID = sa2.StepID and sa2.AttributeName in ('SeqGroup','etl:SeqGroup')) as '@SeqGroup'
+,(select top 1 sa3.AttributeValue from dbo.[ETLStepAttribute] sa3 where s.BatchID = sa3.BatchID and s.StepID = sa3.StepID and sa3.AttributeName in ('PriGroup','etl:PriGroup')) as '@PriGroup'
+,(select top 1 sa4.AttributeValue from dbo.[ETLStepAttribute] sa4 where s.BatchID = sa4.BatchID and s.StepID = sa4.StepID and sa4.AttributeName in ('Retry','etl:Retry')) as '@Retry'
+,(select top 1 sa5.AttributeValue from dbo.[ETLStepAttribute] sa5 where s.BatchID = sa5.BatchID and s.StepID = sa5.StepID and sa5.AttributeName in ('Delay','etl:Delay')) as '@Delay'
+,(select top 1 sa6.AttributeValue from dbo.[ETLStepAttribute] sa6 where s.BatchID = sa6.BatchID and s.StepID = sa6.StepID and sa6.AttributeName in ('Restart','etl:Restart')) as '@Restart'
+,(select top 1 sa7.AttributeValue from dbo.[ETLStepAttribute] sa7 where s.BatchID = sa7.BatchID and s.StepID = sa7.StepID and sa7.AttributeName in ('LoopGroup','etl:LoopGroup')) as '@LoopGroup'
 --,s.StepDesc as 'Desc'
 ,p0.ProcessID as 'etl:Process/@ProcessID', p0.ScopeID as 'etl:Process/@ScopeID',p0.Process as 'etl:Process/etl:Process',p0.Param as 'etl:Process/etl:Param'
 ,p1.ProcessID as 'etl:OnSuccess/@ProcessID', p1.ScopeID as 'etl:OnSuccess/@ScopeID',p1.Process as 'etl:OnSuccess/etl:Process',p1.Param as 'etl:OnSuccess/etl:Param'
@@ -310,6 +309,7 @@ select @pContext =
 ,(select sa.AttributeName as '@Name',sa.AttributeValue as '*' from @a sa
    where s.BatchID = sa.BatchID and s.StepID = sa.StepID and sa.ConstID is null
      and sa.AttributeName not in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP')
+     and sa.AttributeName not in ('etl:DISABLED','etl:SEQGROUP','etl:PRIGROUP','etl:RETRY','etl:DELAY','etl:RESTART','etl:LOOPGROUP')
      for xml path('etl:Attribute'),type) as 'etl:Attributes'
 --
 --step constraints
@@ -317,8 +317,8 @@ select @pContext =
  sc.ConstID as '@ConstID'
 ,sc.ConstOrder as '@ConstOrder'
 ,sc.WaitPeriod as '@WaitPeriod'
-,sca1.AttributeValue as '@Disabled'
-,sca2.AttributeValue as '@Ping'
+,(select top 1 sca1.AttributeValue from dbo.[ETLStepConstraintAttribute] sca1 where sc.BatchID = sca1.BatchID and sc.StepID = sca1.StepID and sc.ConstID = sca1.ConstID and sca1.AttributeName in ('DISABLED','etl:Disabled')) as '@Disabled'
+,(select top 1 sca2.AttributeValue from dbo.[ETLStepConstraintAttribute] sca2 where sc.BatchID = sca2.BatchID and sc.StepID = sca2.StepID and sc.ConstID = sca2.ConstID and sca2.AttributeName in ('Ping','etl:Ping')) as '@Ping'
 ,p0.ProcessID as 'etl:Process/@ProcessID', p0.ScopeID as 'etl:Process/@ScopeID',p0.Process as 'etl:Process/etl:Process',p0.Param as 'etl:Process/etl:Param'
 --step constraint attributes
 --,(select sca.AttributeName as '@Name',sca.AttributeValue as '*'
@@ -327,13 +327,11 @@ select @pContext =
 --    for xml path('etl:Attribute'),type) as 'etl:Attributes'
 ,(select sca.AttributeName as '@Name',sca.AttributeValue as '*'
     from @a sca where sc.BatchID = sca.BatchID and sc.StepID = sca.StepID and sc.ConstID = sca.ConstID
-     and sca.AttributeName not in ('DISABLED','PING')
+     and sca.AttributeName not in ('DISABLED','PING','etl:DISABLED','etl:PING')
     for xml path('etl:Attribute'),type) as 'etl:Attributes'
 --
    from dbo.[ETLStepConstraint] sc
    left join dbo.[ETLProcess] p0 on sc.ProcessID = p0.ProcessID
-   left join dbo.[ETLStepConstraintAttribute] sca1 on sc.BatchID = sca1.BatchID and sc.StepID = sca1.StepID and sc.ConstID = sca1.ConstID and sca1.AttributeName = 'DISABLED'
-   left join dbo.[ETLStepConstraintAttribute] sca2 on sc.BatchID = sca2.BatchID and sc.StepID = sca2.StepID and sc.ConstID = sca2.ConstID and sca2.AttributeName = 'PING'
    where s.BatchID = sc.BatchID and s.StepID = sc.StepID  and (sc.ConstID = @ConstID or @ConstID is null) and (@Scope is null or @Scope & 8 = 8)
    for xml path('etl:Constraint'),type) as 'etl:Constraints'
 --
@@ -341,25 +339,11 @@ select @pContext =
  left join dbo.[ETLProcess] p0 on s.StepProcID = p0.ProcessID
  left join dbo.[ETLProcess] p1 on s.OnSuccessID = p1.ProcessID
  left join dbo.[ETLProcess] p2 on s.OnFailureID = p2.ProcessID
- left join dbo.[ETLStepAttribute] sa1 on s.BatchID = sa1.BatchID and s.StepID = sa1.StepID and sa1.AttributeName = 'DISABLED'
- left join dbo.[ETLStepAttribute] sa2 on s.BatchID = sa2.BatchID and s.StepID = sa2.StepID and sa2.AttributeName = 'SEQGROUP'
- left join dbo.[ETLStepAttribute] sa3 on s.BatchID = sa3.BatchID and s.StepID = sa3.StepID and sa3.AttributeName = 'PRIGROUP'
- left join dbo.[ETLStepAttribute] sa4 on s.BatchID = sa4.BatchID and s.StepID = sa4.StepID and sa4.AttributeName = 'RETRY'
- left join dbo.[ETLStepAttribute] sa5 on s.BatchID = sa5.BatchID and s.StepID = sa5.StepID and sa5.AttributeName = 'RESTART'
- left join dbo.[ETLStepAttribute] sa6 on s.BatchID = sa6.BatchID and s.StepID = sa6.StepID and sa6.AttributeName = 'DELAY'
- left join dbo.[ETLStepAttribute] sa7 on s.BatchID = sa7.BatchID and s.StepID = sa7.StepID and sa7.AttributeName = 'LOOPGROUP'
  where b.BatchID = s.BatchID and (s.StepID = @StepID or @StepID is null) and (@Scope is null or @Scope & 2 = 2)
    for xml path('etl:Step'),type) as 'etl:Steps'
  from dbo.[ETLBatch] b
  left join dbo.[ETLProcess] p1 on b.OnSuccessID = p1.ProcessID
  left join dbo.[ETLProcess] p2 on b.OnFailureID = p2.ProcessID
- left join dbo.[ETLBatchAttribute] ba1 on b.BatchID = ba1.BatchID and ba1.AttributeName = 'HISTRET'
- left join dbo.[ETLBatchAttribute] ba2 on b.BatchID = ba2.BatchID and ba2.AttributeName = 'MAXTHREAD'
- left join dbo.[ETLBatchAttribute] ba3 on b.BatchID = ba3.BatchID and ba3.AttributeName = 'PING'
- left join dbo.[ETLBatchAttribute] ba4 on b.BatchID = ba4.BatchID and ba4.AttributeName = 'TIMEOUT'
- left join dbo.[ETLBatchAttribute] ba5 on b.BatchID = ba5.BatchID and ba5.AttributeName = 'LIFETIME'
- left join dbo.[ETLBatchAttribute] ba6 on b.BatchID = ba6.BatchID and ba6.AttributeName = 'RETRY'
- left join dbo.[ETLBatchAttribute] ba7 on b.BatchID = ba7.BatchID and ba7.AttributeName = 'DELAY'
  where (b.BatchID = @BatchID) and (@Scope is null or @Scope & 1 = 1)
 for xml path ('etl:Context'),type)
 
