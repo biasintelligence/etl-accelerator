@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[ETLStepConstraint] (
-    [ConstID]    INT          IDENTITY (1, 1) NOT NULL,
+    [ConstID]    INT          NOT NULL,
     [StepID]     INT          NOT NULL,
     [BatchID]    INT          NOT NULL,
     [ProcessID]  INT          NOT NULL,

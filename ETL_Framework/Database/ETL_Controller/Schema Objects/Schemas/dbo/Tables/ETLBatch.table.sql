@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[ETLBatch] (
-    [BatchID]      INT           IDENTITY (1, 1) NOT NULL,
+    [BatchID]      INT           NOT NULL,
     [BatchName]    VARCHAR (30)  NOT NULL,
     [BatchDesc]    VARCHAR (500) NULL,
     [OnSuccessID]  INT           NULL,

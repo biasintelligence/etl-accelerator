@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[ETLProcess] (
-    [ProcessID] INT       IDENTITY (1, 1) NOT NULL,
+    [ProcessID] INT       NOT NULL,
     [Process]   [sysname] NOT NULL,
     [Param]     [nvarchar](2048) NULL,
     [ScopeID]   TINYINT   NULL,

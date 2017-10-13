@@ -18,13 +18,13 @@ exec dbo.prc_RemoveContext @BatchName
 -------------------------------------------------------
 --create workflow record 
 -------------------------------------------------------
-set identity_insert dbo.ETLBatch on
+--set identity_insert dbo.ETLBatch on
 insert dbo.ETLBatch
 (BatchID,BatchName,BatchDesc
 ,OnSuccessID,OnFailureID,IgnoreErr,RestartOnErr
 )
 select @BatchID,@BatchName,@BatchName,null,null,0,1
-set identity_insert dbo.ETLBatch off
+--set identity_insert dbo.ETLBatch off
 
 -------------------------------------------------------
 --Define workflow level system attributes
@@ -78,7 +78,7 @@ union all select @BatchID,'OutputDir'	,'<Path*>\UnzipFiles'
 -----------------------------------------------------
 --create workflow steps 
 -----------------------------------------------------
-set identity_insert dbo.ETLStep on
+--set identity_insert dbo.ETLStep on
 
 insert dbo.ETLStep
 	(StepID,BatchID,StepName,StepDesc,StepProcID
@@ -95,7 +95,7 @@ select 10,@BatchID,'ST021','processor 2 get workload',32,20,34,null,'021'
 union all
 select 11,@BatchID,'ST022','processor 2 upzip',29,33,34,null,'022'
 
-set identity_insert dbo.ETLStep off
+--set identity_insert dbo.ETLStep off
 
 -------------------------------------------------------
 --Define step level system attributes

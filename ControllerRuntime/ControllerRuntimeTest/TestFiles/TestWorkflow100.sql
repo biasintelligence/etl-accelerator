@@ -18,13 +18,13 @@ exec dbo.prc_RemoveContext @BatchName
 -------------------------------------------------------
 --create workflow record 
 -------------------------------------------------------
-set identity_insert dbo.ETLBatch on
+--set identity_insert dbo.ETLBatch on
 insert dbo.ETLBatch
 (BatchID,BatchName,BatchDesc
 ,OnSuccessID,OnFailureID,IgnoreErr,RestartOnErr
 )
 select @BatchID,@BatchName,@BatchName,25,25,0,1
-set identity_insert dbo.ETLBatch off
+--set identity_insert dbo.ETLBatch off
 
 -------------------------------------------------------
 --Define workflow level system attributes
@@ -90,7 +90,7 @@ union all select 1,@BatchID,'DISABLED','1'
 -----------------------------------------------------
 --create workflow steps 
 -----------------------------------------------------
-set identity_insert dbo.ETLStep on
+--set identity_insert dbo.ETLStep on
 
 insert dbo.ETLStep
 	(StepID,BatchID,StepName,StepDesc,StepProcID
@@ -112,7 +112,7 @@ select 7,@BatchID,'ST07','loop wait',25,null,null,null,'07'
 union all
 select 8,@BatchID,'ST08','loop break',20,null,null,null,'08'
 
-set identity_insert dbo.ETLStep off
+--set identity_insert dbo.ETLStep off
 
 -------------------------------------------------------
 --Define step level system attributes

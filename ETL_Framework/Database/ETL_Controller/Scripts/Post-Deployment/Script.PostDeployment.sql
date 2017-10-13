@@ -13,7 +13,7 @@ Post-Deployment Script Template
 :r .\Environment.sql
 :r .\Misc\PopulateWFRunnerImportProcess.sql
 --:r .\Misc\PopulateLegacyImportProcess.sql
-:r .\Misc\ETLMonitorPermissions.sql
+--:r .\Misc\ETLMonitorPermissions.sql
 --:r .\Workflows\Test.sql
 --:r .\Workflows\Call_BCP.sql
 --:r .\Workflows\Call_Powershell.sql

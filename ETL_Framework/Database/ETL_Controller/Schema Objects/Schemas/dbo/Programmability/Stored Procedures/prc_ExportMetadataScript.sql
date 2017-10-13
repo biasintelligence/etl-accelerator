@@ -97,11 +97,11 @@ set @Script += '
 -------------------------------------------------------
 --create workflow record 
 -------------------------------------------------------
-set identity_insert dbo.ETLBatch on;
+--set identity_insert dbo.ETLBatch on;
 insert dbo.ETLBatch
 (BatchID,BatchName,BatchDesc,OnSuccessID,OnFailureID,IgnoreErr,RestartOnErr)
 values (@BatchID,@BatchName,' + @sql + ');
-set identity_insert dbo.ETLBatch off;
+--set identity_insert dbo.ETLBatch off;
 '
 --system attributes
 set @sql = '';
@@ -165,12 +165,12 @@ order by constId;
 
 if (len(@sql) > 0)
 set @Script += '
-set identity_insert dbo.ETLBatchConstraint on
+--set identity_insert dbo.ETLBatchConstraint on
 insert dbo.ETLBatchConstraint
 (BatchID,ConstID,ProcessID,ConstOrder,WaitPeriod)
 values
 ' + right(@sql,len(@sql) - 1) + ';
-set identity_insert dbo.ETLBatchConstraint off;
+--set identity_insert dbo.ETLBatchConstraint off;
 ';
 
 --system attributes
@@ -254,12 +254,12 @@ set @Script += '
 --step: ' + cast(@stepId as nvarchar(10)) + '
 -------------------------------------------------------
 set @stepId = ' + cast(@stepId as nvarchar(10)) + ';
-set identity_insert dbo.ETLStep on;
+--set identity_insert dbo.ETLStep on;
 insert dbo.ETLStep
 (BatchID,StepID,StepName,StepDesc,StepProcID,OnSuccessID,OnFailureID,IgnoreErr,StepOrder)
 values
  ' + @sql + ';
-set identity_insert dbo.ETLStep off;
+--set identity_insert dbo.ETLStep off;
 ';
 
 --step attributes
@@ -323,12 +323,12 @@ order by ConstId;
 
 if (len(@sql) > 0)
 set @Script += '
-set identity_insert dbo.ETLStepConstraint on
+--set identity_insert dbo.ETLStepConstraint on
 insert dbo.ETLStepConstraint
 (BatchID,StepID,ConstID,,ProcessID,ConstOrder,WaitPeriod)
 values
 ' + right(@sql,len(@sql) - 1) + ';
-set identity_insert dbo.ETLStepConstraint off;
+--set identity_insert dbo.ETLStepConstraint off;
 ';
 
 --system attributes

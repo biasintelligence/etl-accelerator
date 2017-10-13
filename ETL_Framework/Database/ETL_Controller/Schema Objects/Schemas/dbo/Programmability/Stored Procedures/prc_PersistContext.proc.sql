@@ -331,7 +331,7 @@ begin
    exec @ProcErr = dbo.[prc_Print] @ProcessInfo,@pHandle
 end
 
-set identity_insert dbo.[ETLBatch] on
+--set identity_insert dbo.[ETLBatch] on
 insert dbo.[ETLBatch]
     (BatchID,BatchName,BatchDesc,OnSuccessID,OnFailureID,IgnoreErr,RestartOnErr)
 select
@@ -346,7 +346,7 @@ select
   left join dbo.[ETLBatch] d on t.BatchID = d.BatchID
  where d.BatchID is null
 set @cnt = @@ROWCOUNT
-set identity_insert dbo.[ETLBatch] off
+--set identity_insert dbo.[ETLBatch] off
 
 if (@debug = 1)
 begin
@@ -405,7 +405,7 @@ begin
    exec @ProcErr = dbo.[prc_Print] @ProcessInfo,@pHandle
 end
 
-set identity_insert dbo.[ETLBatchConstraint] on
+--set identity_insert dbo.[ETLBatchConstraint] on
 insert dbo.[ETLBatchConstraint]
     (BatchID,ConstID,ProcessID,ConstOrder,WaitPeriod)
 select
@@ -418,7 +418,7 @@ select
   left join dbo.[ETLBatchConstraint] d on t.BatchID = d.BatchID and d.ConstID = t.ConstID
  where d.BatchID is null
 set @cnt = @@ROWCOUNT
-set identity_insert dbo.[ETLBatchConstraint] off
+--set identity_insert dbo.[ETLBatchConstraint] off
 
 if (@debug = 1)
 begin
@@ -482,7 +482,7 @@ begin
    exec @ProcErr = dbo.[prc_Print] @ProcessInfo,@pHandle
 end
 
-set identity_insert dbo.[ETLStep] on
+--set identity_insert dbo.[ETLStep] on
 insert dbo.[ETLStep]
     (BatchID,StepID,StepName,StepDesc,StepProcID,OnSuccessID,OnFailureID,IgnoreErr,StepOrder)
 select
@@ -500,7 +500,7 @@ select
  where d.BatchID is null
 
 set @cnt = @@ROWCOUNT
-set identity_insert dbo.[ETLStep] off
+--set identity_insert dbo.[ETLStep] off
 
 if (@debug = 1)
 begin
@@ -560,7 +560,7 @@ begin
    exec @ProcErr = dbo.[prc_Print] @ProcessInfo,@pHandle
 end
 
-set identity_insert dbo.[ETLStepConstraint] on
+--set identity_insert dbo.[ETLStepConstraint] on
 insert dbo.[ETLStepConstraint]
     (BatchID,StepID,ConstID,ProcessID,ConstOrder,WaitPeriod)
 select
@@ -575,7 +575,7 @@ select
  where d.BatchID is null
 
 set @cnt = @@ROWCOUNT
-set identity_insert dbo.[ETLStepConstraint] off
+--set identity_insert dbo.[ETLStepConstraint] off
 
 if (@debug = 1)
 begin

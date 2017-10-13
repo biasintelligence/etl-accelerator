@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[ETLStep] (
-    [StepID]      INT           IDENTITY (1, 1) NOT NULL,
+    [StepID]      INT           NOT NULL,
     [BatchID]     INT           NOT NULL,
     [StepName]    VARCHAR (100) NOT NULL,
     [StepDesc]    VARCHAR (500) NULL,

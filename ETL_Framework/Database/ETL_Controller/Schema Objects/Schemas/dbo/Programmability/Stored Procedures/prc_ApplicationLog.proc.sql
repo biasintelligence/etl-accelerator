@@ -61,10 +61,10 @@ BEGIN
    exec dbo.[prc_CreateHeader] @Header out,@BatchId,@StepId,null,@RunId,@debug
    exec dbo.[prc_CreateProcessInfo] @ProcessInfo out,@Header,@pMessage,@pErr
 
-   --RAISERROR ('not implemented',0,1) WITH NOWAIT
-  ;SEND ON CONVERSATION @pConversation
-   MESSAGE TYPE [ETLController_InfoMessage]
-      (CAST(@ProcessInfo AS varbinary(max)))
+   RAISERROR ('not implemented',0,1) WITH NOWAIT
+  --;SEND ON CONVERSATION @pConversation
+  -- MESSAGE TYPE [ETLController_InfoMessage]
+  --    (CAST(@ProcessInfo AS varbinary(max)))
 
 END
 ELSE

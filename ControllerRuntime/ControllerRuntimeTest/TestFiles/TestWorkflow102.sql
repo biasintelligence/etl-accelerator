@@ -18,13 +18,13 @@ exec dbo.prc_RemoveContext @BatchName
 -------------------------------------------------------
 --create workflow record 
 -------------------------------------------------------
-set identity_insert dbo.ETLBatch on
+--set identity_insert dbo.ETLBatch on
 insert dbo.ETLBatch
 (BatchID,BatchName,BatchDesc
 ,OnSuccessID,OnFailureID,IgnoreErr,RestartOnErr
 )
 select @BatchID,@BatchName,@BatchName,null,null,0,1
-set identity_insert dbo.ETLBatch off
+--set identity_insert dbo.ETLBatch off
 
 -------------------------------------------------------
 --Define workflow level system attributes
@@ -68,7 +68,7 @@ union all select @BatchID,'Test.DstTable','dbo.staging_odbc_test'
 -----------------------------------------------------
 --create workflow steps 
 -----------------------------------------------------
-set identity_insert dbo.ETLStep on
+--set identity_insert dbo.ETLStep on
 
 insert dbo.ETLStep
 	(StepID,BatchID,StepName,StepDesc,StepProcID
@@ -78,7 +78,7 @@ select 1,@BatchID,'ST01','create test tables',20,null,null,null,'01'
 union all
 select 2,@BatchID,'ST02','ODBC test',24,null,null,null,'02'
 
-set identity_insert dbo.ETLStep off
+--set identity_insert dbo.ETLStep off
 
 -------------------------------------------------------
 --Define step level system attributes

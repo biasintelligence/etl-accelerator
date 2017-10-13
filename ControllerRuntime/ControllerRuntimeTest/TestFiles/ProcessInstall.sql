@@ -3,7 +3,7 @@ GO
 delete etlprocess where ProcessId between 20 and 50;
 if not exists (select 1 from etlprocess where ProcessId between 20 and 50)
 begin
-	set identity_insert dbo.etlprocess on;
+	--set identity_insert dbo.etlprocess on;
 	insert etlprocess
 	(ProcessId,Process,[Param],ScopeId)
 	values
@@ -38,5 +38,5 @@ begin
 
 
 
-	set identity_insert dbo.etlprocess off;
+	--set identity_insert dbo.etlprocess off;
 end

@@ -58,10 +58,10 @@ set @pConversation = null;
 IF (@pConversation IS NOT NULL)
 BEGIN
 
-   --RAISERROR ('not implemented',0,1) WITH NOWAIT
-  ;SEND ON CONVERSATION @pConversation
-   MESSAGE TYPE [ETLController_InfoMessage]
-      (CAST(@pProcessInfo AS varbinary(max)));
+   RAISERROR ('not implemented',0,1) WITH NOWAIT
+  --;SEND ON CONVERSATION @pConversation
+  -- MESSAGE TYPE [ETLController_InfoMessage]
+  --    (CAST(@pProcessInfo AS varbinary(max)));
 
 END
 ELSE

@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[ETLBatchConstraint] (
-    [ConstID]    INT          IDENTITY (1, 1) NOT NULL,
+    [ConstID]    INT          NOT NULL,
     [BatchID]    INT          NOT NULL,
     [ProcessID]  INT          NOT NULL,
     [ConstOrder] VARCHAR (10) NULL,
