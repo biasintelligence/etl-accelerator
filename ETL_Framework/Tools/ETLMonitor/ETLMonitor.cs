@@ -45,6 +45,13 @@ namespace ETL_Framework
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
                 this.Text = String.Format("ETL Monitor v{0} {1}-bit", v.ToString(), 8*IntPtr.Size);
 
+                if (this.toolStripTextBoxPassword.Control is TextBox)
+                {
+                    TextBox tb = this.toolStripTextBoxPassword.Control as TextBox;
+                    tb.PasswordChar = '*';
+                }
+
+
                 timerRefresh.Interval = 10000;
                 timerRefresh.Tick += new EventHandler(refresh_OnTimer);
                 timerRefresh.Enabled = true;
@@ -58,7 +65,7 @@ namespace ETL_Framework
                 treeViewBatchRun.ImageList = imageListStatus;
                 m_DataSet = new DataSet();
 
-                m_dbmon.Connect();
+                m_dbmon.Connect(String.Empty,String.Empty);
 
                 RefreshAll();
                 timerRefresh.Start();
@@ -608,7 +615,7 @@ namespace ETL_Framework
             try
             {
                 timerRefresh.Stop();
-                m_dbmon.Connect();
+                m_dbmon.Connect(toolStripTextBoxUser.Text, toolStripTextBoxPassword.Text);
 
                 RefreshAll();
                 timerRefresh.Start();
@@ -639,6 +646,9 @@ namespace ETL_Framework
             }
         }
 
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
 
+        }
     }
 }

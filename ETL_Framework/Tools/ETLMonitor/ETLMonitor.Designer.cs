@@ -59,21 +59,28 @@
             this.toolStripTextBoxServer = new System.Windows.Forms.ToolStripTextBox();
             this.databaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripTextBoxDatabase = new System.Windows.Forms.ToolStripTextBox();
+            this.userToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.passwordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageListStatus = new System.Windows.Forms.ImageList(this.components);
             this.actionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cancelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageListStatus = new System.Windows.Forms.ImageList(this.components);
+            this.toolStripTextBoxPassword = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripTextBoxUser = new System.Windows.Forms.ToolStripTextBox();
             this.statusBar.SuspendLayout();
             this.toolStripContainer1.BottomToolStripPanel.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
             this.splitContainer3.Panel1.SuspendLayout();
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
@@ -330,12 +337,15 @@
             this.menuStrip1.Size = new System.Drawing.Size(1228, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
             // 
             // connectStripMenuItem
             // 
             this.connectStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.serverToolStripMenuItem,
             this.databaseToolStripMenuItem,
+            this.userToolStripMenuItem,
+            this.passwordToolStripMenuItem,
             this.refreshToolStripMenuItem});
             this.connectStripMenuItem.Name = "connectStripMenuItem";
             this.connectStripMenuItem.Size = new System.Drawing.Size(64, 20);
@@ -367,12 +377,43 @@
             this.toolStripTextBoxDatabase.Name = "toolStripTextBoxDatabase";
             this.toolStripTextBoxDatabase.Size = new System.Drawing.Size(100, 23);
             // 
+            // userToolStripMenuItem
+            // 
+            this.userToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripTextBoxUser});
+            this.userToolStripMenuItem.Name = "userToolStripMenuItem";
+            this.userToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.userToolStripMenuItem.Text = "User";
+            // 
+            // passwordToolStripMenuItem
+            // 
+            this.passwordToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripTextBoxPassword});
+            this.passwordToolStripMenuItem.Name = "passwordToolStripMenuItem";
+            this.passwordToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.passwordToolStripMenuItem.Text = "Password";
+            // 
             // refreshToolStripMenuItem
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
             this.refreshToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
+            // 
+            // actionToolStripMenuItem
+            // 
+            this.actionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cancelToolStripMenuItem});
+            this.actionToolStripMenuItem.Name = "actionToolStripMenuItem";
+            this.actionToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
+            this.actionToolStripMenuItem.Text = "Action";
+            // 
+            // cancelToolStripMenuItem
+            // 
+            this.cancelToolStripMenuItem.Name = "cancelToolStripMenuItem";
+            this.cancelToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.cancelToolStripMenuItem.Text = "Cancel";
+            this.cancelToolStripMenuItem.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
             // 
             // imageListStatus
             // 
@@ -389,20 +430,15 @@
             this.imageListStatus.Images.SetKeyName(8, "err02.gif");
             this.imageListStatus.Images.SetKeyName(9, "err02.gif");
             // 
-            // actionToolStripMenuItem
+            // toolStripTextBoxPassword
             // 
-            this.actionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cancelToolStripMenuItem});
-            this.actionToolStripMenuItem.Name = "actionToolStripMenuItem";
-            this.actionToolStripMenuItem.Size = new System.Drawing.Size(54, 20);
-            this.actionToolStripMenuItem.Text = "Action";
+            this.toolStripTextBoxPassword.Name = "toolStripTextBoxPassword";
+            this.toolStripTextBoxPassword.Size = new System.Drawing.Size(100, 23);
             // 
-            // cancelToolStripMenuItem
+            // toolStripTextBoxUser
             // 
-            this.cancelToolStripMenuItem.Name = "cancelToolStripMenuItem";
-            this.cancelToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.cancelToolStripMenuItem.Text = "Cancel";
-            this.cancelToolStripMenuItem.Click += new System.EventHandler(this.cancelToolStripMenuItem_Click);
+            this.toolStripTextBoxUser.Name = "toolStripTextBoxUser";
+            this.toolStripTextBoxUser.Size = new System.Drawing.Size(100, 23);
             // 
             // ETLMonitor
             // 
@@ -427,12 +463,15 @@
             this.toolStripContainer1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
             this.splitContainer3.Panel1.ResumeLayout(false);
             this.splitContainer3.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridStepRun)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridCounters)).EndInit();
@@ -468,7 +507,7 @@
         private System.Windows.Forms.ToolStripTextBox toolStripTextBoxServer;
         private System.Windows.Forms.ToolStripMenuItem databaseToolStripMenuItem;
         private System.Windows.Forms.ToolStripTextBox toolStripTextBoxDatabase;
-        private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem userToolStripMenuItem;
         private System.Windows.Forms.DataGridViewImageColumn Status;
         private System.Windows.Forms.DataGridViewTextBoxColumn StepDesc;
         private System.Windows.Forms.DataGridViewTextBoxColumn StartTime;
@@ -478,6 +517,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn SvcName;
         private System.Windows.Forms.ToolStripMenuItem actionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cancelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem passwordToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBoxPassword;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBoxUser;
     }
 }
 

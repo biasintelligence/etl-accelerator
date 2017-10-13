@@ -47,7 +47,7 @@ namespace ETL_Framework
             return true;
         }
 
-        private void Connect(string Server,string Database)
+        private void Connect(string Server,string Database,string User,string Password)
         {
             if (Server == "")
             {
@@ -58,7 +58,10 @@ namespace ETL_Framework
                 throw new InvalidArgumentException("Database is required");
             }
 
-            m_connectionString = String.Format("Persist Security Info=False;Integrated Security=SSPI;database={0};server={1}", Database, Server);
+            if (String.IsNullOrEmpty(User))
+                m_connectionString = String.Format("Persist Security Info=False;Integrated Security=SSPI;database={0};server={1}", Database, Server);
+            else
+                m_connectionString = String.Format("Persist Security Info=True;database={0};server={1};user id={2};password={3};", Database, Server, User, Password);
 
             // Create a dependency
             //try
@@ -134,9 +137,9 @@ namespace ETL_Framework
 
 
 
-        public void Connect()
+        public void Connect(string User,string Password)
         {
-            Connect(m_server,m_database);
+            Connect(m_server,m_database,User,Password);
         }
 
         public string ConnectionString
