@@ -150,16 +150,22 @@ namespace DefaultActivities
 
                 //var credentials = new StoredProfileAWSCredentials(_attributes[PROFILE_NAME]);
                 RegionEndpoint endpoint = RegionEndpoint.GetBySystemName(_attributes[REGION_NAME]);
-                //using (var client = new AmazonS3Client(credentials, endpoint))
-                using (var client = new AmazonS3Client(_attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY], endpoint))
+                AWSCredentials credentials = null;
+                if (!String.IsNullOrEmpty(_attributes[ACCOUNT_NAME]))
+                {
+                    credentials = new BasicAWSCredentials(_attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY]);
+                }
+                using (var client = new AmazonS3Client(credentials, endpoint))
                 {
 
-                    //ListBucketsRequest bucketRequest = new ListBucketsRequest();
-                    //ListBucketsResponse backetResponse;
-                    //backetResponse = client.ListBuckets(bucketRequest);
-                    //var buckets = backetResponse.Buckets;
 
-                    //GetBucketLocationResponse bucketLocationResponse = client.GetBucketLocation(_attributes[CONTAINER_NAME]);
+                        //ListBucketsRequest bucketRequest = new ListBucketsRequest();
+                        //ListBucketsResponse backetResponse;
+                        //backetResponse = client.ListBuckets(bucketRequest);
+                        //var buckets = backetResponse.Buckets;
+
+                        //GetBucketLocationResponse bucketLocationResponse = client.GetBucketLocation(_attributes[CONTAINER_NAME]);
+
 
                     ListObjectsV2Request objectRequest = new ListObjectsV2Request
                     {

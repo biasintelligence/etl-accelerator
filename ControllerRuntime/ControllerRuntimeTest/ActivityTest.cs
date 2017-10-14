@@ -269,7 +269,7 @@ raiserror ('this is err test',11,11);
             list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_Controller; Trusted_Connection = True; Connection Timeout = 120; "));
             list.Add(new WorkflowAttribute("Prefix", @""));
             list.Add(new WorkflowAttribute("OutputFolder", "C:\\Builds\\ZipFiles\\AWS"));
-            list.Add(new WorkflowAttribute("BucketName", "thl-bias-messages-staging/bias-integration"));
+            list.Add(new WorkflowAttribute("BucketName", "thl-bias-messages-staging"));
             //list.Add(new WorkflowAttribute("ProfileName", "testRunner"));
             list.Add(new WorkflowAttribute("AccountName", ""));
             list.Add(new WorkflowAttribute("AccountKey", ""));
@@ -301,7 +301,7 @@ raiserror ('this is err test',11,11);
             list.Add(new WorkflowAttribute("AccountKey", ""));
             list.Add(new WorkflowAttribute("RegionName", "us-west-2"));
             list.Add(new WorkflowAttribute("Timeout", "0"));
-            list.Add(new WorkflowAttribute("SqsUrl", ""));
+            list.Add(new WorkflowAttribute("SqsUrl", "https://sqs.us-west-2.amazonaws.com/845009241909/bias-external-staging-pointUpdated"));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);
 
