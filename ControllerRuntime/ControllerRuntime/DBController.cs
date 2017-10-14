@@ -174,23 +174,20 @@ begin try
 SELECT @RunID,s.BatchID,s.StepID
       ,getdate(),0
       ,null,s.StepOrder,ISNULL(NULLIF(b.IgnoreErr,0),NULLIF(s.IgnoreErr,0))
-      ,null,null,null,sg.AttributeValue,isnull(pg.AttributeValue,'zzz')
+      ,null,null,null
+      ,(SELECT TOP 1 sg.AttributeValue FROM dbo.ETLStepAttribute sg WHERE s.BatchID = sg.BatchID AND s.StepID = sg.StepID AND sg.AttributeName IN ('SEQGROUP','etl:SeqGroup))
+      ,isnull((SELECT TOP 1 pg.AttributeValue FROM dbo.ETLStepAttribute pg WHERE s.BatchID = pg.BatchID AND s.StepID = pg.StepID AND pg.AttributeName IN ('PRIGROUP','etl:PriGroup)),'zzz')
       ,@processorName
   FROM dbo.ETLStep s
   JOIN dbo.ETLBatch b ON s.BatchID = b.BatchID
-  LEFT JOIN dbo.ETLStepAttribute a ON s.BatchID = a.BatchID AND s.StepID = a.StepID
-   AND a.AttributeName = 'DISABLED' AND a.AttributeValue = '1'
-  LEFT JOIN dbo.ETLStepAttribute sg ON s.BatchID = sg.BatchID AND s.StepID = sg.StepID
-   AND sg.AttributeName = 'SEQGROUP'
-  LEFT JOIN dbo.ETLStepAttribute pg ON s.BatchID = pg.BatchID AND s.StepID = pg.StepID
-   AND pg.AttributeName = 'PRIGROUP'
   LEFT JOIN dbo.ETLStepAttribute rs ON s.BatchID = rs.BatchID AND s.StepID = rs.StepID
    AND rs.AttributeName = 'RESTART'
- WHERE (s.BatchID = @BatchID and a.StepID IS NULL  --enebled steps only
+ WHERE (s.BatchID = @BatchID
+   and not exists (SELECT 1 dbo.ETLStepAttribute a WHERE s.BatchID = a.BatchID AND s.StepID = a.StepID AND a.AttributeName IN ('DISABLED','etl:Disabled') AND a.AttributeValue = '1')  --enebled steps only
    AND (ISNULL(@LastStatusID,0) = 2 --succeeded batches
    --always restartable steps
-    OR ((ISNULL(b.RestartOnErr,0) <> 0)
-    or (isnull(cast(rs.AttributeValue as tinyint),0) <> 0))
+    OR ((ISNULL(b.RestartOnErr,0) = 1)
+    or (exists (SELECT 1 dbo.ETLStepAttribute a WHERE rs ON s.BatchID = rs.BatchID AND s.StepID = rs.StepID AND rs.AttributeName IN ('RESTART','etl:Restart') AND rs.AttributeValue = '1'))
     OR (ISNULL(s.StatusID,0) <> 2) --never executed or failed steps
        ));
 
@@ -281,11 +278,13 @@ declare @LoopGroup nvarchar(30) = '{2}'
 UPDATE s
     SET s.StatusID = 0,s.EndTime = null,s.Err = 0
 FROM dbo.ETLStepRun s
-JOIN dbo.ETLStepAttribute sa on s.BatchId = sa.BatchId and s.StepId = sa.StepId
-    and sa.AttributeName = 'LOOPGROUP' and sa.AttributeValue = @LoopGroup
 LEFT JOIN dbo.ETLStepRunCounter rc ON s.BatchId = rc.BatchId and s.RunId = rc.RunId
 AND (s.StepId = rc.StepId OR rc.StepId = 0) and rc.CounterName = 'ExitEvent'
-WHERE s.RunID = @RunID AND s.BatchID = @BatchID and s.StatusId in (2,3,4) and rc.BatchId is null;
+WHERE s.RunID = @RunID AND s.BatchID = @BatchID and s.StatusId in (2,3,4) and rc.BatchId is null
+AND EXISTS (SELECT 1 FROM dbo.ETLStepAttribute sa WHERE s.BatchId = sa.BatchId and s.StepId = sa.StepId
+    and sa.AttributeName IN ('LOOPGROUP','etl:LoopGroup') and sa.AttributeValue = @LoopGroup)
+
+;
 
 if (@@ROWCOUNT > 0)
 BEGIN
@@ -310,9 +309,10 @@ BEGIN
     UPDATE s
         SET s.StatusID = 2,s.EndTime = getdate() ,s.Err = 0
     FROM dbo.ETLStepRun s
-    JOIN dbo.ETLStepAttribute sa on s.BatchId = sa.BatchId and s.StepId = sa.StepId
-        and sa.AttributeName = 'LOOPGROUP' and sa.AttributeValue = @LoopGroup
-    WHERE s.RunID = @RunID AND s.BatchID = @BatchID and s.StatusId = 0;
+    WHERE s.RunID = @RunID AND s.BatchID = @BatchID and s.StatusId = 0
+    AND EXISTS (SELECT 1 FROM dbo.ETLStepAttribute sa WHERE s.BatchId = sa.BatchId and s.StepId = sa.StepId
+        and sa.AttributeName IN ('LOOPGROUP','etl:LoopGroup') and sa.AttributeValue = @LoopGroup)
+;
     SELECT cast(2 as smallint) as StatusId;
 END
 ELSE

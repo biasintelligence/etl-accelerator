@@ -110,9 +110,15 @@ values (@messageId,@organizationId,@operationType,@objectType,@timestamp,@reques
                 //    Amazon.Util.ProfileManager.RegisterProfile(_attributes[PROFILE_NAME], _attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY]);
                 //}
 
+                AWSCredentials credentials = null;
+                if (!String.IsNullOrEmpty(_attributes[ACCOUNT_NAME]))
+                {
+                    credentials = new BasicAWSCredentials(_attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY]);
+                }
+
                 RegionEndpoint endpoint = RegionEndpoint.GetBySystemName(_attributes[REGION_NAME]);
                 using (var sqlClient = new SqlConnection(_attributes[CONNECTION_STRING]))
-                using (var sqsClient = new AmazonSQSClient(_attributes[ACCOUNT_NAME], _attributes[ACCOUNT_KEY], endpoint))
+                using (var sqsClient = new AmazonSQSClient(credentials, endpoint))
                 {
                     try
                     {
