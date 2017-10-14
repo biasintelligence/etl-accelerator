@@ -175,20 +175,20 @@ SELECT @RunID,s.BatchID,s.StepID
       ,getdate(),0
       ,null,s.StepOrder,ISNULL(NULLIF(b.IgnoreErr,0),NULLIF(s.IgnoreErr,0))
       ,null,null,null
-      ,(SELECT TOP 1 sg.AttributeValue FROM dbo.ETLStepAttribute sg WHERE s.BatchID = sg.BatchID AND s.StepID = sg.StepID AND sg.AttributeName IN ('SEQGROUP','etl:SeqGroup))
-      ,isnull((SELECT TOP 1 pg.AttributeValue FROM dbo.ETLStepAttribute pg WHERE s.BatchID = pg.BatchID AND s.StepID = pg.StepID AND pg.AttributeName IN ('PRIGROUP','etl:PriGroup)),'zzz')
+      ,(SELECT TOP 1 sg.AttributeValue FROM dbo.ETLStepAttribute sg WHERE s.BatchID = sg.BatchID AND s.StepID = sg.StepID AND sg.AttributeName IN ('SEQGROUP','etl:SeqGroup'))
+      ,isnull((SELECT TOP 1 pg.AttributeValue FROM dbo.ETLStepAttribute pg WHERE s.BatchID = pg.BatchID AND s.StepID = pg.StepID AND pg.AttributeName IN ('PRIGROUP','etl:PriGroup')),'zzz')
       ,@processorName
   FROM dbo.ETLStep s
   JOIN dbo.ETLBatch b ON s.BatchID = b.BatchID
   LEFT JOIN dbo.ETLStepAttribute rs ON s.BatchID = rs.BatchID AND s.StepID = rs.StepID
    AND rs.AttributeName = 'RESTART'
- WHERE (s.BatchID = @BatchID
-   and not exists (SELECT 1 dbo.ETLStepAttribute a WHERE s.BatchID = a.BatchID AND s.StepID = a.StepID AND a.AttributeName IN ('DISABLED','etl:Disabled') AND a.AttributeValue = '1')  --enebled steps only
+ WHERE s.BatchID = @BatchID
+   and not exists (SELECT 1 FROM dbo.ETLStepAttribute a WHERE s.BatchID = a.BatchID AND s.StepID = a.StepID AND a.AttributeName IN ('DISABLED','etl:Disabled') AND a.AttributeValue = '1')  --enebled steps only
    AND (ISNULL(@LastStatusID,0) = 2 --succeeded batches
    --always restartable steps
-    OR ((ISNULL(b.RestartOnErr,0) = 1)
-    or (exists (SELECT 1 dbo.ETLStepAttribute a WHERE rs ON s.BatchID = rs.BatchID AND s.StepID = rs.StepID AND rs.AttributeName IN ('RESTART','etl:Restart') AND rs.AttributeValue = '1'))
-    OR (ISNULL(s.StatusID,0) <> 2) --never executed or failed steps
+    OR (ISNULL(b.RestartOnErr,0) = 1
+    or exists (SELECT 1 FROM dbo.ETLStepAttribute rs WHERE s.BatchID = rs.BatchID AND s.StepID = rs.StepID AND rs.AttributeName IN ('RESTART','etl:Restart') AND rs.AttributeValue = '1')
+    OR ISNULL(s.StatusID,0) <> 2 --never executed or failed steps
        ));
 
 	if (@@ROWCOUNT = 0)
