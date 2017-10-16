@@ -39,8 +39,8 @@ namespace THLActivities
 
 
         private const string QUERY = @"if not exists (select 1 from stage.MessageRequestData where messageId = @messageId)
-insert stage.MessageRequestData (messageId,organizationId,operationType,objectType,[timestamp],requestData)
-values (@messageId,@organizationId,@operationType,@objectType,@timestamp,@requestData)";
+insert stage.MessageRequestData (messageId,organizationId,operationType,resourceType,[timestamp],messageData,resourceData)
+values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@messageData,@resourceData)";
 
 
 
@@ -99,9 +99,10 @@ values (@messageId,@organizationId,@operationType,@objectType,@timestamp,@reques
                     new SqlParameter("@messageId", SqlDbType.UniqueIdentifier, 0),
                     new SqlParameter("@organizationId", SqlDbType.UniqueIdentifier, 0),
                     new SqlParameter("@operationType", SqlDbType.Char, 1),
-                    new SqlParameter("@objectType", SqlDbType.NVarChar, 100),
+                    new SqlParameter("@resourceType", SqlDbType.NVarChar, 100),
                     new SqlParameter("@timestamp", SqlDbType.DateTime, 0),
-                    new SqlParameter("@requestData", SqlDbType.NVarChar, -1),
+                    new SqlParameter("@messageData", SqlDbType.NVarChar, -1),
+                    new SqlParameter("@resourceData", SqlDbType.NVarChar, -1),
                 };
 
 
@@ -164,13 +165,13 @@ values (@messageId,@organizationId,@operationType,@objectType,@timestamp,@reques
 
                                     string operationType = (string)data.SelectToken("Type");
                                     Guid organizationId = (Guid)data.SelectToken("Resource.OrganizationId");
-                                    string objectType = (string)data.SelectToken("Resource.Type"); ;
-                                    string requestData = String.Empty;
+                                    string resourceType = (string)data.SelectToken("Resource.Type"); ;
+                                    string resourceData = String.Empty;
 
 
                                     using (var s3Client = new HttpClient())
                                     {
-                                        requestData = s3Client.GetStringAsync(href).Result;
+                                        resourceData = s3Client.GetStringAsync(href).Result;
                                     }
 
                                     using (token.Register(cmd.Cancel))
@@ -178,9 +179,10 @@ values (@messageId,@organizationId,@operationType,@objectType,@timestamp,@reques
                                         cmd.Parameters[0].Value = messageId;
                                         cmd.Parameters[1].Value = organizationId;
                                         cmd.Parameters[2].Value = operationType.Substring(0, 1);
-                                        cmd.Parameters[3].Value = objectType;
+                                        cmd.Parameters[3].Value = resourceType;
                                         cmd.Parameters[4].Value = timestamp;
-                                        cmd.Parameters[5].Value = requestData;
+                                        cmd.Parameters[5].Value = data.ToString();
+                                        cmd.Parameters[6].Value = resourceData;
 
                                         cmd.ExecuteNonQuery();
                                     }
