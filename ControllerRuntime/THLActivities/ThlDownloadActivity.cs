@@ -150,39 +150,50 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
                                     dynamic body = JsonConvert.DeserializeObject(message.Body);
                                     DateTime timestamp = body.Timestamp;
 
-                                    JToken data = JObject.Parse((string)body.Message);
-                                    string href = (string)data.SelectToken("Resource.Href");
+                                    JToken messageData = JObject.Parse((string)body.Message);
 
-                                    //ignore all messages without HRef
+                                    string operationType = (string)messageData.SelectToken("type");
+                                    string organizationId = (string)messageData.SelectToken("resource.organizationId");
+                                    string resourceType = (string)messageData.SelectToken("resource.type");
+                                    string resourceData = null;
+
+                                    string href = (string)messageData.SelectToken("resource.href");
+
+                                    //data payload
                                     if (String.IsNullOrEmpty(href))
                                     {
-                                        _logger.Write($"No Href property found for message: {messageId}");
-                                        continue;
+                                        resourceData = (string)messageData.SelectToken("resource.data");
+                                        if (String.IsNullOrEmpty(resourceData))
+                                            _logger.Write($"Warning: no payload is found for message: {messageId}");
 
                                     }
-                                    _logger.WriteDebug($"Href: {href}");
-
-
-                                    string operationType = (string)data.SelectToken("Type");
-                                    Guid organizationId = (Guid)data.SelectToken("Resource.OrganizationId");
-                                    string resourceType = (string)data.SelectToken("Resource.Type"); ;
-                                    string resourceData = String.Empty;
-
-
-                                    using (var s3Client = new HttpClient())
+                                    //href payload
+                                    else
                                     {
-                                        resourceData = s3Client.GetStringAsync(href).Result;
+                                        _logger.WriteDebug($"Href: {href}");
+                                        using (var s3Client = new HttpClient())
+                                        {
+                                            try
+                                            {
+                                                resourceData = s3Client.GetStringAsync(href).Result;
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                _logger.Write($"Warning: invalid href: {href}");
+                                                _logger.Write(ex.Message);
+                                            }
+                                        }
                                     }
-
+                                   
                                     using (token.Register(cmd.Cancel))
                                     {
                                         cmd.Parameters[0].Value = messageId;
-                                        cmd.Parameters[1].Value = organizationId;
-                                        cmd.Parameters[2].Value = operationType.Substring(0, 1);
-                                        cmd.Parameters[3].Value = resourceType;
+                                        cmd.Parameters[1].Value = (String.IsNullOrEmpty(organizationId)) ? Guid.Empty : Guid.Parse(organizationId);
+                                        cmd.Parameters[2].Value = (String.IsNullOrEmpty(operationType)) ? "N" : operationType.Substring(0, 1);
+                                        cmd.Parameters[3].Value = (String.IsNullOrEmpty(resourceType)) ? "Unknown" : resourceType;
                                         cmd.Parameters[4].Value = timestamp;
-                                        cmd.Parameters[5].Value = data.ToString();
-                                        cmd.Parameters[6].Value = resourceData;
+                                        cmd.Parameters[5].Value = messageData.ToString();
+                                        cmd.Parameters[6].Value = (String.IsNullOrEmpty(resourceData)) ? (object)DBNull.Value : resourceData;
 
                                         cmd.ExecuteNonQuery();
                                     }

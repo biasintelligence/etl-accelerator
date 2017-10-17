@@ -67,7 +67,7 @@ namespace BIAS.Framework.DeltaExtractor
                 logger.Write(String.Format(CultureInfo.InvariantCulture, "Running DE v.{0} ({1})bit", v.ToString(), 8 * IntPtr.Size));
                 logger.Write("Executing as: " + WindowsIdentity.GetCurrent().Name.ToString());
 
-                logger.Write("DE XML: " + inputXml);
+                //logger.WriteDebug("DE XML: " + inputXml);
 
                 DEController controller = new DEController();
                 controller.Execute(parameters, logger);
@@ -104,7 +104,7 @@ namespace BIAS.Framework.DeltaExtractor
                     //sb.Insert(0, '\"').Append('\"');
 
                     _logger.WriteDebug(String.Format("CommandText : {0}", cmd.CommandText));
-                    _logger.WriteDebug(String.Format("sb : {0}", sb.ToString()));
+                    //_logger.WriteDebug(String.Format("sb : {0}", sb.ToString()));
 
                     return sb.ToString();
                 }

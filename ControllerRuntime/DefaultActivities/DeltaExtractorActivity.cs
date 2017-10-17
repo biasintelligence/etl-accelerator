@@ -75,7 +75,12 @@ namespace DefaultActivities
                 }
             }
 
-            _logger.WriteDebug(String.Format("Conn: {0}", _attributes[CONNECTION_STRING]));
+            //obfuscate the password
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
+            if (!String.IsNullOrEmpty(builder.Password))
+                builder.Password = "********";
+
+            _logger.WriteDebug(String.Format("Conn: {0}", builder.ConnectionString));
 
         }
 

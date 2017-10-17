@@ -217,7 +217,8 @@ namespace ControllerRuntimeTest
             SqlServerActivity activity = new SqlServerActivity();
             WorkflowActivityArgs wfa = new WorkflowActivityArgs();
             List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_staging; Trusted_Connection = True; Connection Timeout = 120; "));
+            //list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_staging; Trusted_Connection = True; Connection Timeout = 120; "));
+            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_staging; Trusted_Connection = False;User Id=test;Password=test; Connection Timeout = 120; "));
             list.Add(new WorkflowAttribute("Query", @"
 print 'this is print test';
 raiserror ('this is err test',11,11);
@@ -301,7 +302,7 @@ raiserror ('this is err test',11,11);
             list.Add(new WorkflowAttribute("AccountKey", ""));
             list.Add(new WorkflowAttribute("RegionName", "us-west-2"));
             list.Add(new WorkflowAttribute("Timeout", "0"));
-            list.Add(new WorkflowAttribute("SqsUrl", "https://sqs.us-west-2.amazonaws.com/845009241909/bias-external-staging-pointUpdated"));
+            list.Add(new WorkflowAttribute("SqsUrl", ""));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);
 
