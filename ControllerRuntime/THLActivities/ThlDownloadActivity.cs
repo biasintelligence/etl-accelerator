@@ -162,7 +162,7 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
                                     //data payload
                                     if (String.IsNullOrEmpty(href))
                                     {
-                                        resourceData = (string)messageData.SelectToken("resource.data");
+                                        resourceData = (messageData.SelectToken("resource.data")).ToString();
                                         if (String.IsNullOrEmpty(resourceData))
                                             _logger.Write($"Warning: no payload is found for message: {messageId}");
 
