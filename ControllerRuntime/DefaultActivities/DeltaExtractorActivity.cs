@@ -77,11 +77,7 @@ namespace DefaultActivities
 
             //obfuscate the password
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            if (!String.IsNullOrEmpty(builder.Password))
-                builder.Password = "********";
-
-            _logger.WriteDebug(String.Format("Conn: {0}", builder.ConnectionString));
-
+            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder.DataSource, builder.InitialCatalog));
         }
 
         public WfResult Run(CancellationToken token)

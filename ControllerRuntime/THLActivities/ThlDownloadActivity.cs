@@ -39,8 +39,8 @@ namespace THLActivities
 
 
         private const string QUERY = @"if not exists (select 1 from stage.MessageRequestData where messageId = @messageId)
-insert stage.MessageRequestData (messageId,organizationId,operationType,resourceType,[timestamp],messageData,resourceData)
-values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@messageData,@resourceData)";
+insert stage.MessageRequestData (messageId,organizationId,operationType,resourceType,eTag,[timestamp],messageData,resourceData)
+values (@messageId,@organizationId,@operationType,@resourceType,@eTag,@timestamp,@messageData,@resourceData)";
 
 
 
@@ -82,7 +82,9 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
 
             }
 
-            _logger.Write($"Download: { _attributes[SQS_URL]} -> {_attributes[CONNECTION_STRING]}");
+            //obfuscate the password
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
+            _logger.Write($"Download: { _attributes[SQS_URL]} -> {builder.DataSource}.{builder.InitialCatalog}");
 
         }
 
@@ -93,6 +95,7 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
             try
             {
 
+                int messageCount = 0; 
                 //prepare insert query parameters
                 SqlParameter[] p = new SqlParameter[]
                 {
@@ -100,6 +103,7 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
                     new SqlParameter("@organizationId", SqlDbType.UniqueIdentifier, 0),
                     new SqlParameter("@operationType", SqlDbType.Char, 1),
                     new SqlParameter("@resourceType", SqlDbType.NVarChar, 100),
+                    new SqlParameter("@eTag", SqlDbType.BigInt, 0),
                     new SqlParameter("@timestamp", SqlDbType.DateTime, 0),
                     new SqlParameter("@messageData", SqlDbType.NVarChar, -1),
                     new SqlParameter("@resourceData", SqlDbType.NVarChar, -1),
@@ -155,6 +159,7 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
                                     string operationType = (string)messageData.SelectToken("type");
                                     string organizationId = (string)messageData.SelectToken("resource.organizationId");
                                     string resourceType = (string)messageData.SelectToken("resource.type");
+                                    string eTag = (string)messageData.SelectToken("resource.eTag");
                                     string resourceData = null;
 
                                     string href = (string)messageData.SelectToken("resource.href");
@@ -191,13 +196,15 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
                                         cmd.Parameters[1].Value = (String.IsNullOrEmpty(organizationId)) ? Guid.Empty : Guid.Parse(organizationId);
                                         cmd.Parameters[2].Value = (String.IsNullOrEmpty(operationType)) ? "N" : operationType.Substring(0, 1);
                                         cmd.Parameters[3].Value = (String.IsNullOrEmpty(resourceType)) ? "Unknown" : resourceType;
-                                        cmd.Parameters[4].Value = timestamp;
-                                        cmd.Parameters[5].Value = messageData.ToString();
-                                        cmd.Parameters[6].Value = (String.IsNullOrEmpty(resourceData)) ? (object)DBNull.Value : resourceData;
+                                        cmd.Parameters[4].Value = (String.IsNullOrEmpty(eTag)) ? 0 : Int64.Parse(eTag);
+                                        cmd.Parameters[5].Value = timestamp;
+                                        cmd.Parameters[6].Value = messageData.ToString();
+                                        cmd.Parameters[7].Value = (String.IsNullOrEmpty(resourceData)) ? (object)DBNull.Value : resourceData;
 
                                         cmd.ExecuteNonQuery();
                                     }
 
+                                    messageCount++;
 
                                     //Deleting the message
                                     var deleteRequest = new DeleteMessageRequest { QueueUrl = _attributes[SQS_URL], ReceiptHandle = message.ReceiptHandle };
@@ -217,6 +224,8 @@ values (@messageId,@organizationId,@operationType,@resourceType,@timestamp,@mess
                             sqlClient.Close();
                     }
                 }
+
+                _logger.Write($"Activity Processed {messageCount} messages");
 
             }
             catch (Exception ex)

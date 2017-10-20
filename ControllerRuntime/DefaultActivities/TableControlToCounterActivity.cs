@@ -76,8 +76,12 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            //_logger.WriteDebug(String.Format("ControllerConnectionString: {0}", _attributes[CONTROLLER_CONNECTION_STRING]));
-            //_logger.WriteDebug(String.Format("SourceConnectionString: {0}", _attributes[SOURCE_CONNECTION_STRING]));
+            SqlConnectionStringBuilder builder_controller = new SqlConnectionStringBuilder(_attributes[CONTROLLER_CONNECTION_STRING]);
+            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder_controller.DataSource, builder_controller.InitialCatalog));
+
+            SqlConnectionStringBuilder builder_source = new SqlConnectionStringBuilder(_attributes[SOURCE_CONNECTION_STRING]);
+            _logger.WriteDebug(String.Format("Source: {0}.{1}", builder_source.DataSource, builder_source.InitialCatalog));
+
             _logger.Write(String.Format("Table: {0}, Coltrol: {1}", _attributes[TABLE_NAME], _attributes[TABLE_CONTROL_COLUMN]));
         }
 

@@ -63,12 +63,8 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            //obfuscate the password
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            if (!String.IsNullOrEmpty(builder.Password))
-                builder.Password = "********";
-
-            _logger.WriteDebug(String.Format("SqlServer: {0}", builder.ConnectionString));
+            _logger.WriteDebug(String.Format("SqlServer: {0}.{1}", builder.DataSource,builder.InitialCatalog));
             _logger.WriteDebug(String.Format("Query: {0}", _attributes[QUERY_STRING]));
 
         }

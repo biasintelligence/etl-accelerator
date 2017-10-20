@@ -70,7 +70,8 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
+            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder.DataSource, builder.InitialCatalog));
             _logger.Write(String.Format("File Path: {0}", _attributes[FILE_PATH]));
         }
 

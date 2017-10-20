@@ -68,7 +68,8 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            //_logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
+            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder.DataSource, builder.InitialCatalog));
             _logger.WriteDebug(String.Format("FileId: {0}, Status: {1}", _attributes[FILE_ID], _attributes[FILE_STATUS]));
         }
 

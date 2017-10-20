@@ -62,8 +62,9 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            _logger.WriteDebug(String.Format("EventServer: {0}", _attributes[CONNECTION_STRING]));
-            _logger.WriteDebug(String.Format("EventType: {0}", _attributes[EVENT_TYPE]));
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
+            _logger.WriteDebug(String.Format("EventServer: {0}.{1}", builder.DataSource, builder.InitialCatalog));
+           _logger.WriteDebug(String.Format("EventType: {0}", _attributes[EVENT_TYPE]));
             _logger.WriteDebug(String.Format("WatermarkEventType: {0}", _attributes[WATERMARK_EVENT_TYPE]));
 
         }

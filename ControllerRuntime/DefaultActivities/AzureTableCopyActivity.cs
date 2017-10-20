@@ -88,8 +88,9 @@ namespace DefaultActivities
 
             }
 
-            _logger.WriteDebug(String.Format("ConnectionString: {0}", _attributes[CONNECTION_STRING]));
-            _logger.Write(String.Format("Copy: {0} -> {1}", _attributes[AZURE_TABLE_NAME], _attributes[SQL_TABLE_NAME]));
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
+            _logger.WriteDebug(String.Format("SqlServer: {0}.{1}", builder.DataSource, builder.InitialCatalog));
+           _logger.Write(String.Format("Copy: {0} -> {1}", _attributes[AZURE_TABLE_NAME], _attributes[SQL_TABLE_NAME]));
             _logger.Write(String.Format("Delta: {0} > {1}", _attributes[CONTROL_COLUMN], _attributes[CONTROL_VALUE]));
 
         }
