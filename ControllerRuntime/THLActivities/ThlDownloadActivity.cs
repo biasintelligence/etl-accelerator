@@ -138,6 +138,7 @@ values (@messageId,@organizationId,@operationType,@resourceType,@eTag,@timestamp
 
                             //var credentials = new StoredProfileAWSCredentials(_attributes[PROFILE_NAME]);
                             var receiveMessageRequest = new ReceiveMessageRequest { QueueUrl = _attributes[SQS_URL], MaxNumberOfMessages = 10 };
+                            DeleteMessageRequest deleteRequest;
                             while (true)
                             {
                                 var receiveMessageResponse = sqsClient.ReceiveMessage(receiveMessageRequest);
@@ -153,43 +154,66 @@ values (@messageId,@organizationId,@operationType,@resourceType,@eTag,@timestamp
                                     Guid messageId = Guid.Parse(message.MessageId);
                                     dynamic body = JsonConvert.DeserializeObject(message.Body);
                                     DateTime timestamp = body.Timestamp;
+                                    string messageType = body.Type;
+                                    string messageString = (string)body.Message;
 
-                                    JToken messageData = JObject.Parse((string)body.Message);
-
-                                    string operationType = (string)messageData.SelectToken("type");
-                                    string organizationId = (string)messageData.SelectToken("resource.organizationId");
-                                    string resourceType = (string)messageData.SelectToken("resource.type");
-                                    string eTag = (string)messageData.SelectToken("resource.eTag");
+                                    string operationType = null;
+                                    string organizationId = null;
+                                    string resourceType = null;
+                                    string eTag = null;
                                     string resourceData = null;
 
-                                    string href = (string)messageData.SelectToken("resource.href");
 
-                                    //data payload
-                                    if (String.IsNullOrEmpty(href))
+                                    JToken messageData = new JObject();
+                                    try
                                     {
-                                        resourceData = (messageData.SelectToken("resource.data")).ToString();
-                                        if (String.IsNullOrEmpty(resourceData))
-                                            _logger.Write($"Warning: no payload is found for message: {messageId}");
+                                        messageData = JObject.Parse(messageString);
 
-                                    }
-                                    //href payload
-                                    else
-                                    {
-                                        _logger.WriteDebug($"Href: {href}");
-                                        using (var s3Client = new HttpClient())
+                                        operationType = (string)messageData.SelectToken("type");
+                                        organizationId = (string)messageData.SelectToken("resource.organizationId");
+                                        resourceType = (string)messageData.SelectToken("resource.type");
+                                        eTag = (string)messageData.SelectToken("resource.eTag");
+
+                                        string href = (string)messageData.SelectToken("resource.href");
+
+                                        //data payload
+                                        if (String.IsNullOrEmpty(href))
                                         {
-                                            try
+                                            var dataToken = messageData.SelectToken("resource.data");
+                                            if (dataToken != null)
+                                                resourceData = dataToken.ToString();
+
+                                            if (String.IsNullOrEmpty(resourceData))
+                                                _logger.Write($"Warning: no payload is found for message: {messageId}");
+
+                                        }
+                                        //href payload
+                                        else
+                                        {
+                                            _logger.WriteDebug($"Href: {href}");
+                                            using (var s3Client = new HttpClient())
                                             {
-                                                resourceData = s3Client.GetStringAsync(href).Result;
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                _logger.Write($"Warning: invalid href: {href}");
-                                                _logger.Write(ex.Message);
+                                                try
+                                                {
+                                                    resourceData = s3Client.GetStringAsync(href).Result;
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    _logger.Write($"Warning: invalid href: {href}");
+                                                    _logger.Write(ex.Message);
+                                                }
                                             }
                                         }
+
                                     }
-                                   
+                                    catch
+                                    {
+                                        //messageString is not in json format 
+                                        _logger.Write($"Warning: bad message: {messageId}");
+                                    }
+
+
+
                                     using (token.Register(cmd.Cancel))
                                     {
                                         cmd.Parameters[0].Value = messageId;
@@ -198,7 +222,7 @@ values (@messageId,@organizationId,@operationType,@resourceType,@eTag,@timestamp
                                         cmd.Parameters[3].Value = (String.IsNullOrEmpty(resourceType)) ? "Unknown" : resourceType;
                                         cmd.Parameters[4].Value = (String.IsNullOrEmpty(eTag)) ? 0 : Int64.Parse(eTag);
                                         cmd.Parameters[5].Value = timestamp;
-                                        cmd.Parameters[6].Value = messageData.ToString();
+                                        cmd.Parameters[6].Value = messageString;
                                         cmd.Parameters[7].Value = (String.IsNullOrEmpty(resourceData)) ? (object)DBNull.Value : resourceData;
 
                                         cmd.ExecuteNonQuery();
@@ -207,7 +231,7 @@ values (@messageId,@organizationId,@operationType,@resourceType,@eTag,@timestamp
                                     messageCount++;
 
                                     //Deleting the message
-                                    var deleteRequest = new DeleteMessageRequest { QueueUrl = _attributes[SQS_URL], ReceiptHandle = message.ReceiptHandle };
+                                    deleteRequest = new DeleteMessageRequest { QueueUrl = _attributes[SQS_URL], ReceiptHandle = message.ReceiptHandle };
                                     sqsClient.DeleteMessage(deleteRequest);
 
                                 }
