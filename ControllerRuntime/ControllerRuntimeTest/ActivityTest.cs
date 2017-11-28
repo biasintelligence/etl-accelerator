@@ -5,7 +5,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using DefaultActivities;
 using ControllerRuntime;
-using THLActivities;
 
 namespace ControllerRuntimeTest
 {
@@ -282,27 +281,6 @@ raiserror ('this is err test',11,11);
             list.Add(new WorkflowAttribute("etl:BatchId", "1006"));
             list.Add(new WorkflowAttribute("etl:StepId", "11"));
             list.Add(new WorkflowAttribute("@RunId", "0"));
-            wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
-
-            activity.Configure(wfa);
-            WfResult result = activity.Run(CancellationToken.None);
-            Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
-        }
-
-        [TestMethod]
-        public void ThlDownload_Ok()
-        {
-            ThlDownloadActivity activity = new ThlDownloadActivity();
-            WorkflowActivityArgs wfa = new WorkflowActivityArgs();
-            List<WorkflowAttribute> list = new List<WorkflowAttribute>();
-            list.Add(new WorkflowAttribute("ConnectionString", @"Server=.; Database=etl_staging; Trusted_Connection = True; Connection Timeout = 120; "));
-            //list.Add(new WorkflowAttribute("ProfileName", "testRunner"));
-            list.Add(new WorkflowAttribute("AccountName", ""));
-            list.Add(new WorkflowAttribute("AccountKey", ""));
-            list.Add(new WorkflowAttribute("RegionName", "us-west-2"));
-            list.Add(new WorkflowAttribute("Timeout", "0"));
-            list.Add(new WorkflowAttribute("SqsUrl", ""));
             wfa.RequiredAttributes = list.ToArray();
             wfa.Logger = new WorkflowConsoleLogger(true, true);
 

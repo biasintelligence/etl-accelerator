@@ -34,7 +34,6 @@ begin
 	,(43,'DefaultActivities.DefaultActivities.TableControlToCounterActivity','[{"Name":"ConnectionString","Override":["Controller.ConnectionString"]},{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"CounterName","Default":"ControlValue"}]',15)
 	,(44,'DefaultActivities.DefaultActivities.AzureFileDownloadActivity','[{"Name":"ConnectionString","Override":["Controller.ConnectionString"]},{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"SortOrder","Default":"None"},{"Name":"Count","Default":"0"},{"Name":"CounterName","Default":""},{"Name":"isSasToken","Default":"false"}]',15)
 	,(45,'DefaultActivities.DefaultActivities.AwsS3DownloadActivity','[{"Name":"ConnectionString","Override":["Controller.ConnectionString"]},{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"SortOrder","Default":"None"},{"Name":"Count","Default":"0"},{"Name":"CounterName","Default":""}]',15)
-	,(46,'THLActivities.THLActivities.ThlDownloadActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"ConnectionString","Override":["Stage.ConnectionString"]}]',15)
 
 
 
