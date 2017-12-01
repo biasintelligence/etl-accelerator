@@ -18,6 +18,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
+using Serilog;
+
 
 namespace ControllerRuntime
 {
@@ -30,7 +32,7 @@ namespace ControllerRuntime
         public WorkflowAttribute[] RequiredAttributes
         { get; set; }
 
-        public IWorkflowLogger Logger
+        public ILogger Logger
         { get; set; }
 
     }
@@ -51,10 +53,10 @@ namespace ControllerRuntime
         private const string ACTIVITY_LOCATION = @"ActivityLocation";
 
         private WorkflowProcess _process;
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         Dictionary<string, WorkflowAttribute> _attributes = new Dictionary<string, WorkflowAttribute>(StringComparer.InvariantCultureIgnoreCase);
 
-        public WorkflowActivity(WorkflowProcess process, WorkflowAttribute[] attributes, IWorkflowLogger logger)
+        public WorkflowActivity(WorkflowProcess process, WorkflowAttribute[] attributes, ILogger logger)
         {
             _process = process;
             _logger = logger;
@@ -68,7 +70,7 @@ namespace ControllerRuntime
             IWorkflowActivity activity = null;
             try
             {
-                _logger.Write(String.Format("Activate Activity {0}", _process.Process));
+                _logger.Information("Activate Activity {0}", _process.Process);
                 activity = LoadActivity();
 
                 //get the list of the required attributes from Activity
@@ -204,7 +206,7 @@ namespace ControllerRuntime
                     {
                         if (curr_param == null || curr_param.Default == null)
                         {
-                            _logger.WriteError(String.Format("Attribute {0} is not found", name), -11);
+                            _logger.Error("Error {ErrorCode}: Attribute {Name} is not found", -11,name);
                             break;
                         }
                         else

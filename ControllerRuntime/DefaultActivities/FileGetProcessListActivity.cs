@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -40,7 +41,7 @@ namespace DefaultActivities
         protected const string GET_LIST_QUERY = "dbo.prc_FileProcessGetNext";
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        protected IWorkflowLogger _logger;
+        protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
           CONNECTION_STRING_REGISTER,
@@ -76,9 +77,9 @@ namespace DefaultActivities
 
             SqlConnectionStringBuilder builder_controller = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
             SqlConnectionStringBuilder builder_register = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING_REGISTER]);
-            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder_controller.DataSource, builder_controller.InitialCatalog));
-            _logger.WriteDebug(String.Format("Register: {0}", builder_register.DataSource, builder_register.InitialCatalog));
-            _logger.Write(String.Format("Processing from File Source: {0}", _attributes[FILE_SOURCE]));
+            _logger.Debug("Controller: {Server}.{Database}", builder_controller.DataSource, builder_controller.InitialCatalog);
+            _logger.Debug("Register: {Server}.{Database}", builder_register.DataSource, builder_register.InitialCatalog);
+            _logger.Information("Processing from File Source: {File}", _attributes[FILE_SOURCE]);
         }
 
         public virtual WfResult Run(CancellationToken token)
@@ -131,7 +132,7 @@ namespace DefaultActivities
                         }
                         else
                         {
-                            _logger.WriteDebug("No files to process");
+                            _logger.Debug("No files to process");
                             files.Add("fileId", "0");
                         }
 

@@ -20,6 +20,7 @@ using System.Data;
 using System.Data.SqlTypes;
 using System.Data.SqlClient;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -36,7 +37,7 @@ namespace DefaultActivities
 
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        protected IWorkflowLogger _logger;
+        protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>() { EVENT_TYPE, CONNECTION_STRING, WATERMARK_EVENT_TYPE, TIMEOUT };
 
 
@@ -63,9 +64,9 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("EventServer: {0}.{1}", builder.DataSource, builder.InitialCatalog));
-           _logger.WriteDebug(String.Format("EventType: {0}", _attributes[EVENT_TYPE]));
-            _logger.WriteDebug(String.Format("WatermarkEventType: {0}", _attributes[WATERMARK_EVENT_TYPE]));
+            _logger.Debug("EventServer: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
+           _logger.Debug("EventType: {Type}", _attributes[EVENT_TYPE]);
+            _logger.Debug("WatermarkEventType: {Type}", _attributes[WATERMARK_EVENT_TYPE]);
 
         }
 

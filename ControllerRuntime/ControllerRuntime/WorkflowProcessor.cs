@@ -20,6 +20,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using ControllerRuntime.Logging;
+using Serilog;
+using Serilog.Events;
+
 namespace ControllerRuntime
 {
 
@@ -113,7 +117,6 @@ namespace ControllerRuntime
         private WorkflowGraph _wfg;
         private Workflow _wf;
         private CancellationTokenSource _cts = new CancellationTokenSource();
-        private IWorkflowLogger _logger;
 
         //<stepKey,Task>
         Dictionary<string, Task> _tasks = new Dictionary<string, Task>();
@@ -125,11 +128,12 @@ namespace ControllerRuntime
         private bool _verbose = false;
         private bool _forcestart = false;
 
+        private ILogger _logger;
+
         public WorkflowProcessor (string Name)
         {
             _processor_name = Name;
-            //before db logger is available we log just to console
-            _logger = new WorkflowConsoleLogger(true, true);
+            _logger = Log.Logger;
         }
 
         private string _processor_name = "Default";
@@ -159,15 +163,20 @@ namespace ControllerRuntime
             {
                 _db = DBController.Create(ConnectionString, _debug, _verbose);
                 _wf = _db.WorkflowMetadataGet(WorkflowName);
+
+
+                _logger = _logger.ForContext("WorkflowId", _wf.WorkflowId);
+ 
                 _is_initialized = _db.WorkflowInitialize(_processor_name, _wf, _forcestart);
 
+                _logger = _logger.ForContext("RunId", _wf.RunId);
+
                 //now we can start logging to the Controller
-                _logger = _db.GetLogger(_wf.WorkflowId, 0, 0, _wf.RunId);
 
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
-                _logger.Write(String.Format("Workflow Runner v.{0} ({1})bit", v.ToString(), 8 * IntPtr.Size));
-                _logger.Write(String.Format("Start Processing Workflow {0}", _wf.WorkflowName));
+                _logger.Information("Workflow Runner v.{Version} ({Bit} bit)", v.ToString(), 8 * IntPtr.Size);
+                _logger.Information("Start Processing Workflow {ItemName}", _wf.WorkflowName);
 
                 _wfg = WorkflowGraph.Create(_wf, _db);
                 _wfg.Start();
@@ -259,16 +268,16 @@ namespace ControllerRuntime
             }
             catch (AggregateException aex)
             {
-                _logger.WriteError(String.Format("AggregateException: {0}", aex.Message), aex.HResult);
+                _logger.Error(aex,"AggregateException: ",aex.Message);
                 foreach (var ex in aex.InnerExceptions)
                 {
-                    _logger.WriteError(String.Format("InnerException: {0}", ex.Message), ex.HResult);
+                    _logger.Error(ex,"InnerException: {Message}", ex.Message);
                 }
                 //return WfResult.Create(WfStatus.Failed, aex.Message, -10);
             }
             catch (Exception ex)
             {
-                _logger.WriteError(String.Format("Exception: {0}", ex.Message), ex.HResult);
+                _logger.Error(ex,"Exception: {Message}", ex.Message);
                 //return WfResult.Create(WfStatus.Failed, ex.Message, -10);
             }
             finally
@@ -276,8 +285,8 @@ namespace ControllerRuntime
                 if (_db != null && _is_initialized)
                 {
                     _db.WorkflowFinalize(_wf, _wfg.WorkflowCompleteStatus);
-                    _logger.Write(String.Format("Finish Processing Workflow {0} with result - {1}"
-                        , _wf.WorkflowName, _wfg.WorkflowCompleteStatus.StatusCode.ToString()));
+                    _logger.Information("Finish Processing Workflow {ItemName} with result - {WfStatus}"
+                        , _wf.WorkflowName, _wfg.WorkflowCompleteStatus.StatusCode.ToString());
                 }
             }
 

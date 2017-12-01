@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -30,7 +31,7 @@ namespace DefaultActivities
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { FILE_PATH };
 
 
@@ -56,7 +57,7 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            _logger.Write(String.Format("File: {0}", _attributes[FILE_PATH]));
+            _logger.Information("File: {File}", _attributes[FILE_PATH]);
 
         }
 

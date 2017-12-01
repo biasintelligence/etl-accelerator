@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -24,7 +25,7 @@ namespace BIAS.Framework.DeltaExtractor
         private int m_ID;
 
 
-        protected SSISModule(MainPipe pipe, string module_name, int module_id, string module_clsid, IWorkflowLogger logger)
+        protected SSISModule(MainPipe pipe, string module_name, int module_id, string module_clsid, ILogger logger)
         {
             //create SSIS component
 
@@ -47,16 +48,16 @@ namespace BIAS.Framework.DeltaExtractor
                 comp.Name = String.Format(CultureInfo.InvariantCulture, "{0} - {1}", module_name, module_id);
             }
 
-            logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "DE added {0}", comp.Name));
+            logger.Debug("DE added {CompName}", comp.Name);
 
         }
 
-        protected SSISModule(MainPipe pipe, string module_name, int module_id, IWorkflowLogger logger)
+        protected SSISModule(MainPipe pipe, string module_name, int module_id, ILogger logger)
             : this(pipe, module_name, module_id, String.Empty, logger)
         {
         }
 
-        protected SSISModule(MainPipe pipe, string module_name, IWorkflowLogger logger)
+        protected SSISModule(MainPipe pipe, string module_name, ILogger logger)
             : this(pipe, module_name, 0, logger)
         {
         }
@@ -154,7 +155,7 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
 
-        protected virtual void MatchInputColumns(Dictionary<int, int> map, bool needschema, IWorkflowLogger logger)
+        protected virtual void MatchInputColumns(Dictionary<int, int> map, bool needschema, ILogger logger)
         {
 
             IDTSComponentMetaData100 comp = this.MetadataCollection;
@@ -183,7 +184,7 @@ namespace BIAS.Framework.DeltaExtractor
                     if (inputColId == 0)
                     {
                         //the column wasn't found if the Id is 0, so we'll print out a message and skip this row.
-                        logger.WriteDebug("DE could not map external column " + exColumn.Name + ". Skipping column.");
+                        logger.Debug("DE could not map external column {ColName}. Skipping column.", exColumn.Name);
                     }
                     else
                     {

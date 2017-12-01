@@ -11,164 +11,88 @@
 *******************************************************************/
 
 using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog;
+using Serilog.Events;
+using Serilog.Core;
 
-using System.Data;
-using System.Data.SqlClient;
-
-namespace ControllerRuntime
+namespace ControllerRuntime.Logging
 {
-    public abstract class WorkflowLogger : IWorkflowLogger
-    {
-        protected bool _debug_mode_enabled = false;
-        protected bool _verbose_mode_enabled = false;
-        public bool Mode { get { return _debug_mode_enabled; } }
-        protected WorkflowLogger(bool DebugEnabled, bool VerboseEnabled)
-        {
-            _debug_mode_enabled = DebugEnabled;
-            _verbose_mode_enabled = VerboseEnabled;
-        }
+    public class WorkflowLogger : ILogEventSink
 
-        public virtual void Write(string Message)
-        {
-            if (_verbose_mode_enabled)
-                Console.WriteLine(Message);
-        }
-
-        public virtual void WriteDebug(string Message)
-        {
-            if (_debug_mode_enabled && _verbose_mode_enabled)
-                Console.WriteLine(Message);
-        }
-
-
-        public virtual void WriteError(string Message, int ErrorCode)
-        {
-            Console.WriteLine(String.Format("Error: {0} {1}", ErrorCode, Message));
-        }
-
-    }
-
-    /// <summary>
-    /// Direct all process output to the Console
-    /// </summary>
-    public class WorkflowConsoleLogger : WorkflowLogger
-    {
-        public WorkflowConsoleLogger(bool Debug, bool Verbose)
-            : base(Debug, Verbose)
-        {
-        }
-    }
-
-    /// <summary>
-    /// Logs all process output to the ETL Controller
-    /// </summary>
-    public class WorkflowControllerLogger : WorkflowLogger, IDisposable
     {
 
-        private bool disposed = false;
-        private SqlConnection conn = new SqlConnection();
-        private SqlCommand cmd = new SqlCommand();
-        private int wf_id = 0;
-        private int step_id = 0;
-        private int const_id = 0;
-        private int run_id = 0;
+        private readonly string _defaultLoggerName = string.Empty;
+        private readonly IFormatProvider _formatProvider = null;
+        private ControllerLogger _controllerLogger;
 
-        public WorkflowControllerLogger(int WorkflowId, int StepId, int ConstId, int RunId, string ConnectionString, bool Debug, bool Verbose)
-            : base(Debug, Verbose)
+        public WorkflowLogger(
+            string defaultLoggerName,
+            string connectionString,
+            IFormatProvider formatProvider = null)
         {
-            conn.ConnectionString = ConnectionString;
-            wf_id = WorkflowId;
-            step_id = StepId;
-            const_id = ConstId;
-            run_id = RunId;
-
-            InitializeCommand();
-
-        }
-
-        public override void WriteError(string Message, int ErrorCode)
-        {
-            LogToController(Message, ErrorCode);
-            base.WriteError(Message, ErrorCode);
-        }
-
-
-        public override void Write(string Message)
-        {
-            LogToController(Message, 0);
-            base.Write(Message);
-        }
-
-        public override void WriteDebug(string Message)
-        {
-            if (_debug_mode_enabled)
-                LogToController(Message, 0);
-
-            base.WriteDebug(Message);
-        }
-
-
-        private void LogToController(string Message, int ErrorCode)
-        {
-
-            try
+            if (string.IsNullOrEmpty(defaultLoggerName))
             {
-                if (conn.State == ConnectionState.Closed)
-                {
-                    conn.Open();
-                }
+                throw new ArgumentException("defaultLoggerName");
+            }
 
-                using (SqlCommand cmd_run = cmd.Clone())
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentException("connectionString");
+            }
+
+            _defaultLoggerName = defaultLoggerName;
+            _formatProvider = formatProvider;
+            //if (String.IsNullOrEmpty(connectionString))
+            //    connectionString = ConfigurationManager.AppSettings["Controller"];
+
+            _controllerLogger = new ControllerLogger(connectionString);
+        }
+
+        public void Emit(LogEvent logEvent)
+        {
+            var loggerName = _defaultLoggerName;
+            string message;
+
+
+            int err = 0;
+            if (logEvent.Exception != null)
+            {
+                err = logEvent.Exception.HResult;
+                message = string.Format("{0} -- EXCEPTION: {1}", logEvent.RenderMessage(_formatProvider), logEvent.Exception.Message);
+            }
+            else
+            {
+                err = GetIntValue(logEvent, "ErrorCode", 0);
+                message = logEvent.RenderMessage(_formatProvider);
+            }
+
+
+            int wfId = GetIntValue(logEvent, "WorkflowId", 0);
+            int stepId = GetIntValue(logEvent, "StepId", 0);
+            int runId = GetIntValue(logEvent, "RunId", 0);
+            _controllerLogger.LogToController(message, err,wfId,stepId,runId);
+
+        }
+
+        private static int GetIntValue(LogEvent logEvent,string property, int defaultValue = 0)
+        {
+            LogEventPropertyValue prop;
+            int value = defaultValue;
+            if (logEvent.Properties.TryGetValue(property, out prop))
+            {
+                if (!Int32.TryParse(prop.ToString(), out value))
                 {
-                    cmd_run.Parameters["@pMessage"].Value = Message;
-                    cmd_run.Parameters["@pErr"].Value = ErrorCode;
-                    cmd_run.ExecuteNonQuery();
+                    value = defaultValue;
                 }
             }
-            catch (SqlException ex)
-            {
-                Console.WriteLine(String.Format("Logger Error: {0} {1}", ex.ErrorCode, ex.Message));
-                //throw ex;
-            }
-            finally
-            {
-                if (conn.State != ConnectionState.Closed)
-                    conn.Close();
-            }
-
+            return value;
         }
 
-        private void InitializeCommand()
-        {
-            cmd.Connection = conn;
-            cmd.CommandTimeout = 120;
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = "[dbo].[prc_ApplicationLog]";
-
-            cmd.Parameters.Add("@pMessage", SqlDbType.NVarChar, -1);
-            cmd.Parameters.Add("@pErr", SqlDbType.Int);
-            cmd.Parameters.AddWithValue("@pBatchId", wf_id);
-            cmd.Parameters.AddWithValue("@pStepId", step_id);
-            cmd.Parameters.AddWithValue("@pRunId", run_id);
-
-        }
-
-        void IDisposable.Dispose()
-        {
-            if (!disposed)
-            {
-                if (conn.State != ConnectionState.Closed)
-                    conn.Close();
-
-                cmd.Dispose();
-                conn.Dispose();
-                disposed = true;
-            }
-        }
     }
 
 }

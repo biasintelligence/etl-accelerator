@@ -16,7 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -29,7 +29,7 @@ namespace DefaultActivities
         private const string TIMEOUT = "Timeout";
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { TIMEOUT };
 
         private TimeSpan _timeout;
@@ -57,7 +57,7 @@ namespace DefaultActivities
             }
 
             _timeout = TimeSpan.FromSeconds(Int32.Parse(_attributes[TIMEOUT]));
-            _logger.Write(String.Format("Wait Timeout: {0}", _attributes[TIMEOUT]));
+            _logger.Information("Wait Timeout: {Timeout}", _attributes[TIMEOUT]);
 
         }
 

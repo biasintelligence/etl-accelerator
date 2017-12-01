@@ -14,13 +14,14 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     public class SSISAdoNetSource : SSISModule
     {
-        public SSISAdoNetSource(AdoNetSource dbsrc, MainPipe pipe, ConnectionManager cm, IWorkflowLogger logger)
+        public SSISAdoNetSource(AdoNetSource dbsrc, MainPipe pipe, ConnectionManager cm, ILogger logger)
             : base(pipe, "ADO NET Source", logger)
         {
             // create the adonet source

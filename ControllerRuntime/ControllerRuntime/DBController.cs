@@ -362,6 +362,8 @@ ELSE
             return new DBController(connectionString, false, false);
         }
 
+        public string ConnectionString { get { return _connection_string; } } 
+
         /// <summary>
         /// Reads the xml Workflow definition from DB 
         /// </summary>
@@ -651,19 +653,6 @@ ELSE
             }
 
             return attributes.Attributes;
-        }
-
-        /// <summary>
-        /// Provide unified Logger Interface to all modules
-        /// </summary>
-        /// <param name="WfId"></param>
-        /// <param name="StepId"></param>
-        /// <param name="ConstId"></param>
-        /// <param name="RunId"></param>
-        /// <returns></returns>
-        public IWorkflowLogger GetLogger(int WfId, int StepId, int ConstId, int RunId)
-        {
-            return new WorkflowControllerLogger(WfId, StepId, ConstId, RunId, _connection_string, _debug, _verbose);
         }
 
         private void ExecuteNonQuery(string cmd_text)

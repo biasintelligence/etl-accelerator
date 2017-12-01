@@ -5,6 +5,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 //using DefaultActivities;
 using ControllerRuntime;
+using ControllerRuntime.Logging;
+using Serilog;
 
 namespace ControllerRuntimeTest
 {
@@ -16,12 +18,17 @@ namespace ControllerRuntimeTest
         [TestMethod]
         public void WFRun_Ok()
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.WorkflowLogger(connectionString: connectionString)
+                .CreateLogger();
+
             string runnerName = "UTTest";
-            string WFName = "Test103";
+            string WFName = "Test100";
             WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
             wfp.ConnectionString = connectionString;
             wfp.WorkflowName = WFName;
-            WfResult wr = wfp.Run(new string[] { "debug","forcestart" });
+            WfResult wr = wfp.Run(new string[] { "debug", "forcestart" });
             Assert.IsTrue(wr.StatusCode == WfStatus.Succeeded);
 
         }

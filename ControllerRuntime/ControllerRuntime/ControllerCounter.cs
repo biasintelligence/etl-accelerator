@@ -8,14 +8,16 @@ using System.Data;
 using System.Data.SqlClient;
 using ControllerRuntime;
 
+using Serilog;
+
 namespace ControllerRuntime
 {
     public class ControllerCounter
     {
         protected const string SET_COUNTER_QUERY = "dbo.prc_ETLCounterSet";
         private string _connectionString;
-        private IWorkflowLogger _logger;
-        public ControllerCounter(string ConnectionString,IWorkflowLogger Logger)
+        private ILogger _logger;
+        public ControllerCounter(string ConnectionString,ILogger Logger)
         {
             _connectionString = ConnectionString;
             _logger = Logger;
@@ -27,39 +29,41 @@ namespace ControllerRuntime
 
         public void SetCounters(IEnumerable<KeyValuePair<string,string>> counters)
         {
-            SqlConnection cn = new SqlConnection(_connectionString);
-            try
+            using (SqlConnection cn = new SqlConnection(_connectionString))
             {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(SET_COUNTER_QUERY, cn))
+                try
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.CommandTimeout = 120;
-                    cmd.Parameters.AddWithValue("@pBatchId", BatchId);
-                    cmd.Parameters.AddWithValue("@pStepId", StepId);
-                    cmd.Parameters.AddWithValue("@pRunId", RunId);
-                    cmd.Parameters.Add("@pName", SqlDbType.NVarChar, 100);
-                    cmd.Parameters.Add("@pValue", SqlDbType.NVarChar, -1);
-
-                    foreach (var counter in counters)
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand(SET_COUNTER_QUERY, cn))
                     {
-                        _logger.WriteDebug(String.Format("Set Counter: {0}:{1}", counter.Key,counter.Value));
-                        cmd.Parameters["@pName"].SqlValue = counter.Key;
-                        cmd.Parameters["@pValue"].SqlValue = counter.Value;
-                        cmd.ExecuteNonQuery();
+                        cmd.CommandType = CommandType.StoredProcedure;
+
+                        cmd.CommandTimeout = 120;
+                        cmd.Parameters.AddWithValue("@pBatchId", BatchId);
+                        cmd.Parameters.AddWithValue("@pStepId", StepId);
+                        cmd.Parameters.AddWithValue("@pRunId", RunId);
+                        cmd.Parameters.Add("@pName", SqlDbType.NVarChar, 100);
+                        cmd.Parameters.Add("@pValue", SqlDbType.NVarChar, -1);
+
+                        foreach (var counter in counters)
+                        {
+                            _logger.Debug("Set Counter: {ItemKey}:{ItemValue}", counter.Key, counter.Value);
+                            cmd.Parameters["@pName"].SqlValue = counter.Key;
+                            cmd.Parameters["@pValue"].SqlValue = counter.Value;
+                            cmd.ExecuteNonQuery();
+                        }
                     }
                 }
-            }
-            catch (SqlException ex)
-            {
-                throw ex;
-                //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
-            }
-            finally
-            {
-                if (cn.State != ConnectionState.Closed)
-                    cn.Close();
+                catch (SqlException ex)
+                {
+                    throw ex;
+                    //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
+                }
+                finally
+                {
+                    if (cn.State != ConnectionState.Closed)
+                        cn.Close();
+                }
             }
 
         }

@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -21,7 +22,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class SSISFlatFileSource : SSISModule
     {
 
-        public SSISFlatFileSource(FlatFileSource filesrc, MainPipe pipe,ConnectionManager cm, IWorkflowLogger logger)
+        public SSISFlatFileSource(FlatFileSource filesrc, MainPipe pipe,ConnectionManager cm, ILogger logger)
             : base(pipe, "Flat File Source", logger)
         {
             IDTSComponentMetaData100 comp = this.MetadataCollection;

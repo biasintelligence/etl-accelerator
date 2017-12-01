@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization;
 using System.Data;
 using System.Data.SqlClient;
 
+using Serilog;
 using ControllerRuntime;
 
 
@@ -43,7 +44,7 @@ namespace DefaultActivities
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { CONNECTION_STRING, TABLE_NAME, INPUT_FILE, TIMEOUT, RUNID };
 
         #region IWorkflowActivity
@@ -70,8 +71,8 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("SqlServer: {0}.{1}", builder.DataSource, builder.InitialCatalog));
-            _logger.Write(String.Format("Bson : {0} => {1}", _attributes[INPUT_FILE], _attributes[TABLE_NAME]));
+            _logger.Debug("SqlServer: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
+            _logger.Information("Bson : {From} => {To}", _attributes[INPUT_FILE], _attributes[TABLE_NAME]);
 
         }
 
@@ -151,7 +152,7 @@ namespace DefaultActivities
 
                                     }
 
-                                    _logger.Write(String.Format("Loaded {0} => {1}", fileToLoad.Name, tableName));
+                                    _logger.Information("Loaded {From} => {To}", fileToLoad.Name, tableName);
                                 }
                             }
                         }

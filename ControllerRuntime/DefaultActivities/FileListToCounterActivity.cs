@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -37,7 +38,7 @@ namespace DefaultActivities
         protected const string ETL_STEPID = "etl:StepId";
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        protected IWorkflowLogger _logger;
+        protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
           FILE_PATH,
@@ -71,8 +72,8 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder.DataSource, builder.InitialCatalog));
-            _logger.Write(String.Format("File Path: {0}", _attributes[FILE_PATH]));
+            _logger.Debug("Controller: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
+            _logger.Information("File Path: {File}", _attributes[FILE_PATH]);
         }
 
         public virtual WfResult Run(CancellationToken token)

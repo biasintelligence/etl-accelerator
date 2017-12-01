@@ -14,6 +14,7 @@ using System.IO;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -105,10 +106,10 @@ namespace BIAS.Framework.DeltaExtractor
     public static class SSISFlatFileConnection
     {
 
-        public static void ConfigureConnectionManager(ConnectionManager cm, SSISFlatFileConnectionProperties prop, Dictionary<string,MyColumn> columnCollection, IWorkflowLogger logger)
+        public static void ConfigureConnectionManager(ConnectionManager cm, SSISFlatFileConnectionProperties prop, Dictionary<string,MyColumn> columnCollection, ILogger logger)
         {
             cm.Description = "connect to a flat file";
-            logger.WriteDebug("DE added FlatFile connection to " + prop.ConnectionString);
+            logger.Debug("DE added FlatFile connection to {File}",prop.ConnectionString);
 
             //set connection properties
             mwrt.IDTSConnectionManagerFlatFile100 fcm = cm.InnerObject as mwrt.IDTSConnectionManagerFlatFile100;

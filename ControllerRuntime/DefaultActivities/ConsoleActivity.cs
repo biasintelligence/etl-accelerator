@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Serilog;
 using ControllerRuntime;
 using WorkflowConsoleRunner;
 
@@ -35,7 +36,7 @@ namespace DefaultActivities
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { APP_NAME, APP_ARGS, TIMEOUT };
 
         #region IWorkflowActivity
@@ -63,7 +64,7 @@ namespace DefaultActivities
 
 
 
-            _logger.Write(String.Format("console: {0} {1}", _attributes[APP_NAME], _attributes[APP_ARGS]));
+            _logger.Information("console: {Exe} {Args}", _attributes[APP_NAME], _attributes[APP_ARGS]);
 
         }
 
@@ -77,7 +78,7 @@ namespace DefaultActivities
                 p.Timeout = Int32.Parse(_attributes[TIMEOUT]);
                 p.haveOutput += delegate (object sender, HaveOutputEventArgs e)
                 {
-                    _logger.WriteDebug(e.Output);
+                    _logger.Debug(e.Output);
                 };
 
                 using (token.Register(p.Dispose))

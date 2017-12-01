@@ -14,13 +14,14 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     public class SSISExcelSource : SSISModule
     {
-        public SSISExcelSource(ExcelSource dbsrc, MainPipe pipe, ConnectionManager cm, IWorkflowLogger logger)
+        public SSISExcelSource(ExcelSource dbsrc, MainPipe pipe, ConnectionManager cm, ILogger logger)
             : base(pipe, "Excel Source", logger)
         {
             // create the oledb source

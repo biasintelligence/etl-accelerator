@@ -16,6 +16,7 @@ using System.Linq;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -29,7 +30,7 @@ namespace BIAS.Framework.DeltaExtractor
             m_movedata = p;
         }
 
-        public Package LoadPackage(IWorkflowLogger logger)
+        public Package LoadPackage(ILogger logger)
         {
             Application app = new Application();
             Package package;
@@ -38,24 +39,24 @@ namespace BIAS.Framework.DeltaExtractor
             {
                 if (String.IsNullOrEmpty(m_movedata.SavePackage.File))
                 {
-                    logger.Write("Warning: No location to load the package from was supplied. Package can not be loaded.");
+                    logger.Information("Warning: No location to load the package from was supplied. Package can not be loaded.");
                     package = this.BuildPackage(logger);
                 }
                 else if (!File.Exists(m_movedata.SavePackage.File))
                 {
-                    logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "Warning: File not found {0}", m_movedata.SavePackage.File));
+                    logger.Debug("Warning: File not found {File}", m_movedata.SavePackage.File);
                     package = this.BuildPackage(logger);
                 }
                 else
                 {
-                    logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "DE trying to load the Package {0}", m_movedata.SavePackage.File));
+                    logger.Debug("DE trying to load the Package {File}", m_movedata.SavePackage.File);
                     try
                     {
                         package = app.LoadPackage(m_movedata.SavePackage.File, null);
                     }
                     catch (COMException cexp)
                     {
-                        logger.WriteError("Exception occured : " + cexp.TargetSite + cexp, cexp.HResult);
+                        logger.Error(cexp,"Exception occured {Target}: ",cexp.TargetSite);
                         throw;
                     }
                 }
@@ -67,13 +68,13 @@ namespace BIAS.Framework.DeltaExtractor
             return package;
 
         }
-        private Package BuildPackage(IWorkflowLogger logger)
+        private Package BuildPackage(ILogger logger)
         {
             Application app = new Application();
             Package package = new Package();
             try
             {
-                logger.WriteDebug("DE building the Package...");
+                logger.Debug("DE building the Package...");
 
                 //SSISEvents ev = new SSISEvents();
                 //m_p.DesignEvents = ev;
@@ -111,7 +112,7 @@ namespace BIAS.Framework.DeltaExtractor
                         bFound = dsv.FindTable(m_movedata.DataSource.FlatFileSource.CustomProperties.StagingAreaTableName);
                         if (!bFound)
                         {
-                            logger.WriteDebug("Warning: DsvSchemaTable is not found");
+                            logger.Debug("Warning: DsvSchemaTable is not found");
                             //throw new DsvTableNotFound(m_movedata.StagingAreaRoot,m_movedata.DataSource.FlatFileSource.CustomProperties.StagingAreaTableName);
                         }
                     }
@@ -223,7 +224,7 @@ namespace BIAS.Framework.DeltaExtractor
                             bFound = dsv.FindTable(dst.CustomProperties.StagingAreaTableName);
                             if (!bFound)
                             {
-                                logger.Write("Warning: DsvSchemaTable is not found");
+                                logger.Information("Warning: DsvSchemaTable is not found");
                                 //throw new DsvTableNotFound(m_movedata.StagingAreaRoot, dst.CustomProperties.StagingAreaTableName);
                             }
                         }
@@ -312,17 +313,17 @@ namespace BIAS.Framework.DeltaExtractor
 
                 }
 
-                logger.WriteDebug("DE Package is ready");
+                logger.Debug("DE Package is ready");
 
             }
             //catch (COMException cexp)
             catch (Exception cexp)
             {
-                logger.WriteError("Exception occured : " + cexp.TargetSite + cexp, cexp.HResult);
+                logger.Error(cexp, "Exception occured: {Target}.",cexp.TargetSite);
                 //StringBuilder dtserrors = new StringBuilder();
                 foreach (DtsError error in package.Errors)
                 {
-                    logger.WriteError(error.Description, error.ErrorCode);
+                    logger.Error("Error: {Desc}, {ErrorCode}",error.Description, error.ErrorCode);
                     //dtserrors.AppendLine(error.Description);
                 }
                 if (package != null) package.Dispose();
@@ -335,7 +336,7 @@ namespace BIAS.Framework.DeltaExtractor
                 {
                     if (String.IsNullOrEmpty(m_movedata.SavePackage.File))
                     {
-                        logger.Write("No location to save the package was supplied. Package will not be saved to XML.");
+                        logger.Information("No location to save the package was supplied. Package will not be saved to XML.");
                     }
                     else
                     {

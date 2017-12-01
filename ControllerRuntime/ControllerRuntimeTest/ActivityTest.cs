@@ -6,13 +6,47 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DefaultActivities;
 using ControllerRuntime;
 
+using Serilog;
+
 namespace ControllerRuntimeTest
 {
     [TestClass]
     public class ActivityTest
     {
 
-        const string connectionString = @"Server=.\sql14;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
+        private static TestContext _context;
+        const string connectionString = @"Server=.;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
+
+        private static ILogger _logger;
+
+
+        /// <summary>
+        ///Gets or sets the test context which provides
+        ///information about and functionality for the current test run.
+        ///</summary>
+        public TestContext TestContext
+        {
+            get
+            {
+                return _context;
+            }
+            set
+            {
+                _context = value;
+            }
+        }
+
+        [ClassInitialize()]
+        public static void ClassInit(TestContext context)
+        {
+            _context = context;
+            _logger = new LoggerConfiguration()
+                  .MinimumLevel.Debug()
+                  .WriteTo.Console()
+                  .CreateLogger();
+        }
+
+
 
         [TestMethod]
         public void TGZCompress_Ok()
@@ -25,7 +59,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("ArchiveName", "test"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true,true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -44,7 +78,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("Mode", "tgz"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -62,7 +96,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("OutputFolder", "c:\\Builds\\JsonFiles\\10-19-2016\\edxapp"));
             list.Add(new WorkflowAttribute("Timeout", "30"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -81,7 +115,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("TableName", "dbo.staging_bson_test"));
             list.Add(new WorkflowAttribute("Timeout", "600"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -103,7 +137,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("Timeout", "30"));
             list.Add(new WorkflowAttribute("@runId", "1"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -125,7 +159,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("etl:BatchId", "101"));
             list.Add(new WorkflowAttribute("etl:StepId", "1"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -145,7 +179,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("Timeout", "30"));
             list.Add(new WorkflowAttribute("etl:RunId", "1"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -164,7 +198,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("@StepId", "11"));
             list.Add(new WorkflowAttribute("@RunId", "0"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
 
             activity.Configure(wfa);
@@ -185,7 +219,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("EventArgs", ""));
             list.Add(new WorkflowAttribute("Timeout", "0"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
             activity.Configure(wfa);
             WfResult result = activity.Run(CancellationToken.None);
@@ -203,7 +237,7 @@ namespace ControllerRuntimeTest
             list.Add(new WorkflowAttribute("WatermarkEventType", @"Process1_FINISHED"));
             list.Add(new WorkflowAttribute("Timeout", "0"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
             activity.Configure(wfa);
             WfResult result = activity.Run(CancellationToken.None);
@@ -224,7 +258,7 @@ raiserror ('this is err test',11,11);
 "));
             list.Add(new WorkflowAttribute("Timeout", "0"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
             activity.Configure(wfa);
             WfResult result = activity.Run(CancellationToken.None);
@@ -253,7 +287,7 @@ raiserror ('this is err test',11,11);
             list.Add(new WorkflowAttribute("etl:StepId", "11"));
             list.Add(new WorkflowAttribute("@RunId", "0"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
             activity.Configure(wfa);
             WfResult result = activity.Run(CancellationToken.None);
@@ -282,13 +316,12 @@ raiserror ('this is err test',11,11);
             list.Add(new WorkflowAttribute("etl:StepId", "11"));
             list.Add(new WorkflowAttribute("@RunId", "0"));
             wfa.RequiredAttributes = list.ToArray();
-            wfa.Logger = new WorkflowConsoleLogger(true, true);
+            wfa.Logger = _logger;
 
             activity.Configure(wfa);
             WfResult result = activity.Run(CancellationToken.None);
             Assert.IsTrue(result.StatusCode == WfStatus.Succeeded);
         }
-
 
 
     }

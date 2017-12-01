@@ -17,6 +17,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Serilog;
+using Serilog.Events;
+using ControllerRuntime.Logging;
+
 namespace ControllerRuntime
 {
     /// <summary>
@@ -26,21 +30,30 @@ namespace ControllerRuntime
     {
         private DBController _db;
         private WorkflowConstraint _item;
+
+        private ILogger _logger;
         public WorkflowConstraintProcessor(WorkflowConstraint item, DBController db)
         {
             _db = db;
             _item = item;
+
+            _logger = Log.Logger
+               .ForContext("ConstId", item.ConstId)
+               .ForContext("WorkflowId", item.WorkflowId)
+               .ForContext("StepId", item.StepId)
+               .ForContext("RunId", item.RunId);
+
+
         }
         public WfResult Run(CancellationToken extToken)
         {
 
-            IWorkflowLogger logger = _db.GetLogger(_item.WorkflowId, _item.StepId, _item.ConstId, _item.RunId);
-            logger.Write(String.Format("Start Processing Workflow Constraint {0}", _item.Key));
+            _logger.Information("Start Processing Workflow Constraint {ItemKey}", _item.Key);
 
             WfResult result = WfResult.Unknown;
             var cts = new CancellationTokenSource();
             WorkflowAttribute[] attributes = _db.WorkflowAttributeCollectionGet(_item.WorkflowId, _item.StepId, _item.ConstId, _item.RunId);
-            WorkflowActivity activity = new WorkflowActivity(_item.Process, attributes, logger);
+            WorkflowActivity activity = new WorkflowActivity(_item.Process, attributes, _logger);
 
             TimeSpan timeout = TimeSpan.FromSeconds((_item.WaitPeriod <= 0) ? 7200 : _item.WaitPeriod);
             TimeSpan sleep = TimeSpan.FromSeconds((_item.Ping <= 0) ? 30 : _item.Ping);
@@ -64,7 +77,7 @@ namespace ControllerRuntime
                                     //do thread hard abort if it is stuck on Run
                                     //constraint logic should never allow this to happen thou
                                     const_result = runner.Run(linkedCts.Token);
-                                    logger.WriteDebug(String.Format("Constraint {0} current status = {1}", _item.Key, const_result.StatusCode.ToString()));
+                                    _logger.Debug("Constraint {ItemKey} current status = {WfStatus}", _item.Key, const_result.StatusCode.ToString());
 
                                     if (const_result.StatusCode == WfStatus.Succeeded)
                                         break;
@@ -99,7 +112,7 @@ namespace ControllerRuntime
             }
             finally
             {
-                logger.Write(String.Format("Finish Processing Workflow Constraint {0} with result - {1}", _item.Key, result.StatusCode.ToString()));
+                _logger.Information("Finish Processing Workflow Constraint {ItemKey} with result - {WfStatus}", _item.Key, result.StatusCode.ToString());
                 cts.Dispose();
             }
 

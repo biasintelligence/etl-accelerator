@@ -14,13 +14,14 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     public class SSISOleDbSource : SSISModule
     {
-        public SSISOleDbSource(OleDbSource dbsrc, MainPipe pipe,ConnectionManager cm, IWorkflowLogger logger)
+        public SSISOleDbSource(OleDbSource dbsrc, MainPipe pipe,ConnectionManager cm, ILogger logger)
             : base(pipe, "OLE DB Source", logger)
         {
             // create the oledb source

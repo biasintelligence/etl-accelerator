@@ -18,6 +18,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Serilog;
+using Serilog.Events;
+using ControllerRuntime.Logging;
+
 namespace ControllerRuntime
 {
     /// <summary>
@@ -32,17 +36,23 @@ namespace ControllerRuntime
         private WorkflowStep _step;
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private WfResult _status = WfResult.Unknown;
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         public WorkflowStepProcessor(WorkflowStep item, DBController db)
         {
             _db = db;
             _step = item;
-            _logger = _db.GetLogger(_step.WorkflowId, _step.StepId, 0, _step.RunId);
+
+            _logger = Log.Logger
+               .ForContext("WorkflowId", item.WorkflowId)
+               .ForContext("StepId", item.StepId)
+               .ForContext("RunId", item.RunId);
+
+
         }
         public WfResult Run(CancellationToken extToken)
         {
 
-            _logger.Write(String.Format("Start Processing Workflow step {0}:{1}", _step.Key, _step.StepName));
+            _logger.Information("Start Processing Workflow step {ItemKey}:{ItemName}", _step.Key, _step.StepName);
 
             WfResult result = WfResult.Succeeded;
             try
@@ -70,7 +80,7 @@ namespace ControllerRuntime
 
                         if (result.StatusCode == WfStatus.Failed)
                         {
-                            _logger.WriteError(String.Format("Workflow step {0}:{1} failed with: {2}", _step.Key, _step.StepName, result.Message), result.ErrorCode);
+                            _logger.Error("Workflow step {ItemKey}:{ItemName} failed with: {ErrorCode}", _step.Key, _step.StepName, result.Message, result.ErrorCode);
                             _status.SetTo(result);
                             return result;
                         }
@@ -101,8 +111,8 @@ namespace ControllerRuntime
                     && _step.StepOnSuccessProcess != null)
                 {
 
-                    _logger.Write(String.Format("On step success"));
-                    _logger.WriteDebug(String.Format("On success process - {0}", _step.StepOnSuccessProcess.Process));
+                    _logger.Information("On step success");
+                    _logger.Debug("On success process - {ProcessName}", _step.StepOnSuccessProcess.Process);
 
                     if ((_step.StepOnSuccessProcess.ScopeId & 3) == 0)
                         throw new ArgumentException(String.Format("OnSuccess Process is not of correct scope 1100 = {0}", _step.StepOnSuccessProcess.ScopeId));
@@ -125,8 +135,8 @@ namespace ControllerRuntime
                    && _step.StepOnFailureProcess != null)
                 {
 
-                    _logger.Write(String.Format("On step failure"));
-                    _logger.WriteDebug(String.Format("On failure process - {0}", _step.StepOnFailureProcess.Process));
+                    _logger.Information("On step failure");
+                    _logger.Debug("On failure process - {ProcessName}", _step.StepOnFailureProcess.Process);
 
                     if ((_step.StepOnFailureProcess.ScopeId & 3) == 0)
                         throw new ArgumentException(String.Format("OnFailure Process is not of correct scope 1100 = {0}", _step.StepOnFailureProcess.ScopeId));
@@ -148,26 +158,26 @@ namespace ControllerRuntime
             }
             catch (AggregateException aex)
             {
-                _logger.WriteError(String.Format("AggregateException: {0}", aex.Message), aex.HResult);
+                _logger.Error(aex, "AggregateException: {Message}", aex.Message);
                 foreach (var ex in aex.InnerExceptions)
                 {
-                    _logger.WriteError(String.Format("InnerException: {0}", ex.Message), ex.HResult);
+                    _logger.Error(ex, "InnerException: {Message}", ex.Message);
                 }
                 result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
             }
             catch (Exception ex)
             {
 
-                _logger.WriteError(String.Format("Exception: {0}", ex.Message), ex.HResult);
+                _logger.Error(ex, "Exception: {0}", ex.Message);
                 result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
             }
 
-            _logger.Write(String.Format("Workflow step {0}:{1} finished with result {2}", _step.Key, _step.StepName, result.StatusCode.ToString()));
+            _logger.Information("Workflow step {ItemKey}:{ItemName} finished with result {WfStatus}", _step.Key, _step.StepName, result.StatusCode.ToString());
             _status.SetTo(result);
             return result;
         }
 
-        private async Task<WfResult> ProcessRunAsync(IWorkflowActivity runner, CancellationToken token, int retry, int delay, IWorkflowLogger logger)
+        private async Task<WfResult> ProcessRunAsync(IWorkflowActivity runner, CancellationToken token, int retry, int delay, ILogger logger)
         {
             return await Task.Factory.StartNew(() =>
             {
@@ -186,26 +196,26 @@ namespace ControllerRuntime
                             result = runner.Run(token);
                             token.ThrowIfCancellationRequested();
                             if (i > 0)
-                                logger.Write(String.Format("Retry attempt {0} on: {1}", i, result.Message));
+                                logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
                         }
                     }
                     catch (ThreadAbortException ex)
                     {
-                        logger.WriteError(String.Format("ThreadAbortException: {0}", ex.Message), ex.HResult);
+                        logger.Error(ex, "ThreadAbortException: {0}", ex.Message);
                     }
                     catch (AggregateException aex)
                     {
-                        logger.WriteError(String.Format("AggregateException: {0}", aex.Message), aex.HResult);
+                        logger.Error(aex, "AggregateException: {Message}", aex.Message);
                         foreach (var ex in aex.InnerExceptions)
                         {
-                            logger.WriteError(String.Format("InnerException: {0}", ex.Message), ex.HResult);
+                            logger.Error(ex, "InnerException: {Message}", ex.Message);
                         }
                         result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
                     }
                     catch (Exception ex)
                     {
 
-                        logger.WriteError(String.Format("Exception: {0}", ex.Message), ex.HResult);
+                        logger.Error(ex, "Exception: {Message}", ex.Message);
                         result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
                     }
                     return result;

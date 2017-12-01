@@ -24,7 +24,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using System.Data;
 using System.Data.SqlClient;
 
-
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -49,7 +49,7 @@ namespace DefaultActivities
         private const string CONTROL_VALUE = "ControlValue";
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
             AZURE_TABLE_NAME,
@@ -89,9 +89,9 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("SqlServer: {0}.{1}", builder.DataSource, builder.InitialCatalog));
-           _logger.Write(String.Format("Copy: {0} -> {1}", _attributes[AZURE_TABLE_NAME], _attributes[SQL_TABLE_NAME]));
-            _logger.Write(String.Format("Delta: {0} > {1}", _attributes[CONTROL_COLUMN], _attributes[CONTROL_VALUE]));
+            _logger.Debug("SqlServer: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
+            _logger.Information("Copy: {From} -> {To}", _attributes[AZURE_TABLE_NAME], _attributes[SQL_TABLE_NAME]);
+            _logger.Information("Delta: {ControlName} > {ControlValue}", _attributes[CONTROL_COLUMN], _attributes[CONTROL_VALUE]);
 
         }
 
@@ -172,7 +172,7 @@ namespace DefaultActivities
                     continuationToken = tableQueryResult.ContinuationToken;
                     if (schema.Rows.Count > 9000 || continuationToken == null)
                     {
-                        _logger.Write(String.Format("Copy {0} rows", schema.Rows.Count));
+                        _logger.Information("Copy {Count} rows", schema.Rows.Count);
                         BulkLoad(schema);
                         schema.Clear();
                     }
@@ -456,10 +456,10 @@ namespace DefaultActivities
             var res = tableQueryResult.ToList();
 
             DynamicTableEntity entry = res[0];
-            _logger.Write(String.Format("{0} {1} {2}", entry.PartitionKey, entry.RowKey, entry.Timestamp));
+            _logger.Information("{PertitionKey} {RowKey} {Timestamp}", entry.PartitionKey, entry.RowKey, entry.Timestamp);
             foreach (var prop in entry.Properties)
             {
-                _logger.Write(String.Format("{0} {1}", prop.Key, prop.Value.PropertyType.ToString()));
+                _logger.Information("{Key} {Type}", prop.Key, prop.Value.PropertyType.ToString());
             }
 
         }

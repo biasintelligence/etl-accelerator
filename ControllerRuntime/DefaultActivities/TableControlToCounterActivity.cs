@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -40,7 +41,7 @@ namespace DefaultActivities
         protected const string ETL_STEPID = "etl:StepId";
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        protected IWorkflowLogger _logger;
+        protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>()
         { CONTROLLER_CONNECTION_STRING,
           SOURCE_CONNECTION_STRING,
@@ -77,12 +78,12 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder_controller = new SqlConnectionStringBuilder(_attributes[CONTROLLER_CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder_controller.DataSource, builder_controller.InitialCatalog));
+            _logger.Debug("Controller: {Server}.{Database}", builder_controller.DataSource, builder_controller.InitialCatalog);
 
             SqlConnectionStringBuilder builder_source = new SqlConnectionStringBuilder(_attributes[SOURCE_CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("Source: {0}.{1}", builder_source.DataSource, builder_source.InitialCatalog));
+            _logger.Debug("Source: {Server}.{Database}", builder_source.DataSource, builder_source.InitialCatalog);
 
-            _logger.Write(String.Format("Table: {0}, Coltrol: {1}", _attributes[TABLE_NAME], _attributes[TABLE_CONTROL_COLUMN]));
+            _logger.Information("Table: {TableName}, Control: {ControlName}", _attributes[TABLE_NAME], _attributes[TABLE_CONTROL_COLUMN]);
         }
 
         public virtual WfResult Run(CancellationToken token)

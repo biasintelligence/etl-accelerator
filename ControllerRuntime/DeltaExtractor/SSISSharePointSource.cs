@@ -14,13 +14,14 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     public class SSISSharePointSource : SSISModule
     {
-        public SSISSharePointSource(SharePointSource spsrc, MainPipe pipe, IWorkflowLogger logger)
+        public SSISSharePointSource(SharePointSource spsrc, MainPipe pipe, ILogger logger)
             //: base(pipe, "SharePoint List Source", 0, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListSource, SharePointListAdapters, Version=1.2012.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger)
             : base(pipe, "SharePoint List Source", 0, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListSource, SharePointListAdapters, Version=1.2016.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger)
         {

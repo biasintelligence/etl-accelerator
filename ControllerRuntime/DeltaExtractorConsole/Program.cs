@@ -17,7 +17,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using ControllerRuntime;
-
+using ControllerRuntime.Logging;
+using Serilog;
+using Serilog.Events;
 
 namespace BIAS.Framework.DeltaExtractor.exe
 {
@@ -46,7 +48,14 @@ namespace BIAS.Framework.DeltaExtractor.exe
 
             try
             {
-                IWorkflowLogger logger = new WorkflowConsoleLogger(debug, verbose);
+                var minLogLevel = (debug) ? LogEventLevel.Debug : LogEventLevel.Information;
+                ILogger logger = new LoggerConfiguration()
+                    .MinimumLevel.Is(minLogLevel)
+                    .WriteTo.Console()
+                    .CreateLogger();
+
+
+                ;
                 WorkflowActivityParameters param = WorkflowActivityParameters.Create();
                 param.Add("XML", args[0]);
 

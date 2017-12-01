@@ -21,6 +21,8 @@ using System.Data;
 using System.Data.SqlClient;
 using ControllerRuntime;
 using BIAS.Framework.DeltaExtractor;
+using Serilog;
+
 
 namespace DefaultActivities
 {
@@ -43,7 +45,7 @@ namespace DefaultActivities
         //Require validation
         private WorkflowActivityParameters _parameters = WorkflowActivityParameters.Create();
 
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         private List<string> _required_attributes = new List<string>() { CONNECTION_STRING, BATCH_ID, STEP_ID, RUN_ID };
 
@@ -57,7 +59,7 @@ namespace DefaultActivities
         {
             _logger = args.Logger;
 
-            _logger.WriteDebug("In Delta Extractor Configure method...");
+            _logger.Debug("In Delta Extractor Configure method...");
 
             //Default Validations
             if (_required_attributes.Count != args.RequiredAttributes.Length)
@@ -77,7 +79,7 @@ namespace DefaultActivities
 
             //obfuscate the password
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder.DataSource, builder.InitialCatalog));
+            _logger.Debug("Controller: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
         }
 
         public WfResult Run(CancellationToken token)
@@ -85,7 +87,7 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            _logger.WriteDebug("Running DeltaExtractor...");
+            _logger.Debug("Running DeltaExtractor...");
 
             DERun runner = new DERun();
             return runner.Start(_parameters,_logger);

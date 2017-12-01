@@ -9,13 +9,14 @@ using System.Data.SqlClient;
 using System.Xml.Serialization;
 using System.IO;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     public class DERun : IWorkflowRunner
     {
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private WorkflowActivityParameters _args;
 
         private const string DE_PARAMETER_QUERY = @"
@@ -38,7 +39,7 @@ namespace BIAS.Framework.DeltaExtractor
         private const string RUN_ID = "@RunId";
         private const string XML = "XML";
 
-        public WfResult Start(WorkflowActivityParameters args, IWorkflowLogger logger)
+        public WfResult Start(WorkflowActivityParameters args, ILogger logger)
         {
             WfResult result = WfResult.Succeeded;
             _logger = logger;
@@ -64,8 +65,8 @@ namespace BIAS.Framework.DeltaExtractor
 
                 parameters = Parameters.DeSerializefromXml(inputXml);
 
-                logger.Write(String.Format(CultureInfo.InvariantCulture, "Running DE v.{0} ({1})bit", v.ToString(), 8 * IntPtr.Size));
-                logger.Write("Executing as: " + WindowsIdentity.GetCurrent().Name.ToString());
+                logger.Information("Running DE v.{Version} ({Bit} bit)", v.ToString(), 8 * IntPtr.Size);
+                logger.Information("Executing as: {User}", WindowsIdentity.GetCurrent().Name.ToString());
 
                 //logger.WriteDebug("DE XML: " + inputXml);
 
@@ -75,7 +76,7 @@ namespace BIAS.Framework.DeltaExtractor
             }
             catch (Exception ex)
             {
-                logger.WriteError(ex.Message, ex.HResult);
+                logger.Error(ex,"Exception: {Message}",ex.Message);
                 result = WfResult.Failed;
             }
 
@@ -90,7 +91,7 @@ namespace BIAS.Framework.DeltaExtractor
             _args.Get(BATCH_ID),
             _args.Get(STEP_ID),
             _args.Get(RUN_ID),
-            ((_logger.Mode) ? 1 : 0));
+            1);
 
             using (SqlConnection cn = new SqlConnection(_args.Get(CONNECTION_STRING)))
             using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
@@ -103,7 +104,7 @@ namespace BIAS.Framework.DeltaExtractor
                     //sb.Replace("\"","\\\"");
                     //sb.Insert(0, '\"').Append('\"');
 
-                    _logger.WriteDebug(String.Format("CommandText : {0}", cmd.CommandText));
+                    _logger.Debug("CommandText : {Command}", cmd.CommandText);
                     //_logger.WriteDebug(String.Format("sb : {0}", sb.ToString()));
 
                     return sb.ToString();

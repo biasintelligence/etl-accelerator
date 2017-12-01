@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Serilog;
 using ControllerRuntime;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.GZip;
@@ -43,7 +44,7 @@ namespace DefaultActivities
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, TIMEOUT, DECOMPRESS_MODE, OUTPUT_EXT };
 
         #region IWorkflowActivity
@@ -76,7 +77,7 @@ namespace DefaultActivities
 
             }
 
-            _logger.Write(String.Format("TGZ mode:{2}: {0} => {1}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], _attributes[DECOMPRESS_MODE]));
+            _logger.Information("TGZ: {InputFile} => {OutputFolder}, mode:{Mode}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], _attributes[DECOMPRESS_MODE]);
 
         }
 
@@ -123,7 +124,7 @@ namespace DefaultActivities
                 using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
                 {
                     decompressionStream.CopyTo(decompressedFileStream);
-                    _logger.Write(String.Format("Decompressed: {0}", fileToDecompress.Name));
+                    _logger.Information("Decompressed: {File}", fileToDecompress.Name);
                 }
             }
         }
@@ -153,7 +154,7 @@ namespace DefaultActivities
                         throw ex;
                     }
                 }
-                _logger.Write(String.Format("Decompressed to {0}", output));
+                _logger.Information("Decompressed to {File}", output);
             }
         }
 

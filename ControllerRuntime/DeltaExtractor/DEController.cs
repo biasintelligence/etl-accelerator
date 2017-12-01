@@ -14,6 +14,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Linq;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -29,12 +30,12 @@ namespace BIAS.Framework.DeltaExtractor
 
         public delegate void DEAction<in T, in L>(T obj, L logger);
 
-        public void Execute(Parameters p, IWorkflowLogger logger)
+        public void Execute(Parameters p, ILogger logger)
         {
             System.Diagnostics.Debug.Assert(p != null);
 
-            Dictionary<string, DEAction<Parameters, IWorkflowLogger>> actions =
-                 new Dictionary<string, DEAction<Parameters, IWorkflowLogger>>(StringComparer.InvariantCultureIgnoreCase) {
+            Dictionary<string, DEAction<Parameters, ILogger>> actions =
+                 new Dictionary<string, DEAction<Parameters, ILogger>>(StringComparer.InvariantCultureIgnoreCase) {
                 {"MoveData", MoveDataRun },
                 {"RunPackage", ExecPackageRun }
                  };
@@ -46,7 +47,7 @@ namespace BIAS.Framework.DeltaExtractor
 
         }
 
-        private void MoveDataRun(Parameters p, IWorkflowLogger logger)
+        private void MoveDataRun(Parameters p, ILogger logger)
         {
 
             System.Diagnostics.Debug.Assert(p != null);
@@ -57,7 +58,7 @@ namespace BIAS.Framework.DeltaExtractor
             {
                 throw new UnknownSourceType();
             }
-            logger.Write(action.DataSource.Description);
+            logger.Information(action.DataSource.Description);
 
             //Check destinations
             int numValidDestinations = action.DataDestination.Test(logger);
@@ -81,8 +82,8 @@ namespace BIAS.Framework.DeltaExtractor
             ExecutePackageWithEvents(pkg, logger);
 
             int rowCount = Convert.ToInt32(pkg.Variables["RowCount"].Value, CultureInfo.InvariantCulture);
-            logger.Write("DE extracted " + rowCount.ToString() + " rows from the Source.");
-            logger.Write("DE Package completed.");
+            logger.Information("DE extracted {Count} rows from the Source.", rowCount.ToString());
+            logger.Information("DE Package completed.");
             //ETLController.CounterSet("RowsExtracted", rowCount.ToString());
 
 
@@ -119,7 +120,7 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
 
-        private void ExecPackageRun(Parameters p, IWorkflowLogger logger)
+        private void ExecPackageRun(Parameters p, ILogger logger)
         {
 
             System.Diagnostics.Debug.Assert(p != null);
@@ -144,7 +145,7 @@ namespace BIAS.Framework.DeltaExtractor
             }
             else
             {
-                logger.Write(String.Format(CultureInfo.InvariantCulture, "DE trying to load the Package {0}", action.File));
+                logger.Information("DE trying to load the Package {File}", action.File);
                 try
                 {
                     pkg.LoadFromXML(action.File, null);
@@ -152,7 +153,7 @@ namespace BIAS.Framework.DeltaExtractor
                 }
                 catch (COMException cexp)
                 {
-                    logger.WriteError("Exception occured : " + cexp.TargetSite + cexp, cexp.HResult);
+                    logger.Error(cexp,"Exception occured: {Target}", cexp.TargetSite);
                     throw;
                 }
             }
@@ -164,19 +165,19 @@ namespace BIAS.Framework.DeltaExtractor
 
         }
 
-        private void ExecutePackageWithEvents(Package pkg, IWorkflowLogger logger)
+        private void ExecutePackageWithEvents(Package pkg, ILogger logger)
         {
             // Throw an exception if we get an error
-            logger.Write("Executing DE Package...");
+            logger.Information("Executing DE Package...");
             SSISEvents ev = new SSISEvents(logger);
             DTSExecResult rc = pkg.Execute(null, null, ev, null, null);
             if (rc != DTSExecResult.Success)
             {
-                logger.WriteError("Error: the DE failed to complete successfully.", 50000);
+                logger.Error("Error: the DE failed to complete successfully {ErrorCode}.", 50000);
                 //StringBuilder dtserrors = new StringBuilder();
                 foreach (DtsError error in pkg.Errors)
                 {
-                    logger.WriteError(error.Description, error.ErrorCode);
+                    logger.Error("Error: {Desc}, {ErrorCode}",error.Description, error.ErrorCode);
                     //dtserrors.AppendLine(error.Description);
                 }
                 throw new UnexpectedSsisException("SSIS Package execution failed");

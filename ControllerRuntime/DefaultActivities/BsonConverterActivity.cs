@@ -25,6 +25,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
+using Serilog;
 using ControllerRuntime;
 
 
@@ -42,7 +43,7 @@ namespace DefaultActivities
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, TIMEOUT };
 
         #region IWorkflowActivity
@@ -68,7 +69,7 @@ namespace DefaultActivities
                     _attributes.Add(attribute.Name, attribute.Value);
             }
 
-            _logger.Write(String.Format("Bson : {0} => {1}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER]));
+            _logger.Information("Bson : {From} => {To}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER]);
 
         }
 
@@ -130,7 +131,7 @@ namespace DefaultActivities
                     }
 
                     FileInfo info = new FileInfo(outputFile);
-                    _logger.Write(String.Format("Converted {0} => {1}", fileToConvert.Name,info.Name));
+                    _logger.Information("Converted {From} => {To}", fileToConvert.Name,info.Name);
                 }
             }
         }

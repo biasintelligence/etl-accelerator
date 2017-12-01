@@ -6,15 +6,16 @@ using System.Text;
 using Microsoft.SqlServer.Dts.Runtime;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     class SSISEvents:DefaultEvents
     {
-        IWorkflowLogger _logger;
+        ILogger _logger;
 
-        public SSISEvents(IWorkflowLogger logger)
+        public SSISEvents(ILogger logger)
         {
             _logger = logger;
         }
@@ -37,17 +38,17 @@ namespace BIAS.Framework.DeltaExtractor
         public override void OnInformation(DtsObject source, int informationCode, string subComponent, string description, string helpFile, int helpContext, string idofInterfaceWithError, ref bool fireAgain)
         {
             // TODO: Add custom code to handle the event.
-            _logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "Information: {0} - {1}", informationCode, description));
+            _logger.Debug("Information: {Code} - {Desc}", informationCode, description);
         }
         public override void OnWarning(DtsObject source,int warningCode,string subComponent,string description,string helpFile,int helpContext,string idofInterfaceWithError)
         {
             // TODO: Add custom code to handle the event.
-            _logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "Warning: {0} - {1}", warningCode, description));
+            _logger.Debug("Warning: {Code} - {Desc}", warningCode, description);
         }
         public override bool OnError(DtsObject source,int errorCode,string subComponent,string description,string helpFile,int helpContext,string idofInterfaceWithError)
         {
             // TODO: Add custom code to handle the event.
-            _logger.WriteDebug(String.Format(CultureInfo.InvariantCulture,"Error: {0} - {1}", errorCode, description));
+            _logger.Debug("Error: {Code} - {Desc}", errorCode, description);
             return true;
         }
         //public override void OnCustomEvent(TaskHost taskHost,string eventName,string eventText,ref Object[] arguments,string subComponent,ref bool fireAgain)
@@ -61,8 +62,8 @@ namespace BIAS.Framework.DeltaExtractor
 
     class SSISEventHandler : IDTSComponentEvents
     {
-        private IWorkflowLogger _logger;
-        public SSISEventHandler(IWorkflowLogger logger)
+        private ILogger _logger;
+        public SSISEventHandler(ILogger logger)
         {
             _logger = logger;
         }
@@ -70,13 +71,13 @@ namespace BIAS.Framework.DeltaExtractor
 
         private void HandleEvent(string type, string subComponent, string description)
         {
-            _logger.WriteDebug(String.Format(CultureInfo.InvariantCulture, "[{0}] {1}: {2}", type, subComponent, description));
+            _logger.Debug("[{Type}] {Comp}: {Desc}", type, subComponent, description);
             //PrintOutput.PrintToOutput(String.Format(CultureInfo.InvariantCulture, "[{0}] {1}: {2}", type, subComponent, description), DERun.Debug);
         }
 
         private void HandleError(string type, int errorCode, string subComponent, string description)
         {
-            _logger.WriteError(String.Format(CultureInfo.InvariantCulture, "[{0}] {1}: {2}", type, subComponent, description),errorCode);
+            _logger.Error("[{Type}] {Comp}: {Desc}, {ErrorCode}", type, subComponent, description,errorCode);
             //PrintOutput.PrintToError(String.Format(CultureInfo.InvariantCulture, "[{0}-{1}] {2}: {3}", type, errorCode, subComponent, description), DERun.Debug);
         }
 

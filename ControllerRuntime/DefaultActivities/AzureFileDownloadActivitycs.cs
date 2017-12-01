@@ -22,6 +22,7 @@ using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.File;
 
+using Serilog;
 
 using ControllerRuntime;
 
@@ -54,7 +55,7 @@ namespace DefaultActivities
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
             INPUT_PREFIX,
@@ -107,8 +108,8 @@ namespace DefaultActivities
 
             }
 
-            _logger.Write(String.Format("Download: {0} -> {1}", _attributes[INPUT_PREFIX], _attributes[OUTPUT_FOLDER]));
-            _logger.WriteDebug(String.Format("Sort: {0}, Count: {1}", _attributes[SORT_ORDER], _attributes[COUNT]));
+            _logger.Information("Download: {From} -> {To}", _attributes[INPUT_PREFIX], _attributes[OUTPUT_FOLDER]);
+            _logger.Debug("Sort: {Sort}, Count: {Count}", _attributes[SORT_ORDER], _attributes[COUNT]);
 
         }
 

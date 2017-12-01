@@ -12,6 +12,7 @@ using System.Data;
 using System.Globalization;
 
 using ControllerRuntime;
+using Serilog;
 
 namespace BIAS.Framework.DeltaExtractor
 {
@@ -31,7 +32,7 @@ namespace BIAS.Framework.DeltaExtractor
     public interface IDeSource
     {
         bool IsValid { get; set; }
-        bool Test(IWorkflowLogger logger);
+        bool Test(ILogger logger);
         SourceType Type { get; }
         string ConnectionString { get; }
         string Description { get; }
@@ -94,7 +95,7 @@ namespace BIAS.Framework.DeltaExtractor
             get { return ((IDeSource)source).IsValid; }
             set { ((IDeSource)source).IsValid = value;}
         }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
             return ((IDeSource)source).Test(logger);
         }
@@ -223,9 +224,9 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region IDeSource
         public bool IsValid { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             return true;
         }
         public SourceType Type
@@ -352,9 +353,9 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region IDeSource
         public bool IsValid { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             return true;
         }
         public SourceType Type
@@ -488,9 +489,9 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region IDeSources
         public bool IsValid { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             return true;
         }
         public SourceType Type
@@ -594,9 +595,9 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region IDeSource
         public bool IsValid { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             return true;
         }
         public SourceType Type
@@ -697,9 +698,9 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region IDeSource
         public bool IsValid { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             return true;
         }
         public SourceType Type
@@ -858,9 +859,9 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region IDeSource
         public bool IsValid { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             return true;
         }
         public SourceType Type
@@ -933,9 +934,9 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region IDeSource
         public bool IsValid { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             return true;
         }
         public SourceType Type

@@ -14,13 +14,14 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     public class SSISOdbcSource : SSISModule
     {
-        public SSISOdbcSource(OdbcSource dbsrc, MainPipe pipe, ConnectionManager cm, IWorkflowLogger logger)
+        public SSISOdbcSource(OdbcSource dbsrc, MainPipe pipe, ConnectionManager cm, ILogger logger)
             : base(pipe, "ODBC Source", logger)
         {
             // create the odbc source

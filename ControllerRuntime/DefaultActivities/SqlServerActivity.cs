@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -37,7 +38,7 @@ namespace DefaultActivities
 
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        protected IWorkflowLogger _logger;
+        protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>() { QUERY_STRING, CONNECTION_STRING, TIMEOUT };
 
 
@@ -64,8 +65,8 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("SqlServer: {0}.{1}", builder.DataSource,builder.InitialCatalog));
-            _logger.WriteDebug(String.Format("Query: {0}", _attributes[QUERY_STRING]));
+            _logger.Debug("SqlServer: {Server}.{Database}", builder.DataSource,builder.InitialCatalog);
+            _logger.Debug("Query: {Query}", _attributes[QUERY_STRING]);
 
         }
 
@@ -109,7 +110,7 @@ namespace DefaultActivities
         protected void OnInfoMessage(
           object sender, SqlInfoMessageEventArgs args)
         {
-            _logger.Write(args.Message);
+            _logger.Information(args.Message);
             //if ((args.Errors.Count) == 0)
             //    return;
 

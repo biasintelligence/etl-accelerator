@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
-
+using Serilog;
 using ControllerRuntime;
 
 namespace DefaultActivities
@@ -40,7 +40,7 @@ namespace DefaultActivities
 
 
         protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        protected IWorkflowLogger _logger;
+        protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING, FILE_PATH,TIMEOUT,ETL_RUNID,PROCESS_PRIORITY,FILE_SOURCE };
 
@@ -68,8 +68,8 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.WriteDebug(String.Format("Controller: {0}.{1}", builder.DataSource, builder.InitialCatalog));
-            _logger.Write(String.Format("Register files from Source {0}: {1}", _attributes[FILE_SOURCE], _attributes[FILE_PATH]));
+            _logger.Debug("Controller: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
+            _logger.Information("Register files from Source {Source}: {File}", _attributes[FILE_SOURCE], _attributes[FILE_PATH]);
         }
 
         public virtual WfResult Run(CancellationToken token)

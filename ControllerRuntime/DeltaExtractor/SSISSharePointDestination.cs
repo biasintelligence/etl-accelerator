@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -21,7 +22,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class SSISSharePointDestination : SSISModule
     {
 
-        public SSISSharePointDestination(SharePointDestination spdst, MainPipe pipe, IDTSComponentMetaData100 src, int outputID, IWorkflowLogger logger)
+        public SSISSharePointDestination(SharePointDestination spdst, MainPipe pipe, IDTSComponentMetaData100 src, int outputID, ILogger logger)
         //: base(pipe, "SharePoint List Destination", outputID, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2012.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger)
         : base(pipe, "SharePoint List Destination", outputID, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2016.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger)
         {

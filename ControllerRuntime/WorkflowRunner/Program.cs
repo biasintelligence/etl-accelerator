@@ -17,7 +17,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 
+using Serilog;
+using Serilog.Events;
 using ControllerRuntime;
+using ControllerRuntime.Logging;
+
 
 namespace WorkflowRunner
 {
@@ -37,30 +41,57 @@ namespace WorkflowRunner
             }
 
             List<string> options = new List<string>();
+
+            var minLogLevel = LogEventLevel.Information;
+            //bool debug = false;
             if (args.Contains(@"/D", StringComparer.InvariantCultureIgnoreCase))
+            {
                 options.Add("debug");
+                //debug = true;
+                minLogLevel = LogEventLevel.Debug;
+            }
 
+            //bool forcestart = false;
             if (args.Contains(@"/R", StringComparer.InvariantCultureIgnoreCase))
+            {
                 options.Add("forcestart");
+                //forcestart = true;
+            }
 
+            bool verbose = false;
             if (args.Contains(@"/V", StringComparer.InvariantCultureIgnoreCase))
+            {
                 options.Add("verbose");
+                verbose = true;
+            }
 
 
             var settings = ConfigurationManager.AppSettings;
             string connectionString = settings["Controller"];
-            if (String.IsNullOrEmpty(connectionString))
-                connectionString = @"Server=localhost;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;"; ;
 
             string runnerName = settings["Runner"];
             if (String.IsNullOrEmpty(runnerName))
                 runnerName = "Default";
 
+
+
+            if (verbose)
+                Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Is(minLogLevel)
+                        .WriteTo.Console()
+                        .WriteTo.WorkflowLogger(connectionString: connectionString)
+                        .CreateLogger();
+            else
+                Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Is(minLogLevel)
+                        .WriteTo.WorkflowLogger(connectionString: connectionString)
+                        .CreateLogger();
+
             try
             {
                 WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
-                wfp.ConnectionString = connectionString;
                 wfp.WorkflowName = args[0].Replace("\"", "");
+                wfp.ConnectionString = connectionString;
                 WfResult wr = wfp.Run(options.ToArray());
                 if (wr.StatusCode != WfStatus.Succeeded)
                     return 1;

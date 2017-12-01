@@ -13,13 +13,14 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
     public class SSISPartitionSplit : SSISModule
     {
-        public SSISPartitionSplit(MainPipe pipe, IDTSComponentMetaData100 src, MoveData parameters, IWorkflowLogger logger)
+        public SSISPartitionSplit(MainPipe pipe, IDTSComponentMetaData100 src, MoveData parameters, ILogger logger)
             : base(pipe, "Conditional Split", logger)
         {
             // Create split component
@@ -30,7 +31,7 @@ namespace BIAS.Framework.DeltaExtractor
             SetPartitionFunctionInput(parameters.Partition.Output, logger);
         }
 
-        private void SetPartitionFunctionInput(string ColumnName, IWorkflowLogger logger)
+        private void SetPartitionFunctionInput(string ColumnName, ILogger logger)
         {
 
             IDTSComponentMetaData100 comp = this.MetadataCollection;
@@ -43,7 +44,7 @@ namespace BIAS.Framework.DeltaExtractor
             if (inputColId == 0)
             {
                 //the column wasn't found if the Id is 0, so we'll print out a message and skip this row.
-                logger.Write("DE Could not find partition function input column " + ColumnName + " in the source");
+                logger.Information("DE Could not find partition function input column in the source.", ColumnName);
             }
             else
             {

@@ -14,6 +14,7 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using System.Runtime.InteropServices;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -23,7 +24,7 @@ namespace BIAS.Framework.DeltaExtractor
         //exColId-vInputColId
         private Dictionary<int, int> m_converted = new Dictionary<int, int>();
 
-        public SSISDataConverter(MainPipe pipe, IDTSComponentMetaData100 src, int outputID, IDTSExternalMetadataColumnCollection100 exColumns, IWorkflowLogger logger)
+        public SSISDataConverter(MainPipe pipe, IDTSComponentMetaData100 src, int outputID, IDTSExternalMetadataColumnCollection100 exColumns, ILogger logger)
             : base(pipe, "Data Conversion", outputID, logger)
         {
             //create datatype converter component

@@ -15,6 +15,7 @@ using System.Linq;
 using System.Data.Common;
 //using Excel = Microsoft.Office.Interop.Excel;
 
+using Serilog;
 using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
@@ -89,7 +90,7 @@ namespace BIAS.Framework.DeltaExtractor
         PartitionRange PartitionRange { get; set; }
         StagingBlock StagingBlock { get; set; }
         bool IsValid { get; set; }
-        bool Test(IWorkflowLogger logger);
+        bool Test(ILogger logger);
         DestinationType Type { get; }
         string Description { get; }
         string ConnectionString { get; }
@@ -104,9 +105,9 @@ namespace BIAS.Framework.DeltaExtractor
         virtual public PartitionRange PartitionRange { get; set; }
         virtual public StagingBlock StagingBlock { get; set; }
         virtual public bool IsValid { get; set; }
-        virtual public bool Test(IWorkflowLogger logger)
+        virtual public bool Test(ILogger logger)
         {
-            logger.WriteDebug("Not implemented");
+            logger.Debug("Not implemented");
             this.IsValid = true;
             return true;        
         }
@@ -274,7 +275,7 @@ namespace BIAS.Framework.DeltaExtractor
             }
         }
 
-        public int Test(IWorkflowLogger logger)
+        public int Test(ILogger logger)
         {
             int cntValid = dest.Count(d => ((IDeDestination)d).Test(logger) == true);
             return cntValid;
@@ -403,7 +404,7 @@ namespace BIAS.Framework.DeltaExtractor
         public OleDBDestinationProperties CustomProperties {get; set;}
 
         #region IDeDestination
-        public override bool Test(IWorkflowLogger logger)
+        public override bool Test(ILogger logger)
         {
             if (DbProvider == DbProvider.Unknown)
             {
@@ -851,7 +852,7 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
         #region IDeDestination
-        public override bool Test(IWorkflowLogger logger)
+        public override bool Test(ILogger logger)
         {
             if (DbProvider == DbProvider.Unknown)
             {
@@ -1018,7 +1019,7 @@ namespace BIAS.Framework.DeltaExtractor
             }
         }
         #region IDeDestination
-        public override bool Test(IWorkflowLogger logger)
+        public override bool Test(ILogger logger)
         {
             if (DbProvider == DbProvider.Unknown)
             {
@@ -1175,7 +1176,7 @@ namespace BIAS.Framework.DeltaExtractor
             }
         }
         #region IDeDestination
-        public override bool Test(IWorkflowLogger logger)
+        public override bool Test(ILogger logger)
         {
             if (DbProvider == DbProvider.Unknown)
             {

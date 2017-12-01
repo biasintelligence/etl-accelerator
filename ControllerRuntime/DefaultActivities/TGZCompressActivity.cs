@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Serilog;
 using ControllerRuntime;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.GZip;
@@ -40,7 +41,7 @@ namespace DefaultActivities
 
 
         private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        private IWorkflowLogger _logger;
+        private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { INPUT_FILE, ARCHIVE_NAME, OUTPUT_FOLDER, TIMEOUT };
 
         #region IWorkflowActivity
@@ -68,7 +69,7 @@ namespace DefaultActivities
 
 
 
-            _logger.Write(String.Format("TGZ ({2}): {0} => {1}; archive: {2}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], _attributes[ARCHIVE_NAME]));
+            _logger.Information("TGZ: {InputFile} => {OutputFolder}; archive: {Archive}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER], _attributes[ARCHIVE_NAME]);
 
         }
 
@@ -115,8 +116,8 @@ namespace DefaultActivities
                        }
 
                         FileInfo info = new FileInfo(outputFile);
-                        _logger.Write(String.Format("Compressed {0} from {1} to {2} bytes.",
-                        fileToCompress.Name, fileToCompress.Length.ToString(), info.Length.ToString()));
+                        _logger.Information("Compressed {File} from {Start} to {End} bytes.",
+                        fileToCompress.Name, fileToCompress.Length.ToString(), info.Length.ToString());
                     }
 
                 }
@@ -167,7 +168,7 @@ namespace DefaultActivities
             }
 
             FileInfo info = new FileInfo(outputFile);
-            _logger.Write(String.Format("Compressed to {0} ({1} bytes)", info, info.Length.ToString()));
+            _logger.Information("Compressed to {File} ({Size} bytes)", info, info.Length.ToString());
 
         }
 

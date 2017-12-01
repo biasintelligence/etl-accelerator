@@ -18,6 +18,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.ServiceModel;
 
+using Serilog;
+
 
 namespace ControllerRuntime
 {
@@ -36,16 +38,6 @@ namespace ControllerRuntime
         WfResult Status { get; }
     }
 
-    // Workflow Logger interface.
-    public interface IWorkflowLogger
-    {
-        // Log message
-        void Write(string Message);
-        void WriteDebug(string Message);
-        void WriteError(string Message, int ErrorCode);
-        bool Mode { get; }
-
-    }
 
     // Workflow Activity interface.
     public interface IWorkflowActivity
@@ -61,7 +53,7 @@ namespace ControllerRuntime
 
     public interface IWorkflowRunner
     {
-        WfResult Start(WorkflowActivityParameters args, IWorkflowLogger logger);
+        WfResult Start(WorkflowActivityParameters args, ILogger logger);
     }
 
 

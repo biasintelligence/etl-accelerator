@@ -17,6 +17,7 @@ using Microsoft.Win32;
 //using Excel = Microsoft.Office.Interop.Excel;
 
 using ControllerRuntime;
+using Serilog;
 
 namespace BIAS.Framework.DeltaExtractor
 {
@@ -207,7 +208,7 @@ namespace BIAS.Framework.DeltaExtractor
 
         public bool IsValid { get; set; }
         public bool IsView { get; set; }
-        public bool Test(IWorkflowLogger logger)
+        public bool Test(ILogger logger)
         {
             this.IsValid = this.test(logger);
             if (this.IsValid)
@@ -231,7 +232,7 @@ namespace BIAS.Framework.DeltaExtractor
             return this.IsValid;
         }
 
-        private bool test(IWorkflowLogger logger)
+        private bool test(ILogger logger)
         {
             try
             {
@@ -284,15 +285,15 @@ else select cast(null as int)",
             }
             catch (Exception e)
             {
-                logger.WriteError(
-                    String.Format(System.Globalization.CultureInfo.InvariantCulture, "Test Destination {0} failed with messsage: {1}"
-                    , FullName, e.Message), e.HResult);
+                logger.Error(e,
+                    "Test Destination {Name} failed with messsage: {Message}"
+                    , FullName, e.Message);
                 this.IsValid = false;
                 return false;
             }
         }
 
-        public bool TruncateDestinationTable(IWorkflowLogger logger)
+        public bool TruncateDestinationTable(ILogger logger)
         {
             //if (!this.IsValid) { return false; }
             if (this.StagingBlock.Staging) { return true; }
@@ -301,12 +302,12 @@ else select cast(null as int)",
                 string query = "";
                 if (this.IsView)
                 {
-                    logger.WriteDebug("Deleting view data " + FullName);
+                    logger.Debug("Deleting view data {Name}", FullName);
                     query = "delete from " + this.inputtablename;
                 }
                 else
                 {
-                    logger.WriteDebug("Truncating table data " + FullName);
+                    logger.Debug("Truncating table data {Name}", FullName);
                     query = "truncate table " + this.inputtablename;
                 }
 
@@ -326,12 +327,12 @@ else select cast(null as int)",
             catch (Exception e)
             {
                 this.StagingBlock.Staging = false;
-                logger.WriteError("Failed to truncate table " + this.FullName + ": " + e.Message, e.HResult);
+                logger.Error(e,"Failed to truncate table {Name}: {Message}", this.FullName, e.Message);
                 throw (new CouldNotCreateStagingTableException("Failed to truncate table " + this.CanonicTableName, e));
             }
         }
 
-        public bool CreateStagingTable(bool createflag, IWorkflowLogger logger)
+        public bool CreateStagingTable(bool createflag, ILogger logger)
         {
             if (!this.StagingBlock.Staging) { return true; }
             try
@@ -342,7 +343,7 @@ else select cast(null as int)",
                     this.StagingBlock.StagingTableName = tempTableName[tempTableName.Length - 2] + ".staging_" + tempTableName[tempTableName.Length - 1];
                 }
 
-                logger.WriteDebug("Creating a Staging table " + this.StagingBlock.StagingTableName + " for the destination " + FullName);
+                logger.Debug("Creating a Staging table {Table} for the destination {Destination}", this.StagingBlock.StagingTableName, FullName);
 
                 if (createflag)
                 {
@@ -361,13 +362,13 @@ else select cast(null as int)",
                             cmd.ExecuteNonQuery();
 
                             this.StagingBlock.StagingTableName = cmd.Parameters["@dst"].Value.ToString();
-                            logger.WriteDebug("Staging table prepare has been executed with options (" + this.StagingBlock.UserOptions + "): " + this.StagingBlock.StagingTableName);
+                            logger.Debug("Staging table prepare has been executed with options ({Options}): {TableName}", this.StagingBlock.UserOptions, this.StagingBlock.StagingTableName);
                         }
                     }
                 }
                 else
                 {
-                    logger.WriteDebug("Staging table prepare has been skipped: " + this.StagingBlock.StagingTableName);
+                    logger.Debug("Staging table prepare has been skipped: {TableName}", this.StagingBlock.StagingTableName);
                 }
 
                 return true;
@@ -375,20 +376,20 @@ else select cast(null as int)",
             catch (Exception e)
             {
                 this.StagingBlock.Staging = false;
-                logger.WriteError("An error occurred while trying to create a staging table for " + this.CanonicTableName + ": " + e.Message, e.HResult);
+                logger.Error(e,"An error occurred while trying to create a staging table for {TableName}: {Message}", this.CanonicTableName, e.Message);
                 throw (new CouldNotCreateStagingTableException("An error occurred while trying to create a staging table for " + this.CanonicTableName, e));
             }
         }
 
-        public bool UploadStagingTable(int RunId, IWorkflowLogger logger)
+        public bool UploadStagingTable(int RunId, ILogger logger)
         {
             if (!this.StagingBlock.Staging) { return true; }
-            logger.WriteDebug("Uploading staging table " + this.StagingBlock.StagingTableName + " to destination " + this.CanonicTableName);
+            logger.Debug("Uploading staging table {TableName} to destination {Destination}", this.StagingBlock.StagingTableName, this.CanonicTableName);
 
             //if nothing has been staged, then the table can't be upserted.
             if (string.IsNullOrEmpty(this.StagingBlock.StagingTableName))
             {
-                logger.Write("Staging table has not been created.  There must be a staging table in order to perform an upsert.");
+                logger.Information("Staging table has not been created. There must be a staging table in order to perform an upsert.");
                 return false;
             }
             try
@@ -411,7 +412,7 @@ else select cast(null as int)",
                         cmd.ExecuteNonQuery();
 
                         this.StagingBlock.StagingTableName = cmd.Parameters["@dst"].Value.ToString();
-                        logger.WriteDebug("Staging table upload has been executed with options (" + this.StagingBlock.UserOptions + "): " + this.TableName);
+                        logger.Debug("Staging table upload has been executed with options ({Options}): {TableName}", this.StagingBlock.UserOptions, this.TableName);
                     }
                 }
 
@@ -419,7 +420,7 @@ else select cast(null as int)",
             }
             catch (Exception e)
             {
-                logger.WriteError("An error occurred while performing the Upsert for " + this.CanonicTableName + ": " + e.Message, e.HResult);
+                logger.Error(e,"An error occurred while performing the Upsert for {TableName}: {Message}", this.CanonicTableName, e.Message);
                 throw (new CouldNotPerformUpsert("An error occurred while performing the Upsert for " + this.CanonicTableName + ": " + e.Message, e));
             }
         }
