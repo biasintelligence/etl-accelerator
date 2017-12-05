@@ -26,26 +26,19 @@ namespace ControllerRuntime.Logging
 
     {
 
-        private readonly string _defaultLoggerName = string.Empty;
         private readonly IFormatProvider _formatProvider = null;
         private ControllerLogger _controllerLogger;
 
         public WorkflowLogger(
-            string defaultLoggerName,
             string connectionString,
             IFormatProvider formatProvider = null)
         {
-            if (string.IsNullOrEmpty(defaultLoggerName))
-            {
-                throw new ArgumentException("defaultLoggerName");
-            }
 
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new ArgumentException("connectionString");
             }
 
-            _defaultLoggerName = defaultLoggerName;
             _formatProvider = formatProvider;
             //if (String.IsNullOrEmpty(connectionString))
             //    connectionString = ConfigurationManager.AppSettings["Controller"];
@@ -55,9 +48,7 @@ namespace ControllerRuntime.Logging
 
         public void Emit(LogEvent logEvent)
         {
-            var loggerName = _defaultLoggerName;
             string message;
-
 
             int err = 0;
             if (logEvent.Exception != null)

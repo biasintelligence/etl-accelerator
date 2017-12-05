@@ -91,7 +91,7 @@ namespace BIAS.Framework.DeltaExtractor
             _args.Get(BATCH_ID),
             _args.Get(STEP_ID),
             _args.Get(RUN_ID),
-            1);
+            (_logger.IsEnabled(Serilog.Events.LogEventLevel.Debug)) ? 1 : 0);
 
             using (SqlConnection cn = new SqlConnection(_args.Get(CONNECTION_STRING)))
             using (SqlCommand cmd = new SqlCommand(cmd_text, cn))

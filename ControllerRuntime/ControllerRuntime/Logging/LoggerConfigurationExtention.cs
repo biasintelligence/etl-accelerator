@@ -13,8 +13,6 @@ namespace ControllerRuntime.Logging
     {
         public static LoggerConfiguration WorkflowLogger(
                this LoggerSinkConfiguration loggerConfiguration,
-               string defaultLoggerName = "serilog",
-               LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
                IFormatProvider formatProvider = null,
                string connectionString = null)
         {
@@ -23,17 +21,12 @@ namespace ControllerRuntime.Logging
                 throw new ArgumentNullException("loggerConfiguration");
             }
 
-            if (defaultLoggerName == null)
-            {
-                throw new ArgumentNullException("defaultLoggerName");
-            }
-
             if (connectionString == null)
             {
                 throw new ArgumentNullException("connectionString");
             }
 
-            return loggerConfiguration.Sink(new WorkflowLogger(defaultLoggerName, connectionString, formatProvider), restrictedToMinimumLevel);
+            return loggerConfiguration.Sink(new WorkflowLogger(connectionString, formatProvider));
         }
     }
 }
