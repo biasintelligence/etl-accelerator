@@ -41,32 +41,21 @@
 */
 
 CREATE FUNCTION [dbo].[fn_SystemParameter] (
-        @ParameterCategory VARCHAR(32)    -- System parameter category.
-      , @ParameterName VARCHAR(57)        -- System parameter name.
+        @ParameterType VARCHAR(100)    -- System parameter type.
+      , @ParameterName VARCHAR(100)        -- System parameter name.
 	  , @EnvironmentName VARCHAR(100)	  -- Environment Name
-    ) RETURNS varchar(1024) AS
+	  --, @Passphrase VARCHAR(100) = '7CCC1B81-EA9E-4710-AD10-43452169017E'
+    ) RETURNS varchar(max) AS
 
     BEGIN
 
-        /*
-        ** Declarations.
-        */
-
-        DECLARE @ReturnVar varchar(1024)
-
-        /*
-        ** Get the current system parameter setting.
-        */
-
-        SELECT @ReturnVar = [ParameterValue_Current]
+		DECLARE @Passphrase VARCHAR(100) = '7CCC1B81-EA9E-4710-AD10-43452169017E';
+        RETURN (SELECT TOP 1 CAST(  
+			DecryptByPassphrase(@Passphrase,ISNULL([ParameterValue_Current],[ParameterValue_Default]), 1 ,   
+			HashBytes('SHA1', CONVERT(varbinary(100), ParameterName))) as varchar(max)) 		
           FROM [dbo].[SystemParameters]
-         WHERE [ParameterType] = @ParameterCategory
+         WHERE [ParameterType] = @ParameterType
            AND [ParameterName] = @ParameterName
-		   AND EnvironmentName = @EnvironmentName;
-        /*
-        ** Return the results.
-        */
-
-        RETURN (@ReturnVar)
+		   AND EnvironmentName = @EnvironmentName);
 
     END

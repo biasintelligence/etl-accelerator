@@ -1,13 +1,14 @@
 ﻿
 CREATE PROCEDURE [dbo].[prc_SystemParameterLet] (
-        @ParameterType varchar(32)				 -- The system parameter category.
-      , @ParameterName varchar(57)				 -- The system parameter name.
+        @ParameterType varchar(100)				 -- The system parameter category.
+      , @ParameterName varchar(100)				 -- The system parameter name.
       , @ParameterValue varchar(1024)			 -- The new setting.
       , @ParameterDefault varchar(1024) = NULL   -- The default setting.
       , @ParameterDesc varchar(1024) = NULL    -- Parameter description
       , @LastModifiedDtim datetime = NULL -- Last updated date/time.
       , @EffectiveImmediately bit = 0            -- 0= update later, 1= update now.
 	  , @EnvironmentName VARCHAR(100) = 'All'  --The environment Name for which this variable is defined
+	  , @Passphrase VARCHAR(100) = '7CCC1B81-EA9E-4710-AD10-43452169017E'
     ) AS
 
 /*
@@ -75,14 +76,19 @@ CREATE PROCEDURE [dbo].[prc_SystemParameterLet] (
     */
 
     BEGIN TRY
-	IF NOT EXISTS (SELECT *
+	IF NOT EXISTS (SELECT 1
                      FROM [dbo].[SystemParameters]
                     WHERE [ParameterType] = @ParameterType
                       AND [ParameterName] = @ParameterName
 					  AND [EnvironmentName] = @EnvironmentName)
         BEGIN
 
-            INSERT INTO [dbo].[SystemParameters] (
+            
+			DECLARE @encrypted_default varbinary(max) = EncryptByPassphrase(@Passphrase  
+				, @ParameterDefault, 1, HashBytes('SHA1', CONVERT( varbinary(100) 
+				, @ParameterName)));
+			
+			INSERT INTO [dbo].[SystemParameters] (
                 [ParameterType]
               , [ParameterName]
               , [ParameterValue_Current]
@@ -97,10 +103,10 @@ CREATE PROCEDURE [dbo].[prc_SystemParameterLet] (
               , @ParameterName
               , NULL
               , NULL
-              , @ParameterDefault
+              , @encrypted_default
               , @ParameterDesc
               , @EnvironmentName
-			  , SUSER_SNAME()
+			  , SYSTEM_USER
               , CURRENT_TIMESTAMP
             )
 
@@ -130,11 +136,17 @@ CREATE PROCEDURE [dbo].[prc_SystemParameterLet] (
     ** Set the parameter value.
     */
 
+
+	DECLARE @encrypted_value varbinary(max) = EncryptByPassphrase(@Passphrase  
+	, @ParameterValue, 1, HashBytes('SHA1', CONVERT( varbinary(100) 
+	, @ParameterName)));
+
+
     UPDATE [dbo].[SystemParameters]
       WITH (HOLDLOCK)
-       SET [ParameterValue_New] = @ParameterValue
-         , [LastModifiedBy] = SUSER_SNAME()
-         , [LastModifiedDtim] = GETDATE()
+       SET [ParameterValue_New] = @encrypted_value
+         , [LastModifiedBy] = SYSTEM_USER
+         , [LastModifiedDtim] = CURRENT_TIMESTAMP
      WHERE [ParameterName] = @ParameterName
        AND [ParameterType] = @ParameterType
 	   AND [EnvironmentName] = @EnvironmentName

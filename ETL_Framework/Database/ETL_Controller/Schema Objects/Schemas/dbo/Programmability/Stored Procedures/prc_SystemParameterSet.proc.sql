@@ -1,7 +1,7 @@
 ﻿
 CREATE PROCEDURE [dbo].[prc_SystemParameterSet] (
-        @ParameterType VARCHAR(32) = NULL  -- The system parameter category.
-      , @ParameterName VARCHAR(57) = NULL  -- The system parameter name.
+        @ParameterType VARCHAR(100) = NULL  -- The system parameter category.
+      , @ParameterName VARCHAR(100) = NULL  -- The system parameter name.
 	  , @EnvironmentName VARCHAR(100) = 'All' --The environment Name
     ) AS
 /*
@@ -46,17 +46,17 @@ CREATE PROCEDURE [dbo].[prc_SystemParameterSet] (
     ** Make sure that the @Parameter name exists if it is not NULL.
     */
 
-    IF (@ParameterName IS NOT NULL)
-        IF NOT EXISTS (SELECT *
+    IF (@ParameterName IS NULL
+        OR NOT EXISTS (SELECT *
                          FROM [dbo].[SystemParameters]
                         WHERE [ParameterType] = COALESCE(@ParameterType, '')
                           AND [ParameterName] = @ParameterName
-						  AND [EnvironmentName] = @EnvironmentName)
-            BEGIN
-				SET @msg = '@ParameterName: ' + @ParameterName + ' is not found'; 
-				THROW 50008, @msg, 1;
-				RETURN @FAIL
-            END
+						  AND [EnvironmentName] = @EnvironmentName))
+    BEGIN
+		SET @msg = '@ParameterName: ' + ISNULL(@ParameterName,'null') + ' is not found or null'; 
+		THROW 50008, @msg, 1;
+		RETURN @FAIL
+    END
 
     /*
     ** Set the parameter value.
