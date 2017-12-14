@@ -58,5 +58,17 @@ namespace ETL_Framework.Properties {
                 this["Database"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MaxRuns {
+            get {
+                return ((int)(this["MaxRuns"]));
+            }
+            set {
+                this["MaxRuns"] = value;
+            }
+        }
     }
 }

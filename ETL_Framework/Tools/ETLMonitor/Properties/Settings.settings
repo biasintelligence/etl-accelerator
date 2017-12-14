@@ -11,5 +11,8 @@
     <Setting Name="Database" Type="System.String" Scope="User">
       <Value Profile="(Default)">ETL_Controller</Value>
     </Setting>
+    <Setting Name="MaxRuns" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -118,7 +118,9 @@ namespace ETL_Framework
 
                 cmd.Parameters.Add("@StatusDT", SqlDbType.DateTime);
                 cmd.Parameters.Add("@TheDate", SqlDbType.DateTime);
+                cmd.Parameters.Add("@MaxRuns", SqlDbType.Int);
                 cmd.Parameters["@TheDate"].Value = DateTime.Today.AddDays(-Settings.Default.DaysBack);
+                cmd.Parameters["@MaxRuns"].Value = Settings.Default.MaxRuns;
 
                 cmd.Notification = null;
                 cmd.Parameters["@StatusDT"].Value = m_BatchRunStatusDT;

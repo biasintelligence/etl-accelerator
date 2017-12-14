@@ -70,7 +70,11 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select RunID,BatchID,StatusID, StatusDT from dbo.ETLBatchRun with (nolock) where (StatusDT &gt; @StatusDT or @StatusDT is null) and StatusDT &gt; @TheDate.
+        ///   Looks up a localized string similar to select b.RunID,b.BatchID,b.StatusID, b.StatusDT from dbo.ETLBatchRun b with (nolock)
+        ///join (select batchId,RunId,ROW_NUMBER() over (partition by batchId order by runId desc) as rowId from dbo.ETLBatchRun with (nolock)) r
+        ///on r.batchId = b.batchId and r.runId = b.runId
+        ///where (b.StatusDT &gt; @StatusDT or @StatusDT is null)
+        ///and (b.StatusDT &gt; @TheDate and  r.RowId &lt;= @MaxRuns).
         /// </summary>
         internal static string QueryBatchRun {
             get {
