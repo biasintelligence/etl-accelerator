@@ -74,7 +74,8 @@ namespace ETL_Framework.Properties {
         ///join (select batchId,RunId,ROW_NUMBER() over (partition by batchId order by runId desc) as rowId from dbo.ETLBatchRun with (nolock)) r
         ///on r.batchId = b.batchId and r.runId = b.runId
         ///where (b.StatusDT &gt; @StatusDT or @StatusDT is null)
-        ///and (b.StatusDT &gt; @TheDate and  r.RowId &lt;= @MaxRuns).
+        ///and (b.StatusDT &gt; @TheDate and  r.RowId &lt;= @MaxRuns)
+        ///order by b.batchId,b.runId.
         /// </summary>
         internal static string QueryBatchRun {
             get {
