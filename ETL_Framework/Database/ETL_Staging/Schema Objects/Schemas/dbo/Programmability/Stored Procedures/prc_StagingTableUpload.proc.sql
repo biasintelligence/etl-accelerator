@@ -46,7 +46,8 @@ begin
   2013-05-21		andrey				move type2 filter from join to match clause
   2017-01-21		andrey				fix merge when table has only PK or SPK columns
   2017-03-13		andrey				comment audit calls + allow identity on pk
-  2017-03-30		andrey				remove src/dst db if the same to support azure dbs 
+  2017-03-30		andrey				remove src/dst db if the same to support azure dbs
+  2018-01-10		andrey				replace binary_checksum logic with intersect
 */
 --exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
   
@@ -520,7 +521,8 @@ end catch
    begin
 	   set @sql1 = right(@sql1,len(@sql1) -1)
 	   set @sql2 = right(@sql2,len(@sql2) -1)
-	   set @sql1 = ' and binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
+	   --set @sql1 = ' and binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
+	   set @sql1 = ' and not exists (select ' + @sql1 + ' intersect select ' + @sql2 + ')'
 	   set @query = replace(@query,'<type2checksum>',@sql1)
    end
 
@@ -555,7 +557,8 @@ end catch
 	  begin
 		  set @sql1 = right(@sql1,len(@sql1) -1)
 		  set @sql2 = right(@sql2,len(@sql2) -1)
-		  set @sql1 = ' and (binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
+		  --set @sql1 = ' and (binary_checksum(' + @sql1 + ') <> binary_checksum(' + @sql2 + ')'
+		  set @sql1 = ' and (not exists (select ' + @sql1 + ' intersect select ' + @sql2 + ')'
 					+ case when @ActionCol is not null then ' or dst.' + @ActionCol + ' = 3' else '' end + ')'
       end          
    end
