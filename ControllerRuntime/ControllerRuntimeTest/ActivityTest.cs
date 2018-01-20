@@ -4,6 +4,8 @@ using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using DefaultActivities;
+using AwsActivities;
+using AzureActivities;
 using ControllerRuntime;
 
 using Serilog;

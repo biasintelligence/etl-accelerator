@@ -29,7 +29,7 @@ using Serilog;
 using ControllerRuntime;
 
 
-namespace DefaultActivities
+namespace AwsActivities
 {
     /// <summary>
     /// Gzip compression

@@ -31,7 +31,8 @@ namespace BIAS.Framework.DeltaExtractor
             cm.Name = String.Format(CultureInfo.InvariantCulture, "AdoNet Destination Connection Manager {0}", outputID);
             cm.ConnectionString = dbdst.ConnectionString;
             cm.Description = dbdst.Description;
-            cm.Qualifier = dbdst.DBConnection.Qualifier;
+            if (!String.IsNullOrEmpty(dbdst.DBConnection.Qualifier))
+                cm.Qualifier = dbdst.DBConnection.Qualifier;
 
             IDTSComponentMetaData100 comp = this.MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();

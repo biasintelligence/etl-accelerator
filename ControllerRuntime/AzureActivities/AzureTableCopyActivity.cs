@@ -27,7 +27,7 @@ using System.Data.SqlClient;
 using Serilog;
 using ControllerRuntime;
 
-namespace DefaultActivities
+namespace AzureActivities
 {
     /// <summary>
     /// returns true if file exists

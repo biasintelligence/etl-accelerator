@@ -26,7 +26,7 @@ using Amazon.Runtime;
 using ControllerRuntime;
 using Serilog;
 
-namespace DefaultActivities
+namespace AwsActivities
 {
     /// <summary>
     /// returns true if file exists

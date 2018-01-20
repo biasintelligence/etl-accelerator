@@ -76,7 +76,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.2.5.0\lib\net46\Serilog.dll</HintPath>
+      <HintPath>..\packages\Serilog.2.6.0\lib\net46\Serilog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Serilog.Sinks.Console, Version=3.1.1.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
@@ -106,6 +106,14 @@
     <Compile Include="WFControllerTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AwsActivities\AwsActivities.csproj">
+      <Project>{9955ad31-f61f-4249-a26f-fe1f76a3374e}</Project>
+      <Name>AwsActivities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AzureActivities\AzureActivities.csproj">
+      <Project>{5cec4375-c2cc-4f5d-aa02-cb9cdd70346a}</Project>
+      <Name>AzureActivities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ControllerRuntime\ControllerRuntime.csproj">
       <Project>{236758d4-9381-4ac9-87de-909f89dfba73}</Project>
       <Name>ControllerRuntime</Name>
@@ -120,7 +128,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="TestFiles\ProcessInstall.sql" />
+    <Content Include="TestFiles\AwsActivityProcessInstall.sql" />
+    <Content Include="TestFiles\AzureActivityProcessInstall.sql" />
+    <Content Include="TestFiles\DefaultActivityProcessInstall.sql" />
     <Content Include="TestFiles\TestWorkflow100.sql" />
     <Content Include="TestFiles\TestWorkflow101.sql" />
     <Content Include="TestFiles\TestWorkflow102.sql" />

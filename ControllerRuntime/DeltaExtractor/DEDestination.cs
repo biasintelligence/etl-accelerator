@@ -383,7 +383,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class OleDbDestination : DeDestination
     {
 
-        private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=SSPI;Persist Security Info=False;Auto Translate=False;";
+        private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=SSPI;";
 
         public DBConnection DBConnection { get; set; } 
         public string TableName
@@ -835,7 +835,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class AdoNetDestination : DeDestination
     {
 
-        private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=SSPI;Persist Security Info=False;";
+        private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=SSPI;";
 
         public AdoNetDestinationProperties CustomProperties { get; set; }
         public DBConnection DBConnection { get; set; }
@@ -1003,7 +1003,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class OdbcDestination : DeDestination
     {
 
-        private static string connstr = "server={0};Driver={SQL Server Native Client 10.0};trusted_connection=Yes;app=DE;database={1};";
+        private static string connstr = "server={0};database={1};Driver={SQL Server};trusted_connection=Yes;app=DE;";
         
         public OdbcDestinationProperties CustomProperties { get; set; }
         public DBConnection DBConnection { get; set; }
@@ -1160,7 +1160,7 @@ namespace BIAS.Framework.DeltaExtractor
     [XmlRoot(Namespace = "DeltaExtractor.XSD")]
     public class SqlBulkDestination : DeDestination
     {
-        private static string connstr = "Provider=SQLOLEDB.1;Data Source={0};Initial Catalog={1};Integrated Security=SSPI;Persist Security Info=False;Auto Translate=False;";
+        private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=True;";
 
         public SqlBulkDestinationProperties CustomProperties { get; set; }
         public DBConnection DBConnection { get; set; }

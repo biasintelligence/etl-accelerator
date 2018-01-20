@@ -3,7 +3,7 @@
 **
 **
 **Auth:     Andrey Shishkarev
-**Date:     05/12/2016
+**Date:     10/01/2017
 *******************************************************************
 **      Change History
 *******************************************************************
@@ -20,22 +20,24 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.File;
 
 using Serilog;
 
 using ControllerRuntime;
 
-namespace DefaultActivities
+namespace AzureActivities
 {
     /// <summary>
     /// returns true if file exists
     /// </summary>
-    public class AzureBlobDownloadActivity : IWorkflowActivity
+    public class AzureFileDownloadActivity : IWorkflowActivity
     {
         private const string CONNECTION_STRING = "ConnectionString";
         private const string INPUT_PREFIX = "Prefix";
+        private const string INPUT_MODIFIED = "Modified";
         private const string OUTPUT_FOLDER = "OutputFolder";
-        private const string CONTAINER_NAME = "Container";
+        private const string FILE_SHARE_NAME = "FileShare";
         private const string ACCOUNT_NAME = "AccountName";
         private const string ACCOUNT_KEY = "AccountKey";
         private const string IS_SAS_TOKEN = "isSasToken";
@@ -57,8 +59,9 @@ namespace DefaultActivities
         private List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
             INPUT_PREFIX,
+            INPUT_MODIFIED,
             OUTPUT_FOLDER,
-            CONTAINER_NAME,
+            FILE_SHARE_NAME,
             ACCOUNT_NAME,
             ACCOUNT_KEY,
             IS_SAS_TOKEN,
@@ -140,6 +143,8 @@ namespace DefaultActivities
 
             try
             {
+
+
                 CloudStorageAccount account;
                 if (Boolean.Parse(_attributes[IS_SAS_TOKEN]))
                 {
@@ -152,42 +157,69 @@ namespace DefaultActivities
                     account = new CloudStorageAccount(credentials, useHttps: true);
                 }
 
-                CloudBlobClient blobClient = account.CreateCloudBlobClient();
+                CloudFileClient fileClient = account.CreateCloudFileClient();
 
-                //var container_list = blobClient.ListContainers();
-                //List<string> containerItems = container_list.OfType<CloudBlobContainer>().Select(b => b.Name).ToList();
+                var fileShare = fileClient.GetShareReference(_attributes[FILE_SHARE_NAME]);
+                if (!fileShare.Exists())
+                {
+                    throw new ArgumentException(String.Format("File share {0} is not found", fileShare.Name));
+                }
+
+                string prefix = Path.GetFileName(_attributes[INPUT_PREFIX]);
+                string dir = Path.GetDirectoryName(_attributes[INPUT_PREFIX] + ".filler");
+
+                CloudFileDirectory rootDir = fileShare.GetRootDirectoryReference();
+                if (!fileShare.Exists())
+                {
+                    throw new ArgumentException(String.Format("File share {0} is not found", fileShare.Name));
+                }
 
 
-                CloudBlobContainer container = blobClient.GetContainerReference(_attributes[CONTAINER_NAME]);
-                var list = container.ListBlobs(_attributes[INPUT_PREFIX], true);
-                //List<string> blobParents = list.OfType<CloudBlob>().Select(b => b.Parent.Prefix).Distinct().ToList();
+                bool bModified = !String.IsNullOrEmpty(_attributes[INPUT_MODIFIED]);
+                DateTimeOffset modified = DateTimeOffset.MinValue;
+                if (bModified && !DateTimeOffset.TryParse(_attributes[INPUT_MODIFIED], out modified))
+                {
+                    throw new ArgumentException(String.Format("Invalid Modified filter {0}", _attributes[INPUT_MODIFIED]));
+                }
+
+
+                CloudFileDirectory leafDir = TraverseDirectoryTree(dir, rootDir);
+                var list = leafDir.ListFilesAndDirectories();
+
+                if (!String.IsNullOrEmpty(prefix))
+                    list = list.OfType<CloudFile>().Where(l => l.Name.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase));
+
+                if (bModified)
+                    list = list.OfType<CloudFile>().Where(l => l.Properties.LastModified <= modified);
+
 
                 if (_attributes[SORT_ORDER].Equals(sortList[0], StringComparison.InvariantCultureIgnoreCase))
                 {
-                    list = list.OfType<CloudBlob>().OrderBy(b => b.Name);
+                    list = list.OfType<CloudFile>().OrderBy(l => l.Name);
                 }
-                if (_attributes[SORT_ORDER].Equals(sortList[1], StringComparison.InvariantCultureIgnoreCase))
+                else if (_attributes[SORT_ORDER].Equals(sortList[1], StringComparison.InvariantCultureIgnoreCase))
                 {
-                    list = list.OfType<CloudBlob>().OrderByDescending(b => b.Name);
+                    list = list.OfType<CloudFile>().OrderByDescending(l => l.Name);
                 }
 
                 if (count > 0)
                 {
-                    list = list.OfType<CloudBlob>().Take(count);
+                    list = list.OfType<CloudFile>().Take(count);
                 }
 
                 Dictionary<string, string> files = new Dictionary<string, string>();
                 Directory.CreateDirectory(_attributes[OUTPUT_FOLDER]);
                 int i = 0;
-                foreach (var blobItem in list.OfType<CloudBlob>())
+                foreach (var fileItem in list.OfType<CloudFile>())
                 {
                     token.ThrowIfCancellationRequested();
-                    string outputFile = Path.Combine(_attributes[OUTPUT_FOLDER], blobItem.Name.Replace('/', '-'));
-                    if (File.Exists(outputFile))
+                    string outputFile = Path.Combine(_attributes[OUTPUT_FOLDER], fileItem.Name);
+                    if (!bModified && File.Exists(outputFile))
                         continue;
 
-                    //CloudBlob blob = container.GetBlobReference(blobItem);
-                    blobItem.DownloadToFile(outputFile, FileMode.OpenOrCreate);
+
+                    //CloudFile cloudFile = leafDir.GetFileReference(fileItem); ;
+                    fileItem.DownloadToFile(outputFile, FileMode.OpenOrCreate);
                     if (setCounterInd)
                         files.Add(String.Format("{0}_{1}", _attributes[COUNTER_NAME], i++), outputFile);
                 }
@@ -203,5 +235,29 @@ namespace DefaultActivities
             result = WfResult.Succeeded;
             return result;
         }
+
+        CloudFileDirectory TraverseDirectoryTree(string path, CloudFileDirectory rootDir)
+        {
+            if (String.IsNullOrEmpty(path))
+            {
+                return rootDir;
+            }
+
+            string dir = Path.GetDirectoryName(path);
+            if (!String.IsNullOrEmpty(dir))
+            {
+                return TraverseDirectoryTree(dir, rootDir);
+            }
+
+            string curr = Path.GetFileName(path);
+            CloudFileDirectory curDir = rootDir.GetDirectoryReference(curr);
+            if (!curDir.Exists())
+            {
+                throw new ArgumentException(String.Format("Azure File Directory is not found {0}", path));
+            }
+
+            return curDir;
+        }
+
     }
 }
