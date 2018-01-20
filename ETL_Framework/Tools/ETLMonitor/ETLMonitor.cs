@@ -508,11 +508,15 @@ namespace ETL_Framework
                     m_LogChanged = false;
                     GetLogData();
                 }
+
+                toolStripStatusLabelServer.ForeColor = Color.Empty;
+                toolStripStatusLabelServer.Text = m_dbmon.Server + "/" + m_dbmon.Database;
+
             }
             catch
             {
                 //toolStripStatusLabelServer.Text = ex.Message;
-                toolStripStatusLabelServer.Text = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Lost Connection to {0}/{1}", m_dbmon.Server, m_dbmon.Database);
+                toolStripStatusLabelServer.Text = String.Format(System.Globalization.CultureInfo.InvariantCulture, "Failed to connect to {0}/{1}", m_dbmon.Server, m_dbmon.Database);
                 toolStripStatusLabelServer.ForeColor = Color.Red;
             }
         }
