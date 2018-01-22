@@ -42,31 +42,31 @@ namespace AwsActivities
         private const string TIMEOUT = "Timeout";
 
 
-        private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        private WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
         private ILogger _logger;
         private List<string> _required_attributes = new List<string>() { INPUT_FILE, OUTPUT_FOLDER, TIMEOUT };
 
         #region IWorkflowActivity
-        public string[] RequiredAttributes
+        public IEnumerable<string> RequiredAttributes
         {
-            get { return _required_attributes.ToArray(); }
+            get { return _required_attributes; }
         }
 
         public void Configure(WorkflowActivityArgs args)
         {
             _logger = args.Logger;
 
-            if (_required_attributes.Count != args.RequiredAttributes.Length)
+            if (_required_attributes.Count != args.RequiredAttributes.Count)
             {
                 //_logger.WriteError(String.Format("Not all required attributes are provided"), -11);
                 throw new ArgumentException("Not all required attributes are provided");
             }
 
 
-            foreach (WorkflowAttribute attribute in args.RequiredAttributes)
+            foreach (var attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
-                    _attributes.Add(attribute.Name, attribute.Value);
+                if (_required_attributes.Contains(attribute.Key))
+                    _attributes.Add(attribute.Key, attribute.Value);
             }
 
             _logger.Information("Bson : {From} => {To}", _attributes[INPUT_FILE], _attributes[OUTPUT_FOLDER]);

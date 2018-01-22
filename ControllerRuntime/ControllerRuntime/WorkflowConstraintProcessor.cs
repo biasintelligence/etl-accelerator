@@ -29,12 +29,14 @@ namespace ControllerRuntime
     public class WorkflowConstraintProcessor
     {
         private DBController _db;
+        private WorkflowProcessor _wfp;
         private WorkflowConstraint _item;
 
         private ILogger _logger;
-        public WorkflowConstraintProcessor(WorkflowConstraint item, DBController db)
+        public WorkflowConstraintProcessor(WorkflowConstraint item, WorkflowProcessor wfp)
         {
-            _db = db;
+            _wfp = wfp;
+            _db = wfp.DBController;
             _item = item;
 
             _logger = Log.Logger
@@ -52,7 +54,9 @@ namespace ControllerRuntime
 
             WfResult result = WfResult.Unknown;
             var cts = new CancellationTokenSource();
-            WorkflowAttribute[] attributes = _db.WorkflowAttributeCollectionGet(_item.WorkflowId, _item.StepId, _item.ConstId, _item.RunId);
+            WorkflowAttributeCollection attributes = _db.WorkflowAttributeCollectionGet(_item.WorkflowId, _item.StepId, _item.ConstId, _item.RunId);
+            attributes.Merge(_wfp.Attributes);
+
             WorkflowActivity activity = new WorkflowActivity(_item.Process, attributes, _logger);
 
             TimeSpan timeout = TimeSpan.FromSeconds((_item.WaitPeriod <= 0) ? 7200 : _item.WaitPeriod);

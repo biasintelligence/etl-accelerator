@@ -62,13 +62,13 @@ namespace ControllerRuntime
         }
 
         [XmlArray("Attributes")]
-        [XmlArrayItem("Attribute", typeof(WorkflowAttribute))]
-        public WorkflowAttribute[] Attributes
+        [XmlArrayItem("Attribute", typeof(MetadataAttribute))]
+        public MetadataAttribute[] Attributes
         {
             get { return this.const_attributes; }
             set { this.const_attributes = value; }
         }
-        private WorkflowAttribute[] const_attributes;
+        private MetadataAttribute[] const_attributes;
 
         private string const_order;
         [XmlAttribute("ConstOrder")]

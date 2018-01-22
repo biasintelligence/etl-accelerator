@@ -74,12 +74,12 @@ union all select @BatchID,'TestFileNameExt'	,'.txt'
 --create batch level constraints
 -------------------------------------------------------
 
-set identity_insert dbo.ETLBatchConstraint on
+--set identity_insert dbo.ETLBatchConstraint on
 
 insert dbo.ETLBatchConstraint
 (ConstID,BatchID,ProcessID,ConstOrder,WaitPeriod)
 		  select 1,@BatchID,22,'01',30
-set identity_insert dbo.ETLBatchConstraint off
+--set identity_insert dbo.ETLBatchConstraint off
 
 insert dbo.ETLBatchConstraintAttribute
 (ConstID,BatchID,AttributeName,AttributeValue)

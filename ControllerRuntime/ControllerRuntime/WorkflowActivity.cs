@@ -29,7 +29,7 @@ namespace ControllerRuntime
     public class WorkflowActivityArgs
     {
 
-        public WorkflowAttribute[] RequiredAttributes
+        public WorkflowAttributeCollection RequiredAttributes
         { get; set; }
 
         public ILogger Logger
@@ -54,14 +54,14 @@ namespace ControllerRuntime
 
         private WorkflowProcess _process;
         private ILogger _logger;
-        Dictionary<string, WorkflowAttribute> _attributes = new Dictionary<string, WorkflowAttribute>(StringComparer.InvariantCultureIgnoreCase);
+        WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
 
-        public WorkflowActivity(WorkflowProcess process, WorkflowAttribute[] attributes, ILogger logger)
+        public WorkflowActivity(WorkflowProcess process, WorkflowAttributeCollection attributes, ILogger logger)
         {
             _process = process;
             _logger = logger;
 
-            LoadAttributes(attributes);
+            _attributes.Merge(attributes);
 
         }
 
@@ -74,7 +74,7 @@ namespace ControllerRuntime
                 activity = LoadActivity();
 
                 //get the list of the required attributes from Activity
-                string[] required = activity.RequiredAttributes;
+                List<string> required = new List<string>(activity.RequiredAttributes);
                 //check if we have what we need
                 WorkflowActivityArgs activity_args = new WorkflowActivityArgs();
                 if (!ProcessAttributeRequest(activity_args, required))
@@ -99,7 +99,7 @@ namespace ControllerRuntime
 
             string activity_path = String.Empty;
             if (_attributes.Keys.Contains(ACTIVITY_LOCATION))
-                activity_path = _attributes[ACTIVITY_LOCATION].Value;
+                activity_path = _attributes[ACTIVITY_LOCATION];
 
             string[] activity_name = _process.Process.Split('.');
             string activity_dll = activity_name[0] + ".dll";
@@ -157,21 +157,13 @@ namespace ControllerRuntime
             return activity;
         }
 
-        private void LoadAttributes(WorkflowAttribute[] attributes)
-        {
-            foreach (WorkflowAttribute att in attributes)
-            {
-                _attributes.Add(att.Name, att);
-            }
-        }
-
-        private bool ProcessAttributeRequest(WorkflowActivityArgs args, string[] required)
+        private bool ProcessAttributeRequest(WorkflowActivityArgs args, List<string> required)
         {
             bool ret = true;
-            List<WorkflowAttribute> found = new List<WorkflowAttribute>();
+            WorkflowAttributeCollection found = new WorkflowAttributeCollection();
             List<string> attr_list = new List<string>();
 
-            if (required != null && required.Length > 0)
+            if (required != null && required.Count > 0)
             {
 
                 IList<WorkflowParameter> list = _process.Parameters;
@@ -187,7 +179,7 @@ namespace ControllerRuntime
                         {
                             if (_attributes.Keys.Contains(attr_name))
                             {
-                                found.Add(new WorkflowAttribute(name, _attributes[attr_name].Value));
+                                found.Add(name,_attributes[attr_name]);
                                 ret = true;
                                 break;
                             }
@@ -197,7 +189,7 @@ namespace ControllerRuntime
                     {
                         if (_attributes.Keys.Contains(name))
                         {
-                            found.Add(new WorkflowAttribute(name, _attributes[name].Value));
+                            found.Add(name, _attributes[name]);
                             ret = true;
                         }
                     }
@@ -211,13 +203,13 @@ namespace ControllerRuntime
                         }
                         else
                         {
-                            found.Add(new WorkflowAttribute(name, curr_param.Default));
+                            found.Add(name, curr_param.Default);
                         }
                     }
                 }
             }
 
-            args.RequiredAttributes = found.ToArray();
+            args.RequiredAttributes = found;
             return ret;
         }
     }

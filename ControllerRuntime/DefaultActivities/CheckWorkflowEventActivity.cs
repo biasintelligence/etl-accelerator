@@ -36,36 +36,36 @@ namespace DefaultActivities
         protected const string TIMEOUT = "Timeout";
 
 
-        protected Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        protected WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
         protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>() { EVENT_TYPE, CONNECTION_STRING, WATERMARK_EVENT_TYPE, TIMEOUT };
 
 
-        public string[] RequiredAttributes
+        public IEnumerable<string> RequiredAttributes
         {
-            get { return _required_attributes.ToArray(); }
+            get { return _required_attributes; }
         }
 
         public virtual void Configure(WorkflowActivityArgs args)
         {
             _logger = args.Logger;
 
-            if (_required_attributes.Count != args.RequiredAttributes.Length)
+            if (_required_attributes.Count != args.RequiredAttributes.Count)
             {
                 //_logger.WriteError(String.Format("Not all required attributes are provided"), -11);
                 throw new ArgumentException("Not all required attributes are provided");
             }
 
 
-            foreach (WorkflowAttribute attribute in args.RequiredAttributes)
+            foreach (var attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
-                    _attributes.Add(attribute.Name, attribute.Value);
+                if (_required_attributes.Contains(attribute.Key))
+                    _attributes.Add(attribute.Key, attribute.Value);
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
             _logger.Debug("EventServer: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
-           _logger.Debug("EventType: {Type}", _attributes[EVENT_TYPE]);
+            _logger.Debug("EventType: {Type}", _attributes[EVENT_TYPE]);
             _logger.Debug("WatermarkEventType: {Type}", _attributes[WATERMARK_EVENT_TYPE]);
 
         }

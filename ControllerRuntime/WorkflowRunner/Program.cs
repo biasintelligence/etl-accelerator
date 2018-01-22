@@ -40,13 +40,17 @@ namespace WorkflowRunner
                 return 0;
             }
 
-            List<string> options = new List<string>();
+            WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
+            attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, args[0].Replace("\"", ""));
+            attributes.Add(WorkflowConstants.ATTRIBUTE_DEBUG, "false");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_VERBOSE, "false");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_FORCESTART, "false");
 
             var minLogLevel = LogEventLevel.Information;
             //bool debug = false;
             if (args.Contains(@"/D", StringComparer.InvariantCultureIgnoreCase))
             {
-                options.Add("debug");
+                attributes[WorkflowConstants.ATTRIBUTE_DEBUG]= "true";
                 //debug = true;
                 minLogLevel = LogEventLevel.Debug;
             }
@@ -54,14 +58,14 @@ namespace WorkflowRunner
             //bool forcestart = false;
             if (args.Contains(@"/R", StringComparer.InvariantCultureIgnoreCase))
             {
-                options.Add("forcestart");
+                attributes[WorkflowConstants.ATTRIBUTE_FORCESTART] = "true";
                 //forcestart = true;
             }
 
             bool verbose = false;
             if (args.Contains(@"/V", StringComparer.InvariantCultureIgnoreCase))
             {
-                options.Add("verbose");
+                attributes[WorkflowConstants.ATTRIBUTE_VERBOSE] = "true";
                 verbose = true;
             }
 
@@ -69,10 +73,14 @@ namespace WorkflowRunner
             var settings = ConfigurationManager.AppSettings;
             string connectionString = settings["Controller"];
 
+            attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
+
+
             string runnerName = settings["Runner"];
             if (String.IsNullOrEmpty(runnerName))
                 runnerName = "Default";
 
+            attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);
 
 
             if (verbose)
@@ -89,10 +97,9 @@ namespace WorkflowRunner
 
             try
             {
-                WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
-                wfp.WorkflowName = args[0].Replace("\"", "");
-                wfp.ConnectionString = connectionString;
-                WfResult wr = wfp.Run(options.ToArray());
+                WorkflowProcessor wfp = new WorkflowProcessor();
+                wfp.Attributes.Merge(attributes);
+                WfResult wr = wfp.Run();
                 if (wr.StatusCode != WfStatus.Succeeded)
                     return 1;
             }

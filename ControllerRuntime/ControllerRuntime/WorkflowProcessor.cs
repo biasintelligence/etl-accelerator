@@ -26,86 +26,7 @@ using Serilog.Events;
 
 namespace ControllerRuntime
 {
-
-    public enum WfStatus
-    {
-        Unknown,
-        Running,
-        Suspended,
-        Succeeded,
-        Failed,
-        Disabled
-    }
     
-    /// <summary>
-    /// Workflow Result class. Workflow Status communication token. 
-    /// </summary>
-    public class WfResult
-    {
-
-        protected WfResult (WfStatus Status, string Message, int Error)
-        {
-            this.StatusCode = Status;
-            this.Message = Message;
-            this.ErrorCode = Error;
-        }
-
-        public static WfResult Create(WfStatus Status, string Message, int Error)
-        {
-            return new WfResult (Status, Message, Error);
-        }
-
-         public static WfResult Create(WfResult result)
-        {
-            return new WfResult (result.StatusCode, result.Message, result.ErrorCode);
-        }
-
-        public static WfResult Started
-        { get { return new WfResult(WfStatus.Running, "Started", 0); } }
-
-        public static WfResult Succeeded
-        { get { return new WfResult(WfStatus.Succeeded, "Succeeded", 0); } }
-
-        public static WfResult Canceled
-        { get { return new WfResult(WfStatus.Failed, "Canceled", 0); } }
-
-        public static WfResult Failed
-        { get { return new WfResult(WfStatus.Failed, "Failed", -1); } }
-
-        public static WfResult Paused
-        { get { return new WfResult(WfStatus.Suspended, "Paused", 0); } }
-        public static WfResult Unknown
-        { get { return new WfResult(WfStatus.Unknown, "Not Started", 0); } }
-
-        public void SetTo(WfResult result)
-        {
-            this.StatusCode = result.StatusCode;
-            this.Message = result.Message;
-            this.ErrorCode = result.ErrorCode;
-        }
-
-
-        public WfStatus StatusCode
-        {
-            get{return wf_status;}
-            set{wf_status = value;}
-        }
-        private WfStatus wf_status = WfStatus.Unknown;
-
-        public string Message
-        { get; set; }
-
-        public int ErrorCode
-        { get; set; }
-
-        public void Clear()
-        {
-            ErrorCode = 0;
-            Message = String.Empty;
-            StatusCode = WfStatus.Unknown;
-        }
-
-    }
     /// <summary>
     /// Workflow Processor.
     /// Request steps from Workflow Step dispatcher (WorkflowGrath)
@@ -113,6 +34,7 @@ namespace ControllerRuntime
     /// </summary>
     public class WorkflowProcessor :IWorkflowCommand, IDisposable
     {
+
         private DBController _db;
         private WorkflowGraph _wfg;
         private Workflow _wf;
@@ -130,21 +52,22 @@ namespace ControllerRuntime
 
         private ILogger _logger;
 
-        public WorkflowProcessor (string Name)
+        public WorkflowProcessor ()
         {
-            _processor_name = Name;
             _logger = Log.Logger;
         }
-
-        private string _processor_name = "Default";
         public string ProcessorName
-        { get { return _processor_name; } }
+        { get; private set; } = "Default";
+
+        public DBController DBController
+        { get { return _db; } }
+
 
         public string ConnectionString
-        { get; set;}
+        { get; private set; } = string.Empty;
 
         public string WorkflowName
-        { get; set; }
+        { get; private set; } = string.Empty;
 
         public IWorkflowCommand GetStepCommand(string Key)
         {
@@ -154,10 +77,17 @@ namespace ControllerRuntime
             return null;
         }
 
-        public WfResult Run(string[] Options)
+        private readonly WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
+        public WorkflowAttributeCollection Attributes
+        {
+            get {return _attributes; }
+        }
+
+        public WfResult Run()
         {
 
-            SetOptions(Options);
+            WfResult result = WfResult.Unknown;
+            SetOptions();
             WorkflowStep step = null;
             try
             {
@@ -167,7 +97,7 @@ namespace ControllerRuntime
 
                 _logger = _logger.ForContext("WorkflowId", _wf.WorkflowId);
  
-                _is_initialized = _db.WorkflowInitialize(_processor_name, _wf, _forcestart);
+                _is_initialized = _db.WorkflowInitialize(ProcessorName, _wf, _forcestart);
 
                 _logger = _logger.ForContext("RunId", _wf.RunId);
 
@@ -224,7 +154,8 @@ namespace ControllerRuntime
 
                     if (!_step_command.ContainsKey(step.Key))
                     {
-                        _step_command.Add(step.Key, new WorkflowStepProcessor(step, _db));
+                        var stepProcessor = new WorkflowStepProcessor(step, this);
+                        _step_command.Add(step.Key, stepProcessor);
                     }
 
                     _tasks.Add(step.Key,
@@ -273,12 +204,12 @@ namespace ControllerRuntime
                 {
                     _logger.Error(ex,"InnerException: {Message}", ex.Message);
                 }
-                //return WfResult.Create(WfStatus.Failed, aex.Message, -10);
+                result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
             }
             catch (Exception ex)
             {
                 _logger.Error(ex,"Exception: {Message}", ex.Message);
-                //return WfResult.Create(WfStatus.Failed, ex.Message, -10);
+                result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
             }
             finally
             {
@@ -290,19 +221,41 @@ namespace ControllerRuntime
                 }
             }
 
-            return (_wfg == null) ? WfResult.Failed : _wfg.WorkflowCompleteStatus;
+            return (_wfg == null) ? result : _wfg.WorkflowCompleteStatus;
         }
-
-
-        private void SetOptions(string[] options)
+        private void SetOptions()
         {
-            List<string> option_list = new List<string>(options);
-            if (option_list.Contains("debug", StringComparer.InvariantCultureIgnoreCase))
-                _debug = true;
-            if (option_list.Contains("verbose", StringComparer.InvariantCultureIgnoreCase))
-                _verbose = true;
-            if (option_list.Contains("forcestart",StringComparer.InvariantCultureIgnoreCase))
-                _forcestart = true;
+
+            string attributeValue;
+            if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, out attributeValue))
+            {
+                ProcessorName = attributeValue;
+            }
+
+            if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_DEBUG, out attributeValue))
+            {
+                _debug = Boolean.Parse(attributeValue);
+            }
+
+            if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_VERBOSE, out attributeValue))
+            {
+                _verbose = Boolean.Parse(attributeValue);
+            }
+
+            if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_FORCESTART, out attributeValue))
+            {
+                _forcestart = Boolean.Parse(attributeValue);
+            }
+
+            if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, out attributeValue))
+            {
+                WorkflowName = attributeValue;
+            }
+
+            if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, out attributeValue))
+            {
+                ConnectionString = attributeValue;
+            }
 
         }
 

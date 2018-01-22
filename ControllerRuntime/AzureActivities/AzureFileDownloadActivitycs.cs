@@ -54,7 +54,7 @@ namespace AzureActivities
         private const int MAX_COUNT = 0;
 
 
-        private Dictionary<string, string> _attributes = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        private WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
         private ILogger _logger;
         private List<string> _required_attributes = new List<string>()
         { CONNECTION_STRING,
@@ -75,35 +75,35 @@ namespace AzureActivities
         };
 
 
-        public string[] RequiredAttributes
+        public IEnumerable<string> RequiredAttributes
         {
-            get { return _required_attributes.ToArray(); }
+            get { return _required_attributes; }
         }
 
         public void Configure(WorkflowActivityArgs args)
         {
             _logger = args.Logger;
 
-            if (_required_attributes.Count != args.RequiredAttributes.Length)
+            if (_required_attributes.Count != args.RequiredAttributes.Count)
             {
                 //_logger.WriteError(String.Format("Not all required attributes are provided"), -11);
                 throw new ArgumentException("Not all required attributes are provided");
             }
 
 
-            foreach (WorkflowAttribute attribute in args.RequiredAttributes)
+            foreach (var attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Name, StringComparer.InvariantCultureIgnoreCase))
+                if (_required_attributes.Contains(attribute.Key))
                 {
-                    if (attribute.Name.Equals(SORT_ORDER, StringComparison.InvariantCultureIgnoreCase))
+                    if (attribute.Key.Equals(SORT_ORDER))
                     {
-                        if (!sortList.Contains<string>(attribute.Value, StringComparer.InvariantCultureIgnoreCase))
+                        if (!sortList.Contains<string>(attribute.Value))
                         {
                             throw new ArgumentException(String.Format("Invalid SortOrder:{0}. Supported: Asc,Desc.", attribute.Value));
                         }
 
                     }
-                    _attributes.Add(attribute.Name, attribute.Value);
+                    _attributes.Add(attribute.Key, attribute.Value);
                 }
 
             }

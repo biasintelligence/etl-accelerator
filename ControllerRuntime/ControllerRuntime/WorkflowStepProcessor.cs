@@ -32,14 +32,16 @@ namespace ControllerRuntime
     /// </summary>
     public class WorkflowStepProcessor : IWorkflowCommand, IDisposable
     {
+        private WorkflowProcessor _wfp;
         private DBController _db;
         private WorkflowStep _step;
         private CancellationTokenSource _cts = new CancellationTokenSource();
         private WfResult _status = WfResult.Unknown;
         private ILogger _logger;
-        public WorkflowStepProcessor(WorkflowStep item, DBController db)
+        public WorkflowStepProcessor(WorkflowStep item, WorkflowProcessor wfp)
         {
-            _db = db;
+            _wfp = wfp;
+            _db = wfp.DBController;
             _step = item;
 
             _logger = Log.Logger
@@ -71,7 +73,7 @@ namespace ControllerRuntime
 
                         wfc.WorkflowId = _step.WorkflowId;
                         wfc.RunId = _step.RunId;
-                        WorkflowConstraintProcessor wcp = new WorkflowConstraintProcessor(wfc, _db);
+                        WorkflowConstraintProcessor wcp = new WorkflowConstraintProcessor(wfc, _wfp);
 
                         using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
                         {
@@ -88,7 +90,7 @@ namespace ControllerRuntime
                     }
                 }
 
-                WorkflowAttribute[] attributes = null;
+                WorkflowAttributeCollection attributes = null;
                 if (_step.StepProcess != null)
                 {
                     if ((_step.StepProcess.ScopeId & 3) == 0)
@@ -96,6 +98,7 @@ namespace ControllerRuntime
 
                     //Run Step Activity here
                     attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.RunId);
+                    attributes.Merge(_wfp.Attributes);
                     WorkflowActivity step_activity = new WorkflowActivity(_step.StepProcess, attributes, _logger);
                     IWorkflowActivity step_runner = step_activity.Activate();
                     using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))

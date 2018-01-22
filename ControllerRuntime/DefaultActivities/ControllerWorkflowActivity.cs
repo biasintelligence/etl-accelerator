@@ -3,13 +3,12 @@
 **
 **
 **Auth:     Andrey Shishkarev
-**Date:     02/20/2015
+**Date:     01/20/2018
 *******************************************************************
 **      Change History
 *******************************************************************
 **  Date:            Author:            Description:
 *******************************************************************
-    6/7/2017        andrey              add with nowait to command InfoMessage
 
  */
 
@@ -30,16 +29,21 @@ namespace DefaultActivities
     /// <summary>
     /// Exceute SqlClient ExecuteNonQuery function 
     /// </summary>
-    public class SqlServerActivity : IWorkflowActivity
+    public class ControllerWorkflowActivity : IWorkflowActivity
     {
-        protected const string CONNECTION_STRING = "ConnectionString";
-        protected const string QUERY_STRING = "Query";
+        protected const string CONNECTION_STRING = WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING;
+        protected const string PROCESSOR_NAME = WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME;
+        protected const string PROCESSOR_MODE_DEBUG = WorkflowConstants.ATTRIBUTE_DEBUG;
+        protected const string PROCESSOR_MODE_VERBOSE = WorkflowConstants.ATTRIBUTE_VERBOSE;
+        protected const string PROCESSOR_MODE_FORCESTART = WorkflowConstants.ATTRIBUTE_FORCESTART;
+        protected const string WORKFLOW_NAME = "WorkflowName";
         protected const string TIMEOUT = "Timeout";
 
 
         protected WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
         protected ILogger _logger;
-        protected List<string> _required_attributes = new List<string>() { QUERY_STRING, CONNECTION_STRING, TIMEOUT };
+        protected List<string> _required_attributes = new List<string>()
+        { WORKFLOW_NAME, CONNECTION_STRING, TIMEOUT, PROCESSOR_NAME,PROCESSOR_MODE_DEBUG,PROCESSOR_MODE_VERBOSE,PROCESSOR_MODE_FORCESTART};
 
 
         public IEnumerable<string> RequiredAttributes
@@ -65,8 +69,10 @@ namespace DefaultActivities
             }
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(_attributes[CONNECTION_STRING]);
-            _logger.Debug("SqlServer: {Server}.{Database}", builder.DataSource,builder.InitialCatalog);
-            _logger.Debug("Query: {Query}", _attributes[QUERY_STRING]);
+            _logger.Debug("Controller: {Server}.{Database}", builder.DataSource, builder.InitialCatalog);
+            _logger.Debug("Workflow: {WF}", _attributes[WORKFLOW_NAME]);
+            _logger.Debug("Mode: ProcessorName:{ProcessorName}, Debug:{Debug}, Verbose:{Verbose}, Forcestart:{Forstart}"
+                , _attributes[PROCESSOR_NAME], _attributes[PROCESSOR_MODE_DEBUG], _attributes[PROCESSOR_MODE_VERBOSE], _attributes[PROCESSOR_MODE_FORCESTART]);
 
         }
 
@@ -75,35 +81,27 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
-            using (SqlConnection cn = new SqlConnection(_attributes[CONNECTION_STRING]))
+            try
             {
-                try
-                {
-                    cn.InfoMessage += new SqlInfoMessageEventHandler(OnInfoMessage);
-                    cn.FireInfoMessageEventOnUserErrors = false;
-                    cn.Open();
-                    using (SqlCommand cmd = new SqlCommand(_attributes[QUERY_STRING], cn))
-                    {
-                        cmd.CommandTimeout = Int32.Parse(_attributes[TIMEOUT]);
-                        using (token.Register(cmd.Cancel))
-                        {
-                            cmd.ExecuteNonQuery();
-                        }
-                        result = WfResult.Succeeded;
-                    }
-                }
-                catch (SqlException ex)
-                {
-                    throw ex;
-                    //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
-                    //result = WfResult.Create(WfStatus.Failed, ex.Message, ex.ErrorCode);
-                }
-                finally
-                {
-                    if (cn.State != ConnectionState.Closed)
-                        cn.Close();
+                WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
+                attributes.Add(PROCESSOR_NAME, _attributes[PROCESSOR_NAME]);
+                attributes.Add(PROCESSOR_MODE_DEBUG, _attributes[PROCESSOR_MODE_DEBUG]);
+                attributes.Add(PROCESSOR_MODE_VERBOSE, _attributes[PROCESSOR_MODE_VERBOSE]);
+                attributes.Add(PROCESSOR_MODE_FORCESTART, _attributes[PROCESSOR_MODE_FORCESTART]);
+                attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, _attributes[WORKFLOW_NAME]);
+                attributes.Add(CONNECTION_STRING, _attributes[CONNECTION_STRING]);
 
-                }
+                WorkflowProcessor wfp = new WorkflowProcessor();
+                wfp.Attributes.Merge(attributes);
+                result = wfp.Run();
+                _logger.Information("Activity finished with result {WfStatus}: {Message}", result.StatusCode, result.Message);
+
+            }
+            catch (SqlException ex)
+            {
+                throw ex;
+                //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
+                //result = WfResult.Create(WfStatus.Failed, ex.Message, ex.ErrorCode);
             }
             return result;
         }

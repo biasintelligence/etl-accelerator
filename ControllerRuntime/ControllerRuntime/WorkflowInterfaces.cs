@@ -43,7 +43,7 @@ namespace ControllerRuntime
     public interface IWorkflowActivity
     {
         // Log message
-        string[] RequiredAttributes
+        IEnumerable<string> RequiredAttributes
         { get; }
 
         void Configure(WorkflowActivityArgs args);

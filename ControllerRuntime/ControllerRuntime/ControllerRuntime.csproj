@@ -96,9 +96,12 @@
     <Compile Include="DBController.cs" />
     <Compile Include="Logging\ControllerLogger.cs" />
     <Compile Include="Logging\LoggerConfigurationExtention.cs" />
+    <Compile Include="MetadataAttribute.cs" />
+    <Compile Include="MetadataAttributeCollection.cs" />
     <Compile Include="WorkflowActivity.cs" />
     <Compile Include="WorkflowActivityParameters.cs" />
-    <Compile Include="WorkflowAttribute.cs" />
+    <Compile Include="WorkflowAttributeCollection.cs" />
+    <Compile Include="WorkflowConstants.cs" />
     <Compile Include="WorkflowConstraintProcessor.cs" />
     <Compile Include="WorkflowGraph.cs" />
     <Compile Include="WorkflowInterfaces.cs" />
@@ -109,6 +112,7 @@
     <Compile Include="Workflow.cs" />
     <Compile Include="WorkflowConstraint.cs" />
     <Compile Include="WorkflowProcessor.cs" />
+    <Compile Include="WorkflowResult.cs" />
     <Compile Include="WorkflowStep.cs" />
     <Compile Include="WorkflowStepProcessor.cs" />
   </ItemGroup>

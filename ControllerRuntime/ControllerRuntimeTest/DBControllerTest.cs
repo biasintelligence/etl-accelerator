@@ -120,16 +120,18 @@ namespace ControllerRuntimeTest
         public void Test_Workflow_Processor_Run_Ok()
         {
 
-            WorkflowProcessor wfp = new WorkflowProcessor("TestRunner");
-            wfp.ConnectionString = connectionString;
-            wfp.WorkflowName = "Test100";
-            string[] options = new string[]
-            {
-                "debug",
-                "verbose",
-                "forcestart"
-            };
-            WfResult wr = wfp.Run(options);
+            WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
+            attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, "TestRunner");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_DEBUG, "true");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_VERBOSE, "true");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_FORCESTART, "true");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
+            attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, "Test100");
+
+            WorkflowProcessor wfp = new WorkflowProcessor();
+            wfp.Attributes.Merge(attributes);
+
+            WfResult wr = wfp.Run();
             Assert.IsTrue(wr.StatusCode == WfStatus.Succeeded);
         }
 
@@ -159,8 +161,8 @@ namespace ControllerRuntimeTest
         public void Test_Workflow_Attributes_Get_Ok()
         {
             DBController db = DBController.Create(connectionString);
-            WorkflowAttribute[] attributes = db.WorkflowAttributeCollectionGet(100, 1, 0, 0);
-            Assert.IsTrue(attributes.Length > 0);
+            WorkflowAttributeCollection attributes =db.WorkflowAttributeCollectionGet(100, 1, 0, 0);
+            Assert.IsTrue(attributes.Count > 0);
         }
 
     }

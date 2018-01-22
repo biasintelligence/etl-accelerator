@@ -145,13 +145,13 @@ namespace ControllerRuntime
         private WorkflowConstraint[] step_constraints;
 
         [XmlArray("Attributes")]
-        [XmlArrayItem("Attribute", typeof(WorkflowAttribute))]
-        public WorkflowAttribute[] StepAttributes
+        [XmlArrayItem("Attribute", typeof(MetadataAttribute))]
+        public MetadataAttribute[] StepAttributes
         {
             get { return this.step_attributes; }
             set { this.step_attributes = value; }
         }
-        private WorkflowAttribute[] step_attributes;
+        private MetadataAttribute[] step_attributes;
 
         private string step_name;
         [XmlAttribute("StepName")]

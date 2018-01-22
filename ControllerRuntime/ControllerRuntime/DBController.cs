@@ -612,7 +612,7 @@ ELSE
         /// <param name="ConstId"></param>
         /// <param name="RunId"></param>
         /// <returns></returns>
-        public WorkflowAttribute[] WorkflowAttributeCollectionGet(int WfId, int StepId, int ConstId, int RunId)
+        public WorkflowAttributeCollection WorkflowAttributeCollectionGet(int WfId, int StepId, int ConstId, int RunId)
         {
 
             WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
@@ -638,7 +638,7 @@ ELSE
                         xml_string = xml.ToString();
                     }
 
-                    attributes = WorkflowAttributeCollection.DeSerializefromXml(xml_string);
+                    attributes = new WorkflowAttributeCollection(MetadataAttributeCollection.DeSerializefromXml(xml_string));
                 }
                 catch (Exception ex)
                 {
@@ -652,7 +652,7 @@ ELSE
 
             }
 
-            return attributes.Attributes;
+            return attributes;
         }
 
         private void ExecuteNonQuery(string cmd_text)

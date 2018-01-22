@@ -24,11 +24,20 @@ namespace ControllerRuntimeTest
                 .CreateLogger();
 
             string runnerName = "UTTest";
-            string WFName = "Test100";
-            WorkflowProcessor wfp = new WorkflowProcessor(runnerName);
-            wfp.ConnectionString = connectionString;
-            wfp.WorkflowName = WFName;
-            WfResult wr = wfp.Run(new string[] { "debug", "forcestart" });
+            string WFName = "Test104";
+
+            WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
+            attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);
+            attributes.Add(WorkflowConstants.ATTRIBUTE_DEBUG, "true");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_VERBOSE, "false");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_FORCESTART, "true");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
+            attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, WFName);
+
+            WorkflowProcessor wfp = new WorkflowProcessor();
+            wfp.Attributes.Merge(attributes);
+
+            WfResult wr = wfp.Run();
             Assert.IsTrue(wr.StatusCode == WfStatus.Succeeded);
 
         }

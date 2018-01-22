@@ -42,13 +42,13 @@ namespace ControllerRuntime
         { get; set; }
 
         [XmlArray("Attributes")]
-        [XmlArrayItem("Attribute", typeof(WorkflowAttribute))]
-        public WorkflowAttribute[] WorkflowAttributes
+        [XmlArrayItem("Attribute", typeof(MetadataAttribute))]
+        public MetadataAttribute[] WorkflowAttributes
         {
             get { return this.wf_attributes; }
             set { this.wf_attributes = value; }
         }
-        private WorkflowAttribute[] wf_attributes;
+        private MetadataAttribute[] wf_attributes;
 
         private WorkflowProcess wf_on_success_process;
         [XmlElement("OnSuccess")]
