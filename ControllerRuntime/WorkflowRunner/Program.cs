@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Configuration;
 
@@ -98,10 +99,11 @@ namespace WorkflowRunner
             try
             {
                 WfResult wr = WfResult.Unknown;
+                using (CancellationTokenSource cts = new CancellationTokenSource())
                 using (WorkflowProcessor wfp = new WorkflowProcessor())
                 {
                     wfp.Attributes.Merge(attributes);
-                    wr = wfp.Run();
+                    wr = wfp.Run(cts.Token);
                 }
 
                 if (wr.StatusCode != WfStatus.Succeeded)

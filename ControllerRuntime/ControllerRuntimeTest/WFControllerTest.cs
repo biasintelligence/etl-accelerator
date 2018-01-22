@@ -34,10 +34,15 @@ namespace ControllerRuntimeTest
             attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
             attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, WFName);
 
-            WorkflowProcessor wfp = new WorkflowProcessor();
-            wfp.Attributes.Merge(attributes);
 
-            WfResult wr = wfp.Run();
+            WfResult wr = WfResult.Unknown;
+            using (CancellationTokenSource cts = new CancellationTokenSource())
+            using (WorkflowProcessor wfp = new WorkflowProcessor())
+            {
+                wfp.Attributes.Merge(attributes);
+                wr = wfp.Run(cts.Token);
+            }
+
             Assert.IsTrue(wr.StatusCode == WfStatus.Succeeded);
 
         }

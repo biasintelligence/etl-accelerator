@@ -94,7 +94,7 @@ namespace DefaultActivities
                 using (WorkflowProcessor wfp = new WorkflowProcessor())
                 {
                     wfp.Attributes.Merge(attributes);
-                    result = wfp.Run();
+                    result = wfp.Run(token);
                     _logger.Information("Activity finished with result {WfStatus}: {Message}", result.StatusCode, result.Message);
                 }
 

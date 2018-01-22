@@ -38,17 +38,19 @@ namespace ControllerRuntime
         private DBController _db;
         private WorkflowGraph _wfg;
         private Workflow _wf;
-        private CancellationTokenSource _cts = new CancellationTokenSource();
 
         //<stepKey,Task>
         Dictionary<string, Task> _tasks = new Dictionary<string, Task>();
         Dictionary<string, WorkflowStepProcessor> _step_command = new Dictionary<string, WorkflowStepProcessor>();
         Task cancel_task;
 
+        CancellationTokenSource _cts = new CancellationTokenSource();
+
         private bool _is_initialized = false;
         private bool _debug = false;
         private bool _verbose = false;
         private bool _forcestart = false;
+        private bool _is_disposed = false;
 
         private ILogger _logger;
 
@@ -83,8 +85,10 @@ namespace ControllerRuntime
             get {return _attributes; }
         }
 
-        public WfResult Run()
+        public WfResult Run(CancellationToken Token)
         {
+
+            _cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
 
             WfResult result = WfResult.Unknown;
             SetOptions();
@@ -124,15 +128,14 @@ namespace ControllerRuntime
                     while (!_cts.IsCancellationRequested)
                     {
                         Task.Delay(TimeSpan.FromSeconds(_wf.Ping), _cts.Token).Wait();
-                        if (_cts.IsCancellationRequested) break;
+                        if (_cts.Token.IsCancellationRequested) break;
 
                         //Thread.Sleep(TimeSpan.FromSeconds(_wf.Ping));
                         WfResult cancel_result = _db.WorkflowExitEventCheck(_wf.WorkflowId, 0, _wf.RunId);
                         if (cancel_result.StatusCode != WfStatus.Running)
                         {
                             _cts.Cancel();
-                            if (_cts.IsCancellationRequested) break;
-                            //_cts.Token.ThrowIfCancellationRequested();
+                            break;
                         }
                     }
 
@@ -199,12 +202,14 @@ namespace ControllerRuntime
             }
             catch (AggregateException aex)
             {
+                StringBuilder sb = new StringBuilder();
                 _logger.Error(aex,"AggregateException: ",aex.Message);
                 foreach (var ex in aex.InnerExceptions)
                 {
                     _logger.Error(ex,"InnerException: {Message}", ex.Message);
+                    sb.Append(ex.Message);
                 }
-                result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
+                result = WfResult.Create(WfStatus.Failed, sb.ToString(), -10);
             }
             catch (Exception ex)
             {
@@ -298,12 +303,18 @@ namespace ControllerRuntime
 
         void IDisposable.Dispose()
         {
+            if (_is_disposed)
+                return;
+
+            _is_disposed = true;
+
             if (!_cts.IsCancellationRequested)
                 _cts.Cancel();
 
             Task.WaitAll(_tasks.Values.ToArray());
             cancel_task.Wait();
             _cts.Dispose();
+
         }
 
     }
