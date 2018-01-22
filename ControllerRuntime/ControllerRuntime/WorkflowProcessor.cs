@@ -127,8 +127,13 @@ namespace ControllerRuntime
 
                     while (!_cts.IsCancellationRequested)
                     {
-                        Task.Delay(TimeSpan.FromSeconds(_wf.Ping), _cts.Token).Wait();
-                        if (_cts.Token.IsCancellationRequested) break;
+                        try
+                        {
+                            Task.Delay(TimeSpan.FromSeconds(_wf.Ping), _cts.Token).Wait();
+                        }
+                        catch { }
+
+                        if (_cts.IsCancellationRequested) break;
 
                         //Thread.Sleep(TimeSpan.FromSeconds(_wf.Ping));
                         WfResult cancel_result = _db.WorkflowExitEventCheck(_wf.WorkflowId, 0, _wf.RunId);
