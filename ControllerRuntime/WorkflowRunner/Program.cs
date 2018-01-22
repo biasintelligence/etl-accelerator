@@ -97,9 +97,13 @@ namespace WorkflowRunner
 
             try
             {
-                WorkflowProcessor wfp = new WorkflowProcessor();
-                wfp.Attributes.Merge(attributes);
-                WfResult wr = wfp.Run();
+                WfResult wr = WfResult.Unknown;
+                using (WorkflowProcessor wfp = new WorkflowProcessor())
+                {
+                    wfp.Attributes.Merge(attributes);
+                    wr = wfp.Run();
+                }
+
                 if (wr.StatusCode != WfStatus.Succeeded)
                     return 1;
             }
