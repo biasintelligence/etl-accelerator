@@ -297,6 +297,7 @@ select @pContext =
 ,(select top 1 sa5.AttributeValue from dbo.[ETLStepAttribute] sa5 where s.BatchID = sa5.BatchID and s.StepID = sa5.StepID and sa5.AttributeName in ('Delay','etl:Delay')) as '@Delay'
 ,(select top 1 sa6.AttributeValue from dbo.[ETLStepAttribute] sa6 where s.BatchID = sa6.BatchID and s.StepID = sa6.StepID and sa6.AttributeName in ('Restart','etl:Restart')) as '@Restart'
 ,(select top 1 sa7.AttributeValue from dbo.[ETLStepAttribute] sa7 where s.BatchID = sa7.BatchID and s.StepID = sa7.StepID and sa7.AttributeName in ('LoopGroup','etl:LoopGroup')) as '@LoopGroup'
+,(select top 1 sa8.AttributeValue from dbo.[ETLStepAttribute] sa8 where s.BatchID = sa8.BatchID and s.StepID = sa8.StepID and sa8.AttributeName in ('Timeout','etl:Timeout')) as '@Timeout'
 --,s.StepDesc as 'Desc'
 ,p0.ProcessID as 'etl:Process/@ProcessID', p0.ScopeID as 'etl:Process/@ScopeID',p0.Process as 'etl:Process/etl:Process',p0.Param as 'etl:Process/etl:Param'
 ,p1.ProcessID as 'etl:OnSuccess/@ProcessID', p1.ScopeID as 'etl:OnSuccess/@ScopeID',p1.Process as 'etl:OnSuccess/etl:Process',p1.Param as 'etl:OnSuccess/etl:Param'
@@ -308,8 +309,8 @@ select @pContext =
 --     for xml path('etl:Attribute'),type) as 'etl:Attributes'
 ,(select sa.AttributeName as '@Name',sa.AttributeValue as '*' from @a sa
    where s.BatchID = sa.BatchID and s.StepID = sa.StepID and sa.ConstID is null
-     and sa.AttributeName not in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP')
-     and sa.AttributeName not in ('etl:DISABLED','etl:SEQGROUP','etl:PRIGROUP','etl:RETRY','etl:DELAY','etl:RESTART','etl:LOOPGROUP')
+     and sa.AttributeName not in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP','TIMEOUT')
+     and sa.AttributeName not in ('etl:DISABLED','etl:SEQGROUP','etl:PRIGROUP','etl:RETRY','etl:DELAY','etl:RESTART','etl:LOOPGROUP','etl:TIMEOUT')
      for xml path('etl:Attribute'),type) as 'etl:Attributes'
 --
 --step constraints

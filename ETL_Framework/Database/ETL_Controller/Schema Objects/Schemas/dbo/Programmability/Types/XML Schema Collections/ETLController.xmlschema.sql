@@ -166,6 +166,7 @@
                             <xsd:attribute name="Retry" type="xsd:int" />
                             <xsd:attribute name="Delay" type="xsd:int" />
                             <xsd:attribute name="LoopGroup" type="xsd:string" />
+                            <xsd:attribute name="Timeout" type="xsd:int" />
                           </xsd:restriction>
                         </xsd:complexContent>
                       </xsd:complexType>
