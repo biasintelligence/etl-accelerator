@@ -94,7 +94,7 @@ namespace ControllerRuntime
                     attributes.Merge(_wfp.Attributes);
                     WorkflowActivity step_activity = new WorkflowActivity(_step.StepProcess, attributes, _logger);
                     IWorkflowActivity step_runner = step_activity.Activate();
-                    result = (ProcessRunAsync(step_runner, extToken, _step.StepRetry, _step.StepDelayOnRetry, _logger)).Result;
+                    result = (ProcessRunAsync(step_runner, extToken, _step.StepRetry, _step.StepDelayOnRetry, _step.StepTimeout, _logger)).Result;
                 }
 
 
@@ -115,7 +115,7 @@ namespace ControllerRuntime
                     WorkflowActivity success_activity = new WorkflowActivity(_step.StepOnSuccessProcess, attributes, _logger);
                     IWorkflowActivity success_runner = success_activity.Activate();
 
-                    WfResult task_result = (ProcessRunAsync(success_runner, extToken, 0, 0, _logger)).Result;
+                    WfResult task_result = (ProcessRunAsync(success_runner, extToken, 0, 0, _step.StepTimeout, _logger)).Result;
                     if (task_result.StatusCode == WfStatus.Failed)
                         result = task_result;
                 }
@@ -135,7 +135,7 @@ namespace ControllerRuntime
                     WorkflowActivity failure_activity = new WorkflowActivity(_step.StepOnFailureProcess, attributes, _logger);
                     IWorkflowActivity failure_runner = failure_activity.Activate();
 
-                    WfResult task_result = (ProcessRunAsync(failure_runner, extToken, 0, 0, _logger)).Result;
+                    WfResult task_result = (ProcessRunAsync(failure_runner, extToken, 0, 0, _step.StepTimeout, _logger)).Result;
                     if (task_result.StatusCode == WfStatus.Failed)
                         result = task_result;
                 }
@@ -160,53 +160,54 @@ namespace ControllerRuntime
             return result;
         }
 
-        private async Task<WfResult> ProcessRunAsync(IWorkflowActivity runner, CancellationToken token, int retry, int delay, ILogger logger)
+        private async Task<WfResult> ProcessRunAsync(IWorkflowActivity runner, CancellationToken token, int retry, int delay,int timeout, ILogger logger)
         {
             return await Task.Factory.StartNew(() =>
             {
                 WfResult result = WfResult.Failed;
+                //do thread hard abort if it is stuck on Run
                 //using (token.Register(Thread.CurrentThread.Abort))
                 //{
-                    try
+                try
+                {
+                    for (int i = 0; i <= retry; i++)
                     {
-                        for (int i = 0; i <= retry; i++)
+
+                        token.ThrowIfCancellationRequested();
+                        if (i > 0)
                         {
+                            logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
 
-                            token.ThrowIfCancellationRequested();
-                            if (i > 0)
-                            {
-                                logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
-
-                                if (delay > 0)
-                                    Task.Delay(TimeSpan.FromSeconds(delay)).Wait();
-                            }
-
-                            //do thread hard abort if it is stuck on Run
-                            result = runner.Run(token);
-                            if (result.StatusCode == WfStatus.Succeeded)
-                                break;
+                            if (delay > 0)
+                                Task.Delay(TimeSpan.FromSeconds(delay)).Wait();
                         }
-                    }
-                    catch (ThreadAbortException ex)
-                    {
-                        logger.Error(ex, "ThreadAbortException: {0}", ex.Message);
-                    }
-                    catch (AggregateException aex)
-                    {
-                        logger.Error(aex, "AggregateException: {Message}", aex.Message);
-                        foreach (var ex in aex.InnerExceptions)
-                        {
-                            logger.Error(ex, "InnerException: {Message}", ex.Message);
-                        }
-                        result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
-                    }
-                    catch (Exception ex)
-                    {
 
-                        logger.Error(ex, "Exception: {Message}", ex.Message);
-                        result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
+                        result = runner.Run(token);
+                        if (result.StatusCode == WfStatus.Succeeded)
+                            break;
                     }
-                    return result;
+                }
+                catch (ThreadAbortException ex)
+                {
+                    logger.Error(ex, "ThreadAbortException: {0}", ex.Message);
+                    result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
+                }
+                catch (AggregateException aex)
+                {
+                    logger.Error(aex, "AggregateException: {Message}", aex.Message);
+                    foreach (var ex in aex.InnerExceptions)
+                    {
+                        logger.Error(ex, "InnerException: {Message}", ex.Message);
+                    }
+                    result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
+                }
+                catch (Exception ex)
+                {
+
+                    logger.Error(ex, "Exception: {Message}", ex.Message);
+                    result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
+                }
+                return result;
                 //}
             }, token);
 
