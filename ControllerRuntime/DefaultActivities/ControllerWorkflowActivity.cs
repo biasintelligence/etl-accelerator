@@ -91,12 +91,9 @@ namespace DefaultActivities
                 attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, _attributes[WORKFLOW_NAME]);
                 attributes.Add(CONNECTION_STRING, _attributes[CONNECTION_STRING]);
 
-                using (WorkflowProcessor wfp = new WorkflowProcessor())
-                {
-                    wfp.Attributes.Merge(attributes);
-                    result = wfp.Run(token);
-                    _logger.Information("Activity finished with result {WfStatus}: {Message}", result.StatusCode, result.Message);
-                }
+                WorkflowProcessor wfp = new WorkflowProcessor(attributes);
+                result = wfp.Run(token);
+                _logger.Information("Activity finished with result {WfStatus}: {Message}", result.StatusCode, result.Message);
 
             }
             catch (SqlException ex)

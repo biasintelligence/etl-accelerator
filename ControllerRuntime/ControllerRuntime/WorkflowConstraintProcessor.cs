@@ -53,7 +53,6 @@ namespace ControllerRuntime
             _logger.Information("Start Processing Workflow Constraint {ItemKey}", _item.Key);
 
             WfResult result = WfResult.Unknown;
-            var cts = new CancellationTokenSource();
             WorkflowAttributeCollection attributes = _db.WorkflowAttributeCollectionGet(_item.WorkflowId, _item.StepId, _item.ConstId, _item.RunId);
             attributes.Merge(_wfp.Attributes);
 
@@ -64,7 +63,8 @@ namespace ControllerRuntime
             try
             {
 
-                using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, cts.Token))
+                using (CancellationTokenSource timeoutCts = new CancellationTokenSource(timeout))
+                using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, timeoutCts.Token))
                 {
 
                     Task<WfResult> task = Task.Factory.StartNew(() =>
@@ -97,14 +97,9 @@ namespace ControllerRuntime
                             if (linkedCts.IsCancellationRequested)
                                 break;
 
-                            //Thread.Sleep(sleep);
                         }
                         return const_result;
                     }, linkedCts.Token);
-
-                    int id = Task.WaitAny(new Task[] { task, Task.Delay(timeout, linkedCts.Token) });
-                    if (id == 1)
-                        cts.Cancel();
 
                     result = task.Result;
                 }
@@ -117,7 +112,6 @@ namespace ControllerRuntime
             finally
             {
                 _logger.Information("Finish Processing Workflow Constraint {ItemKey} with result - {WfStatus}", _item.Key, result.StatusCode.ToString());
-                cts.Dispose();
             }
 
             return result;

@@ -100,9 +100,8 @@ namespace WorkflowRunner
             {
                 WfResult wr = WfResult.Unknown;
                 using (CancellationTokenSource cts = new CancellationTokenSource())
-                using (WorkflowProcessor wfp = new WorkflowProcessor())
                 {
-                    wfp.Attributes.Merge(attributes);
+                    WorkflowProcessor wfp = new WorkflowProcessor(attributes);
                     wr = wfp.Run(cts.Token);
                 }
 

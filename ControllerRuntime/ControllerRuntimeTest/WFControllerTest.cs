@@ -13,23 +13,24 @@ namespace ControllerRuntimeTest
     [TestClass]
     public class WFControllerTest
     {
-        const string connectionString = @"Server=.;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
+        const string connectionString = @"Server=DEVOMASQ91;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
 
         [TestMethod]
         public void WFRun_Ok()
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
+                .WriteTo.Console()
                 .WriteTo.WorkflowLogger(connectionString: connectionString)
                 .CreateLogger();
 
             string runnerName = "UTTest";
-            string WFName = "Test104";
+            string WFName = "general_test";
 
             WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
             attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);
             attributes.Add(WorkflowConstants.ATTRIBUTE_DEBUG, "true");
-            attributes.Add(WorkflowConstants.ATTRIBUTE_VERBOSE, "false");
+            attributes.Add(WorkflowConstants.ATTRIBUTE_VERBOSE, "true");
             attributes.Add(WorkflowConstants.ATTRIBUTE_FORCESTART, "true");
             attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
             attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, WFName);
@@ -37,9 +38,8 @@ namespace ControllerRuntimeTest
 
             WfResult wr = WfResult.Unknown;
             using (CancellationTokenSource cts = new CancellationTokenSource())
-            using (WorkflowProcessor wfp = new WorkflowProcessor())
             {
-                wfp.Attributes.Merge(attributes);
+                WorkflowProcessor wfp = new WorkflowProcessor(attributes);
                 wr = wfp.Run(cts.Token);
             }
 

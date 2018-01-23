@@ -30,14 +30,13 @@ namespace ControllerRuntime
     /// Run Step process
     /// Run OnSuccess\OnFailure process if defined
     /// </summary>
-    public class WorkflowStepProcessor : IWorkflowCommand, IDisposable
+    public class WorkflowStepProcessor
     {
         private WorkflowProcessor _wfp;
         private DBController _db;
         private WorkflowStep _step;
-        private CancellationTokenSource _cts = new CancellationTokenSource();
-        private WfResult _status = WfResult.Unknown;
         private ILogger _logger;
+
         public WorkflowStepProcessor(WorkflowStep item, WorkflowProcessor wfp)
         {
             _wfp = wfp;
@@ -74,16 +73,10 @@ namespace ControllerRuntime
                         wfc.WorkflowId = _step.WorkflowId;
                         wfc.RunId = _step.RunId;
                         WorkflowConstraintProcessor wcp = new WorkflowConstraintProcessor(wfc, _wfp);
-
-                        using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
-                        {
-                            result = wcp.Run(linkedCts.Token);
-                        }
-
+                        result = wcp.Run(extToken);
                         if (result.StatusCode == WfStatus.Failed)
                         {
                             _logger.Error("Workflow step {ItemKey}:{ItemName} failed with: {ErrorCode}", _step.Key, _step.StepName, result.Message, result.ErrorCode);
-                            _status.SetTo(result);
                             return result;
                         }
 
@@ -101,11 +94,7 @@ namespace ControllerRuntime
                     attributes.Merge(_wfp.Attributes);
                     WorkflowActivity step_activity = new WorkflowActivity(_step.StepProcess, attributes, _logger);
                     IWorkflowActivity step_runner = step_activity.Activate();
-                    using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
-                    {
-                        result = (ProcessRunAsync(step_runner, linkedCts.Token, _step.StepRetry, _step.StepDelayOnRetry, _logger)).Result;
-                    }
-
+                    result = (ProcessRunAsync(step_runner, extToken, _step.StepRetry, _step.StepDelayOnRetry, _logger)).Result;
                 }
 
 
@@ -126,13 +115,9 @@ namespace ControllerRuntime
                     WorkflowActivity success_activity = new WorkflowActivity(_step.StepOnSuccessProcess, attributes, _logger);
                     IWorkflowActivity success_runner = success_activity.Activate();
 
-                    using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
-                    {
-                        WfResult task_result = (ProcessRunAsync(success_runner, linkedCts.Token, 0, 0, _logger)).Result;
-                        if (task_result.StatusCode == WfStatus.Failed)
-                            result = task_result;
-                    }
-
+                    WfResult task_result = (ProcessRunAsync(success_runner, extToken, 0, 0, _logger)).Result;
+                    if (task_result.StatusCode == WfStatus.Failed)
+                        result = task_result;
                 }
                 else if (result.StatusCode == WfStatus.Failed
                    && _step.StepOnFailureProcess != null)
@@ -150,13 +135,9 @@ namespace ControllerRuntime
                     WorkflowActivity failure_activity = new WorkflowActivity(_step.StepOnFailureProcess, attributes, _logger);
                     IWorkflowActivity failure_runner = failure_activity.Activate();
 
-                    using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, _cts.Token))
-                    {
-                        WfResult task_result = (ProcessRunAsync(failure_runner, linkedCts.Token, 0, 0, _logger)).Result;
-                        if (task_result.StatusCode == WfStatus.Failed)
-                            result = task_result;
-                    }
-
+                    WfResult task_result = (ProcessRunAsync(failure_runner, extToken, 0, 0, _logger)).Result;
+                    if (task_result.StatusCode == WfStatus.Failed)
+                        result = task_result;
                 }
             }
             catch (AggregateException aex)
@@ -176,7 +157,6 @@ namespace ControllerRuntime
             }
 
             _logger.Information("Workflow step {ItemKey}:{ItemName} finished with result {WfStatus}", _step.Key, _step.StepName, result.StatusCode.ToString());
-            _status.SetTo(result);
             return result;
         }
 
@@ -225,36 +205,6 @@ namespace ControllerRuntime
                 }
             }, token);
 
-        }
-
-        #region IWorkflowCommand
-        public WfResult Start()
-        {
-            return WfResult.Create(WfStatus.Failed, "Not Implemented", -1);
-        }
-        public WfResult Stop()
-        {
-            //use _cts.Cancel();
-            return WfResult.Create(WfStatus.Failed, "Not Implemented", -1);
-        }
-        public WfResult Pause()
-        {
-            return WfResult.Create(WfStatus.Failed, "Not Implemented", -1);
-        }
-        public WfResult Resume()
-        {
-            return WfResult.Create(WfStatus.Failed, "Not Implemented", -1);
-        }
-
-        public WfResult Status
-        { get { return _status; } }
-        #endregion
-        void IDisposable.Dispose()
-        {
-            if (!_cts.IsCancellationRequested)
-                _cts.Cancel();
-
-            _cts.Dispose();
         }
 
     }

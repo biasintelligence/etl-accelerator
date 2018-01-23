@@ -32,6 +32,7 @@ namespace ControllerRuntime
     public class WorkflowGraph : IWorkflowCommand, IDisposable
     {
 
+        private bool _is_disposed = false;
         private Object lock_object = new Object();
 
         //private AutoResetEvent autoEvent;
@@ -415,6 +416,10 @@ namespace ControllerRuntime
 
         void IDisposable.Dispose()
         {
+            if (_is_disposed)
+                return;
+
+            _is_disposed = true;
             //if (exit_timer != null)
             //    exit_timer.Dispose();
         }
