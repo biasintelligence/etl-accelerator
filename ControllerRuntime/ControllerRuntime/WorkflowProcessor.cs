@@ -92,6 +92,11 @@ namespace ControllerRuntime
                 //workflow level retries
                 for (int retryCount = 0;retryCount <= _wf.Retry; retryCount++)
                 {
+
+                    if (retryCount > 0)
+                        _logger.Information("WF retry attempt {Count} on: {Message}", retryCount, result.Message);
+
+
                     using (CancellationTokenSource finishCts = new CancellationTokenSource())
                     using (CancellationTokenSource cancelCts = new CancellationTokenSource())
                     using (CancellationTokenSource timeoutCts = new CancellationTokenSource())
@@ -236,7 +241,6 @@ namespace ControllerRuntime
                         if (result.StatusCode == WfStatus.Succeeded)
                             break;
 
-                        _logger.Information("WF retry attempt {Count} on: {Message}", retryCount, result.Message);
                     }
                 }
 

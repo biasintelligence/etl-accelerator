@@ -13,7 +13,7 @@ namespace ControllerRuntimeTest
     [TestClass]
     public class WFControllerTest
     {
-        const string connectionString = @"Server=DEVOMASQ91;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
+        const string connectionString = @"Server=.;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
 
         [TestMethod]
         public void WFRun_Ok()
@@ -25,7 +25,7 @@ namespace ControllerRuntimeTest
                 .CreateLogger();
 
             string runnerName = "UTTest";
-            string WFName = "general_test";
+            string WFName = "Test104";
 
             WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
             attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);

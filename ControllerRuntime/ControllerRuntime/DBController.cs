@@ -93,7 +93,7 @@ namespace ControllerRuntime
     {
 
         private const string WORKFLOW_METADATA_QUERY = @"
-
+set transaction isolation level read uncommitted; 
 declare @batchName varchar(100) = '{0}';
 declare @wfid int;
 declare @pHeader xml;
@@ -108,6 +108,7 @@ select cast(@pContext as nvarchar(max));";
 
         //successfull steps from the previous unsuccessful run
         private const string WORKFLOW_STATUS_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @batchName varchar(100) = '{0}';
 declare @BatchId int;
 declare @LastStatusID tinyint;
@@ -122,6 +123,7 @@ and (@LastStatusID <> 2
 and isnull(s.StatusID,0) = 2);
 ";
         private const string WORKFLOW_INITIALIZE_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @processorName varchar(100) = '{0}';
 declare @batchName varchar(100) = '{1}';
 declare @options int = {2} + 2 * {3};
@@ -213,6 +215,7 @@ begin catch
 end catch	  
 ";
         private const string WORKFLOW_FINALIZE_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @BatchId int = {0};
 declare @RunId int = {1};
 declare @StatusId smallint = {2};
@@ -245,6 +248,7 @@ END
 ";
 
         private const string WORKFLOW_ATTRIBUTE_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @pHeader xml;
 declare @pContext xml;
 declare @pProcessRequest xml;
@@ -257,6 +261,7 @@ select cast(@pAttributes as nvarchar(max));
 ";
 
         private const string WORKFLOW_STEP_STATUS_SET_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @BatchId int = {0};
 declare @StepId int = {1};
 declare @RunId int = {2}
@@ -271,6 +276,7 @@ FROM dbo.ETLStepRun s
 WHERE s.RunID = @RunID AND s.StepID = @StepID AND s.BatchID = @BatchID
 ";
         private const string WORKFLOW_LOOP_STEPS_RESET_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @BatchId int = {0};
 declare @RunId int = {1}
 declare @LoopGroup nvarchar(30) = '{2}'
@@ -295,6 +301,7 @@ BEGIN
 END";
 
         private const string WORKFLOW_LOOP_BREAK_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @BatchId int = {0};
 declare @RunId int = {1}
 declare @LoopGroup nvarchar(30) = '{2}'
@@ -319,6 +326,7 @@ ELSE
     SELECT cast(1 as smallint) as StatusId; 
 ";
         private const string WORKFLOW_EXIT_EVENT_QUERY = @"
+set transaction isolation level read uncommitted;
 declare @BatchId int = {0};
 declare @StepId int = {1}
 declare @RunId int = {2}

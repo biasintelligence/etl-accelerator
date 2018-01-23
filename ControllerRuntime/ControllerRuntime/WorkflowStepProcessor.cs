@@ -165,21 +165,26 @@ namespace ControllerRuntime
             return await Task.Factory.StartNew(() =>
             {
                 WfResult result = WfResult.Failed;
-                using (token.Register(Thread.CurrentThread.Abort))
-                {
+                //using (token.Register(Thread.CurrentThread.Abort))
+                //{
                     try
                     {
-                        for (int i = 0; i <= retry && result.StatusCode != WfStatus.Succeeded; i++)
+                        for (int i = 0; i <= retry; i++)
                         {
 
-                            if (i > 0 && delay > 0)
-                                Task.Delay(TimeSpan.FromSeconds(delay)).Wait();
+                            token.ThrowIfCancellationRequested();
+                            if (i > 0)
+                            {
+                                logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
+
+                                if (delay > 0)
+                                    Task.Delay(TimeSpan.FromSeconds(delay)).Wait();
+                            }
 
                             //do thread hard abort if it is stuck on Run
                             result = runner.Run(token);
-                            token.ThrowIfCancellationRequested();
-                            if (i > 0)
-                                logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
+                            if (result.StatusCode == WfStatus.Succeeded)
+                                break;
                         }
                     }
                     catch (ThreadAbortException ex)
@@ -202,7 +207,7 @@ namespace ControllerRuntime
                         result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
                     }
                     return result;
-                }
+                //}
             }, token);
 
         }
