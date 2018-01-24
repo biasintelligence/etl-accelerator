@@ -57,6 +57,8 @@ namespace ControllerRuntime
         public DBController DBController
         { get { return _db; } }
 
+        public Workflow Workflow
+        { get { return _wf; } }
 
         public string ConnectionString
         { get; private set; } = string.Empty;
@@ -96,17 +98,27 @@ namespace ControllerRuntime
                     if (retryCount > 0)
                         _logger.Information("WF retry attempt {Count} on: {Message}", retryCount, result.Message);
 
+                    //workflow timeout
+                    TimeSpan lifetime = (_wf.Timeout == 0) ? TimeSpan.MaxValue : TimeSpan.FromSeconds(_wf.Timeout);
 
                     using (CancellationTokenSource finishCts = new CancellationTokenSource())
                     using (CancellationTokenSource cancelCts = new CancellationTokenSource())
-                    using (CancellationTokenSource timeoutCts = new CancellationTokenSource())
+                    using (CancellationTokenSource timeoutCts = new CancellationTokenSource(lifetime))
                     using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(extToken, timeoutCts.Token,cancelCts.Token,finishCts.Token))
                     {
                         try
                         {
 
                             if (retryCount > 0 && _wf.DelayOnRetry > 0)
-                                Task.Delay(TimeSpan.FromSeconds(_wf.DelayOnRetry),linkedCts.Token).Wait();
+                            {
+                                try
+                                {
+                                    Task.Delay(TimeSpan.FromSeconds(_wf.DelayOnRetry), linkedCts.Token).Wait();
+                                }
+                                catch { }
+                            }
+
+
 
                             is_initialized = _db.WorkflowInitialize(ProcessorName, _wf, _forcestart);
                             _logger = _logger.ForContext("RunId", _wf.RunId);
@@ -120,7 +132,6 @@ namespace ControllerRuntime
 
                             //timeout settings
                             DateTime start_dt = DateTime.Now;
-                            TimeSpan lifetime = TimeSpan.FromSeconds(_wf.Timeout);
                             TimeSpan timeout = lifetime;
 
                             //start Workflow cancellation listener
@@ -138,7 +149,6 @@ namespace ControllerRuntime
 
                                     if (linkedCts.IsCancellationRequested) break;
 
-                                    //Thread.Sleep(TimeSpan.FromSeconds(_wf.Ping));
                                     WfResult cancel_result = _db.WorkflowExitEventCheck(_wf.WorkflowId, 0, _wf.RunId);
                                     if (cancel_result.StatusCode != WfStatus.Running)
                                     {
@@ -175,15 +185,14 @@ namespace ControllerRuntime
                                     WorkflowStep iter_step = obj as WorkflowStep;
                                     WorkflowStepProcessor sp = step_command[iter_step.Key];
                                     //check for the step cancelation condition from the runtime before starting
-                                    WfResult cancel_result = _db.WorkflowExitEventCheck(iter_step.WorkflowId, iter_step.StepId, iter_step.RunId);
-                                    if (cancel_result.StatusCode == WfStatus.Running)
+                                    if (linkedCts.IsCancellationRequested)
                                     {
-                                        WfResult step_result = sp.Run(linkedCts.Token);
-                                        ReportStepResult(iter_step, step_result);
+                                        ReportStepResult(iter_step, WfResult.Canceled);
                                     }
                                     else
                                     {
-                                        ReportStepResult(iter_step, cancel_result);
+                                        WfResult step_result = sp.Run(linkedCts.Token);
+                                        ReportStepResult(iter_step, step_result);
                                     }
 
                                 }, step, linkedCts.Token));
@@ -193,18 +202,7 @@ namespace ControllerRuntime
 
                             //after workflow Dispatcher is done, we wait for the still running steps completion.
                             //or exit on timeout
-                            timeout = lifetime - DateTime.Now.Subtract(start_dt);
-                            if (timeout <= TimeSpan.Zero || !Task.WaitAll(tasks.Values.ToArray(), timeout))
-                            {
-                                timeoutCts.Cancel();
-                                Task.WaitAll(tasks.Values.ToArray());
-                                throw new TimeoutException("Timeout was reached");
-                            }
-                            else
-                            {
-                                finishCts.Cancel();
-                            }
-
+                            Task.WaitAll(tasks.Values.ToArray());
                             result = _wfg.WorkflowCompleteStatus;
 
                         }
@@ -235,6 +233,7 @@ namespace ControllerRuntime
 
                         }
 
+                        finishCts.Cancel();
                         cancelCts.Token.ThrowIfCancellationRequested();
                         extToken.ThrowIfCancellationRequested();
 

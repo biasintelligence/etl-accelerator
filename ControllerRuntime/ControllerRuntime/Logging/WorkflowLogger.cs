@@ -51,14 +51,14 @@ namespace ControllerRuntime.Logging
             string message;
 
             int err = 0;
-            if (logEvent.Exception != null)
+            err = GetIntValue(logEvent, "ErrorCode", 0);
+            if (err == 0 && logEvent.Exception != null)
             {
                 err = logEvent.Exception.HResult;
                 message = string.Format("{0} -- EXCEPTION: {1}", logEvent.RenderMessage(_formatProvider), logEvent.Exception.Message);
             }
             else
             {
-                err = GetIntValue(logEvent, "ErrorCode", 0);
                 message = logEvent.RenderMessage(_formatProvider);
             }
 

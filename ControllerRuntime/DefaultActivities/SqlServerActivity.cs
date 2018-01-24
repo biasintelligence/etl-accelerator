@@ -94,9 +94,9 @@ namespace DefaultActivities
                 }
                 catch (SqlException ex)
                 {
-                    throw ex;
-                    //_logger.Write(String.Format("SqlServer exception: {0}", ex.Message));
-                    //result = WfResult.Create(WfStatus.Failed, ex.Message, ex.ErrorCode);
+                    _logger.Error(ex,"SqlServer exception {ErrorCode}: {Message}", ex.Number,ex.Message);
+                    result = WfResult.Failed;
+                    //throw ex;
                 }
                 finally
                 {

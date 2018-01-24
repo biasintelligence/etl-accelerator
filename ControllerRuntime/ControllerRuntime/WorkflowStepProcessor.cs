@@ -54,7 +54,6 @@ namespace ControllerRuntime
         {
 
             _logger.Information("Start Processing Workflow step {ItemKey}:{ItemName}", _step.Key, _step.StepName);
-
             WfResult result = WfResult.Succeeded;
             try
             {
@@ -179,10 +178,19 @@ namespace ControllerRuntime
                             logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
 
                             if (delay > 0)
-                                Task.Delay(TimeSpan.FromSeconds(delay)).Wait();
+                                Task.Delay(TimeSpan.FromSeconds(delay),token).Wait();
                         }
 
-                        result = runner.Run(token);
+                        //dont use stepTimeout if wf timeout is set
+                        using (CancellationTokenSource timeoutCts = new CancellationTokenSource())
+                        using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token))
+                        {
+                            if (timeout > 0)
+                                timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeout));
+
+                            result = runner.Run(linkedCts.Token);
+
+                        }
                         if (result.StatusCode == WfStatus.Succeeded)
                             break;
                     }
@@ -209,7 +217,7 @@ namespace ControllerRuntime
                 }
                 return result;
                 //}
-            }, token);
+            });//, token);
 
         }
 
