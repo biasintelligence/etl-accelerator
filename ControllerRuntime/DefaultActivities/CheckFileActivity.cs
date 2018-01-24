@@ -53,7 +53,7 @@ namespace DefaultActivities
 
             foreach (var attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Key))
+                if (_required_attributes.Contains(attribute.Key, StringComparer.InvariantCultureIgnoreCase))
                     _attributes.Add(attribute.Key, attribute.Value);
             }
 

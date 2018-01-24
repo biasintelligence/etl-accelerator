@@ -90,11 +90,11 @@ namespace AzureActivities
 
             foreach (var attribute in args.RequiredAttributes)
             {
-                if (_required_attributes.Contains(attribute.Key))
+                if (_required_attributes.Contains(attribute.Key, StringComparer.InvariantCultureIgnoreCase))
                 {
                     if (attribute.Key.Equals(SORT_ORDER))
                     {
-                        if (!sortList.Contains<string>(attribute.Value))
+                        if (!sortList.Contains<string>(attribute.Value, StringComparer.InvariantCultureIgnoreCase))
                         {
                             throw new ArgumentException(String.Format("Invalid SortOrder:{0}. Supported: Asc,Desc.", attribute.Value));
                         }
