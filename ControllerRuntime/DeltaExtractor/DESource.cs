@@ -204,7 +204,7 @@ namespace BIAS.Framework.DeltaExtractor
 
         private static Dictionary<string, List<string>> ProviderList = new Dictionary<string, List<string>>
         {
-            {"SQL", new List<string> {"SQLNCLI10","Integrated Security=SSPI;Persist Security Info=False;Auto Translate=False;","TSQL SQL Server"}},
+            {"SQL", new List<string> {"SQLNCLI11","Integrated Security=SSPI;Persist Security Info=False;Auto Translate=False;","TSQL SQL Server"}},
             {"MDX",new List<string> {"MSOLAP","Integrated Security=SSPI;Extended Properties=\"Format=Tabular\";","MDX SSAS"}},
             {"XMLA",new List<string> {"MSOLAP","Integrated Security=SSPI;Extended Properties=\"Format=Tabular\";","XMLA SSAS"}},
         };

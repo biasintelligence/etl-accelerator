@@ -291,7 +291,7 @@ namespace ControllerRuntime
             if (run_status.StatusCode == WfStatus.Running
                 && result.StatusCode == WfStatus.Failed
                 && !(_workflow.IgnoreError || base_node_set.Find(item => item.Key == key).IgnoreError))
-                run_status.SetTo(WfResult.Failed);
+                run_status.SetTo(result);
 
             if (base_queue.IsCompleted
                 && run_status.StatusCode == WfStatus.Running

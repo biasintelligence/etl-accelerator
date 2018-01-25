@@ -383,7 +383,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class OleDbDestination : DeDestination
     {
 
-        private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=SSPI;";
+        private static string connstr = "Provider=SQLNCLI11;Data Source={0};Initial Catalog={1};Integrated Security=SSPI;";
 
         public DBConnection DBConnection { get; set; } 
         public string TableName

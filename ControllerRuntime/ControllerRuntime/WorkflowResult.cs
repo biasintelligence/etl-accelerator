@@ -47,7 +47,7 @@ namespace ControllerRuntime
         { get { return new WfResult(WfStatus.Succeeded, "Succeeded", 0); } }
 
         public static WfResult Canceled
-        { get { return new WfResult(WfStatus.Failed, "Canceled", 0); } }
+        { get { return new WfResult(WfStatus.Failed, "Canceled", -1); } }
 
         public static WfResult Failed
         { get { return new WfResult(WfStatus.Failed, "Failed", -1); } }
@@ -82,6 +82,5 @@ namespace ControllerRuntime
             Message = String.Empty;
             StatusCode = WfStatus.Unknown;
         }
-
     }
 }

@@ -167,55 +167,71 @@ namespace ControllerRuntime
                 //do thread hard abort if it is stuck on Run
                 //using (token.Register(Thread.CurrentThread.Abort))
                 //{
-                try
+                for (int i = 0; i <= retry; i++)
                 {
-                    for (int i = 0; i <= retry; i++)
+                    using (CancellationTokenSource timeoutCts = new CancellationTokenSource())
+                    using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token))
                     {
+                        if (timeout > 0)
+                            timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeout));
 
-                        token.ThrowIfCancellationRequested();
-                        if (i > 0)
+                        try
                         {
-                            logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
 
-                            if (delay > 0)
-                                Task.Delay(TimeSpan.FromSeconds(delay),token).Wait();
-                        }
+                            token.ThrowIfCancellationRequested();
+                            if (i > 0)
+                            {
+                                logger.Information("Retry attempt {Count} on: {Message}", i, result.Message);
 
-                        //dont use stepTimeout if wf timeout is set
-                        using (CancellationTokenSource timeoutCts = new CancellationTokenSource())
-                        using (CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token))
-                        {
-                            if (timeout > 0)
-                                timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeout));
+                                if (delay > 0)
+                                    Task.Delay(TimeSpan.FromSeconds(delay),token).Wait();
+                            }
 
                             result = runner.Run(linkedCts.Token);
+                        }
+                        catch (ThreadAbortException ex)
+                        {
+                            logger.Error(ex, "ThreadAbortException: {0}", ex.Message);
+                            result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
+                        }
+                        catch (AggregateException aex)
+                        {
+
+                            logger.Error(aex, "AggregateException: {Message}", aex.Message);
+                            foreach (var ex in aex.InnerExceptions)
+                            {
+                                logger.Error(ex, "InnerException: {Message}", ex.Message);
+                            }
+
+                            result = WfResult.Failed;
+                            if (timeoutCts.IsCancellationRequested)
+                            {
+                                result = WfResult.Create(WfStatus.Failed,"Step was cancelled on timeout",-10);
+                                logger.Error(aex, result.Message);
+                            }
+
+                            if (token.IsCancellationRequested)
+                            {
+                                logger.Error(aex, "Step was cancelled");
+                                result = WfResult.Canceled;
+                            }
 
                         }
-                        if (result.StatusCode == WfStatus.Succeeded)
+                        catch (Exception ex)
+                        {
+
+                            logger.Error(ex, "Exception: {Message}", ex.Message);
+                            result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
+                        }
+
+                        if (result.StatusCode == WfStatus.Succeeded
+                        || token.IsCancellationRequested)
                             break;
                     }
                 }
-                catch (ThreadAbortException ex)
-                {
-                    logger.Error(ex, "ThreadAbortException: {0}", ex.Message);
-                    result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
-                }
-                catch (AggregateException aex)
-                {
-                    logger.Error(aex, "AggregateException: {Message}", aex.Message);
-                    foreach (var ex in aex.InnerExceptions)
-                    {
-                        logger.Error(ex, "InnerException: {Message}", ex.Message);
-                    }
-                    result = WfResult.Create(WfStatus.Failed, aex.Message, -10);
-                }
-                catch (Exception ex)
-                {
 
-                    logger.Error(ex, "Exception: {Message}", ex.Message);
-                    result = WfResult.Create(WfStatus.Failed, ex.Message, -10);
-                }
                 return result;
+
                 //}
             });//, token);
 

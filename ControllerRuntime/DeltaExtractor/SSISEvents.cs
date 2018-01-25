@@ -48,7 +48,7 @@ namespace BIAS.Framework.DeltaExtractor
         public override bool OnError(DtsObject source,int errorCode,string subComponent,string description,string helpFile,int helpContext,string idofInterfaceWithError)
         {
             // TODO: Add custom code to handle the event.
-            _logger.Debug("Error: {Code} - {Desc}", errorCode, description);
+            _logger.Debug("Error: {ErrorCode} - {Desc}", errorCode, description);
             return true;
         }
         //public override void OnCustomEvent(TaskHost taskHost,string eventName,string eventText,ref Object[] arguments,string subComponent,ref bool fireAgain)

@@ -204,10 +204,16 @@ namespace ControllerRuntime
                             //or exit on timeout
                             Task.WaitAll(tasks.Values.ToArray());
                             result = _wfg.WorkflowCompleteStatus;
+                            if (result.StatusCode == WfStatus.Failed
+                                && timeoutCts.IsCancellationRequested)
+                            {
+                                _logger.Error("Workflow timeout was reached {ErrorCode}", result.ErrorCode);
+                            }
 
                         }
                         catch (AggregateException aex)
                         {
+
                             StringBuilder sb = new StringBuilder();
                             _logger.Error(aex, "AggregateException: ", aex.Message);
                             foreach (var ex in aex.InnerExceptions)
@@ -215,7 +221,15 @@ namespace ControllerRuntime
                                 _logger.Error(ex, "InnerException: {Message}", ex.Message);
                                 sb.Append(ex.Message);
                             }
-                            result = WfResult.Create(WfStatus.Failed, sb.ToString(), -10);
+                            result = WfResult.Failed;
+                            if (timeoutCts.IsCancellationRequested)
+                            {
+
+                                result = WfResult.Create(WfStatus.Failed, "Workflow timeout was reached", -10);
+                                _logger.Error(aex, result.Message);
+
+                            }
+
                         }
                         catch (Exception ex)
                         {
@@ -226,9 +240,10 @@ namespace ControllerRuntime
                         {
                             if (_db != null && is_initialized)
                             {
+                                WfResult wfResult = _wfg.WorkflowCompleteStatus;
                                 _db.WorkflowFinalize(_wf, _wfg.WorkflowCompleteStatus);
-                                _logger.Information("Finish Processing Workflow {ItemName} with result - {WfStatus}"
-                                    , _wf.WorkflowName, _wfg.WorkflowCompleteStatus.StatusCode.ToString());
+                                _logger.Information("Finish Processing Workflow {ItemName} with result - {WfStatus} {Message} ({ErrorCode})"
+                                    , _wf.WorkflowName,wfResult.StatusCode.ToString(),wfResult.Message, wfResult.ErrorCode);
                             }
 
                         }
