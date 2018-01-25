@@ -184,15 +184,17 @@ namespace ControllerRuntime
                                 {
                                     WorkflowStep iter_step = obj as WorkflowStep;
                                     WorkflowStepProcessor sp = step_command[iter_step.Key];
+
                                     //check for the step cancelation condition from the runtime before starting
-                                    if (linkedCts.IsCancellationRequested)
-                                    {
-                                        ReportStepResult(iter_step, WfResult.Canceled);
-                                    }
-                                    else
+                                    WfResult cancel_result = _db.WorkflowExitEventCheck(iter_step.WorkflowId, iter_step.StepId, iter_step.RunId);
+                                    if (cancel_result.StatusCode == WfStatus.Running)
                                     {
                                         WfResult step_result = sp.Run(linkedCts.Token);
                                         ReportStepResult(iter_step, step_result);
+                                    }
+                                    else
+                                    {
+                                        ReportStepResult(iter_step, cancel_result);
                                     }
 
                                 }, step, linkedCts.Token));
