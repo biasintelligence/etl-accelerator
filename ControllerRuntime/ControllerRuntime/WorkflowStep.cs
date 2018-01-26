@@ -202,12 +202,12 @@ namespace ControllerRuntime
             get { return this.step_delay_on_retry; }
             set { this.step_delay_on_retry = (value <= 0) ? 10 : value; ; }
         }
-        private int wf_timeout = 7200; //sec
+        private int wf_timeout = 72000; //sec
         [XmlAttribute("Timeout")]
         public int StepTimeout
         {
             get { return this.wf_timeout; }
-            set { this.wf_timeout = (value <= 0) ? 7200 : value; }
+            set { this.wf_timeout = (value <= 0) ? 72000 : value; }
         }
 
     }

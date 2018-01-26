@@ -99,7 +99,7 @@ namespace ControllerRuntime
                         _logger.Information("WF retry attempt {Count} on: {Message}", retryCount, result.Message);
 
                     //workflow timeout
-                    TimeSpan lifetime = (_wf.Timeout == 0) ? TimeSpan.MaxValue : TimeSpan.FromSeconds(_wf.Timeout);
+                    TimeSpan lifetime = TimeSpan.FromSeconds(_wf.Timeout);
 
                     using (CancellationTokenSource finishCts = new CancellationTokenSource())
                     using (CancellationTokenSource cancelCts = new CancellationTokenSource())
@@ -206,10 +206,12 @@ namespace ControllerRuntime
                             //or exit on timeout
                             Task.WaitAll(tasks.Values.ToArray());
                             result = _wfg.WorkflowCompleteStatus;
-                            if (result.StatusCode == WfStatus.Failed
-                                && timeoutCts.IsCancellationRequested)
+                            if (result.StatusCode == WfStatus.Failed)
                             {
-                                _logger.Error("Workflow timeout was reached {ErrorCode}", result.ErrorCode);
+                                if(timeoutCts.IsCancellationRequested)
+                                    _logger.Error("Workflow timeout was reached {ErrorCode}", result.ErrorCode);
+                                else if (cancelCts.IsCancellationRequested)
+                                    _logger.Error("Workflow was cancelled {ErrorCode}", result.ErrorCode);
                             }
 
                         }

@@ -141,20 +141,20 @@ namespace ControllerRuntime
             set { this.wf_max_thread = (value <= 0) ? 4 : value; }
         }
 
-        private int wf_timeout = 0; //sec
+        private int wf_timeout = 72000; //sec
         [XmlAttribute("Timeout")]
         public int Timeout
         {
             get { return this.wf_timeout; }
-            set { this.wf_timeout = (value <= 0)? 0 : value; }
+            set { this.wf_timeout = (value <= 0)? 72000 : value; }
         }
 
-        private int wf_lifetime = 7200; //sec
+        private int wf_lifetime = 72000; //sec
         [XmlAttribute("Lifetime")]
         public int Lifetime
         {
             get { return this.wf_lifetime; }
-            set { this.wf_lifetime = (value <= 0)? 7200 : value; }
+            set { this.wf_lifetime = (value <= 0)? 72000 : value; }
         }
 
         private int wf_ping = 10; //sec
