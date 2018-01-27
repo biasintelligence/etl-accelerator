@@ -35,16 +35,15 @@ namespace DefaultActivities
     public class DeltaExtractorActivity : IWorkflowActivity
     {
         //External Attributes
-        private const string CONNECTION_STRING = "ConnectionString";
+        private const string CONNECTION_STRING = WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING;
 
         //For DE Parameter call
-        private const string BATCH_ID = "@BatchID";
-        private const string STEP_ID = "@StepID";
-        private const string RUN_ID = "@RunID";
+        private const string BATCH_ID = WorkflowConstants.ATTRIBUTE_BATCH_ID;
+        private const string STEP_ID = WorkflowConstants.ATTRIBUTE_STEP_ID;
+        private const string RUN_ID = WorkflowConstants.ATTRIBUTE_RUN_ID;
 
 
         //Require validation
-        private WorkflowActivityParameters _parameters = WorkflowActivityParameters.Create();
 
         private ILogger _logger;
         private WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
@@ -74,7 +73,6 @@ namespace DefaultActivities
                 if (_required_attributes.Contains(attribute.Key, StringComparer.InvariantCultureIgnoreCase))
                 {
                     _attributes.Add(attribute.Key, attribute.Value);
-                    _parameters.Add(attribute.Key, attribute.Value);
                 }
             }
 
@@ -93,7 +91,7 @@ namespace DefaultActivities
             _logger.Debug("Running DeltaExtractor...");
 
             DERun runner = new DERun();
-            return runner.Start(_parameters,_logger,token);
+            return runner.Start(_attributes,_logger,token);
         }
         #endregion
 

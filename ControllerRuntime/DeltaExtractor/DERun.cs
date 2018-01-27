@@ -18,7 +18,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class DERun : IWorkflowRunner
     {
         private ILogger _logger;
-        private WorkflowActivityParameters _args;
+        private WorkflowAttributeCollection _args;
 
         private const string DE_PARAMETER_QUERY = @"
             declare @pHeader xml;
@@ -33,14 +33,9 @@ namespace BIAS.Framework.DeltaExtractor
             ";
 
         private const string XML_HEADER = "<?xml version=\"1.0\"?>";
-
-        private const string CONNECTION_STRING = "ConnectionString";
-        private const string BATCH_ID = "@BatchId";
-        private const string STEP_ID = "@StepId";
-        private const string RUN_ID = "@RunId";
         private const string XML = "XML";
 
-        public WfResult Start(WorkflowActivityParameters args, ILogger logger, CancellationToken token)
+        public WfResult Start(WorkflowAttributeCollection args, ILogger logger, CancellationToken token)
         {
             WfResult result = WfResult.Succeeded;
             _logger = logger;
@@ -53,8 +48,8 @@ namespace BIAS.Framework.DeltaExtractor
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
                 string inputXml;
-                if (_args.KeyList.AllKeys.Contains(XML))
-                    inputXml = _args.Get(XML);
+                if (_args.ContainsKey(XML))
+                    inputXml = _args[XML];
                 else
                     inputXml = DeParameters();
 
@@ -90,12 +85,12 @@ namespace BIAS.Framework.DeltaExtractor
 
             StringBuilder sb = new StringBuilder(XML_HEADER);
             string cmd_text = String.Format(DE_PARAMETER_QUERY,
-            _args.Get(BATCH_ID),
-            _args.Get(STEP_ID),
-            _args.Get(RUN_ID),
+            _args[WorkflowConstants.ATTRIBUTE_BATCH_ID],
+            _args[WorkflowConstants.ATTRIBUTE_STEP_ID],
+            _args[WorkflowConstants.ATTRIBUTE_RUN_ID],
             (_logger.IsEnabled(Serilog.Events.LogEventLevel.Debug)) ? 1 : 0);
 
-            using (SqlConnection cn = new SqlConnection(_args.Get(CONNECTION_STRING)))
+            using (SqlConnection cn = new SqlConnection(_args[WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING]))
             using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
             {
                 try

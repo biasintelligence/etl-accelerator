@@ -99,7 +99,6 @@
     <Compile Include="MetadataAttribute.cs" />
     <Compile Include="MetadataAttributeCollection.cs" />
     <Compile Include="WorkflowActivity.cs" />
-    <Compile Include="WorkflowActivityParameters.cs" />
     <Compile Include="WorkflowAttributeCollection.cs" />
     <Compile Include="WorkflowConstants.cs" />
     <Compile Include="WorkflowConstraintProcessor.cs" />

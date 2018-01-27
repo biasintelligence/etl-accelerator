@@ -56,7 +56,7 @@ namespace BIAS.Framework.DeltaExtractor.exe
 
 
                 ;
-                WorkflowActivityParameters param = WorkflowActivityParameters.Create();
+                WorkflowAttributeCollection param = new WorkflowAttributeCollection();
                 param.Add("XML", args[0]);
 
                 using (CancellationTokenSource cts = new CancellationTokenSource())

@@ -53,7 +53,7 @@ namespace ControllerRuntime
 
     public interface IWorkflowRunner
     {
-        WfResult Start(WorkflowActivityParameters args, ILogger logger,CancellationToken token);
+        WfResult Start(WorkflowAttributeCollection attributes, ILogger logger,CancellationToken token);
     }
 
 

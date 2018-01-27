@@ -62,32 +62,25 @@ namespace ControllerRuntime
 
         public Workflow Workflow
         {
-            get
-            {
-                return _workflow;
-            }
+            get => _workflow;
         }
 
 
         public WfResult WorkflowRunStatus
         {
-            get
-            {
-                return run_status;
-            }
+            get => run_status;
         }
 
 
         public WfResult WorkflowCompleteStatus
         {
-            get
-            {
-                return wf_status;
-            }
+            get => wf_status;
         }
 
         public int Count
-        { get { return base_node_set.Count; } }
+        {
+            get => base_node_set.Count;
+        }
 
         /// <summary>
         /// step dispatcher function.
@@ -396,23 +389,6 @@ namespace ControllerRuntime
             }
         }
 
-        //private void OnExitTimer(object stateInfo)
-        //{
-        //    AutoResetEvent autoEvent = (AutoResetEvent)stateInfo;
-        //    WfResult result = _db.WorkflowExitEventCheck(_workflow.WorkflowId,0,_workflow.RunId);
-        //    if (result.StatusCode != WfStatus.Running)
-        //    {
-        //        lock(lock_object)
-        //        {
-        //           foreach( WfResult item_result in base_status_set.Values.Where(val => val.StatusCode == WfStatus.Unknown))
-        //           {
-        //               item_result.SetTo(result);
-        //           }
-        //        }
-        //    }
-
-        //    return;
-        //}
 
         void IDisposable.Dispose()
         {
