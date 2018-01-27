@@ -192,33 +192,33 @@ namespace BIAS.Framework.DeltaExtractor
                     }
 
 
-                }, token);
+                });
 
-                runPkg.Wait();
+                runPkg.Wait(token);
             }
             catch (Exception ex)
             {
+
+                pkg.Dispose();
+                logger.Error(ex,"Package was cancelled: {PackageId}, {Name}", pkg.ID, pkg.Name);
+                //var app = new Application();
+                //var list = app.GetRunningPackages(".");
+
+                //foreach (var p in list)
+                //{
+                //    if (p.PackageID == Guid.Parse(pkg.ID))
+                //    {
+                //        p.Stop();
+                //        pkg.Dispose();
+                //        break;
+                //    }
+                //}
+
+
                 throw ex;
             }
-            finally
-            {
-                var app = new Application();
-                var list = app.GetRunningPackages(".");
 
-                logger.Debug("builed package: {PackageId}, {Name}", pkg.ID,pkg.Name);
-                foreach (var p in list)
-                {
-
-                    logger.Debug("running package: {PackageId}, {Name}", p.PackageID,p.PackageName);
-                    if (p.PackageID == Guid.Parse(pkg.ID))
-                    {
-                        p.Stop();
-                        break;
-                    }
-                }
-            }
-
-        }   
+        }
         #endregion
 
     }

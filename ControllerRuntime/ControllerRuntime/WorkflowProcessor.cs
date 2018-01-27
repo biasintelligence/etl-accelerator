@@ -250,7 +250,7 @@ namespace ControllerRuntime
                                 WfResult wfResult = _wfg.WorkflowCompleteStatus;
                                 _db.WorkflowFinalize(_wf, _wfg.WorkflowCompleteStatus);
                                 _logger.Information("Finish Processing Workflow {ItemName} with result: {WfStatus}, exit code: {ErrorCode}"
-                                    , _wf.WorkflowName,wfResult.StatusCode.ToString(),wfResult.Message, wfResult.ErrorCode);
+                                    , _wf.WorkflowName,wfResult.StatusCode.ToString(), wfResult.ErrorCode);
                             }
 
                         }

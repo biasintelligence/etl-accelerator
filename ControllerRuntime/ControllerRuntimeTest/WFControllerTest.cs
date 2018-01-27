@@ -14,7 +14,7 @@ namespace ControllerRuntimeTest
     [TestClass]
     public class WFControllerTest
     {
-        const string connectionString = @"Server=devomasq91;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
+        //const string connectionString = @"Server=devomasq91;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
 
         [TestMethod]
         public void WFRun_Ok()
@@ -25,7 +25,7 @@ namespace ControllerRuntimeTest
                 .Build();
 
             string runnerName = builder.GetSection("Data:Runner").Value;
-            string connString = builder.GetSection("Data:Controller").Value;
+            string connectionString = builder.GetSection("Data:Controller").Value;
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder)
                 .MinimumLevel.Debug()
@@ -35,10 +35,10 @@ namespace ControllerRuntimeTest
                 //             fileSizeLimitBytes: 1024000
                 //            )
                 //.WriteTo.Console()
-                .WriteTo.WorkflowLogger(connectionString: connString)
+                .WriteTo.WorkflowLogger(connectionString: connectionString)
                 .CreateLogger();
 
-            string WFName = "general_test_wfr";
+            string WFName = "test103";
 
             WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
             attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);
