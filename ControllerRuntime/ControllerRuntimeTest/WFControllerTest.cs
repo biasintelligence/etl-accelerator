@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 //using DefaultActivities;
 using ControllerRuntime;
 using ControllerRuntime.Logging;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace ControllerRuntimeTest
@@ -18,14 +19,26 @@ namespace ControllerRuntimeTest
         [TestMethod]
         public void WFRun_Ok()
         {
+
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            string runnerName = builder.GetSection("Data:Runner").Value;
+            string connString = builder.GetSection("Data:Controller").Value;
             Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder)
                 .MinimumLevel.Debug()
-                .WriteTo.Console()
-                .WriteTo.WorkflowLogger(connectionString: connectionString)
+                //.WriteTo.File(path: @"c:\logs\log.txt",
+                //             rollOnFileSizeLimit: true,
+                //             rollingInterval: RollingInterval.Hour,
+                //             fileSizeLimitBytes: 1024000
+                //            )
+                //.WriteTo.Console()
+                .WriteTo.WorkflowLogger(connectionString: connString)
                 .CreateLogger();
 
-            string runnerName = "UTTest";
-            string WFName = "test8200";
+            string WFName = "general_test_wfr";
 
             WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
             attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);

@@ -20,6 +20,7 @@ using System.Configuration;
 
 using Serilog;
 using Serilog.Events;
+using Microsoft.Extensions.Configuration;
 using ControllerRuntime;
 using ControllerRuntime.Logging;
 
@@ -71,13 +72,20 @@ namespace WorkflowRunner
             }
 
 
-            var settings = ConfigurationManager.AppSettings;
-            string connectionString = settings["Controller"];
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            string runnerName = builder.GetSection("Data:Runner").Value;
+            string connectionString = builder.GetSection("Data:Controller").Value;
+
+            //var settings = ConfigurationManager.AppSettings;
+            //string connectionString = settings["Controller"];
 
             attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
 
 
-            string runnerName = settings["Runner"];
+            //string runnerName = settings["Runner"];
             if (String.IsNullOrEmpty(runnerName))
                 runnerName = "Default";
 
@@ -86,8 +94,9 @@ namespace WorkflowRunner
 
             if (verbose)
                 Log.Logger = new LoggerConfiguration()
+                        .ReadFrom.Configuration(builder)
                         .MinimumLevel.Is(minLogLevel)
-                        .WriteTo.Console()
+                        //.WriteTo.Console()
                         .WriteTo.WorkflowLogger(connectionString: connectionString)
                         .CreateLogger();
             else
@@ -118,11 +127,11 @@ namespace WorkflowRunner
 
         private static void help()
         {
-            Console.WriteLine (@"Usage: runner <Name> /D /R /V");
+            Console.WriteLine (@"Usage: runner <Name> /D /R /V /F");
             Console.WriteLine (@"Options:");
             Console.WriteLine (@"   /D - debug mode");
             Console.WriteLine (@"   /R - force restart");
-            Console.WriteLine (@"   /V - console output");
+            Console.WriteLine(@"   /V - appsettings sinks output");
         }
 
     }

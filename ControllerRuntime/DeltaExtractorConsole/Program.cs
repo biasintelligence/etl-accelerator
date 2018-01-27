@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Configuration;
 using ControllerRuntime;
 using ControllerRuntime.Logging;
@@ -59,11 +59,14 @@ namespace BIAS.Framework.DeltaExtractor.exe
                 WorkflowActivityParameters param = WorkflowActivityParameters.Create();
                 param.Add("XML", args[0]);
 
-                DERun runner = new DERun();
-                WfResult result =  runner.Start(param, logger);
-                if (result.StatusCode != WfStatus.Succeeded)
+                using (CancellationTokenSource cts = new CancellationTokenSource())
                 {
-                    throw new Exception(String.Format("DE returned Status: {0}", result.StatusCode.ToString()));
+                    DERun runner = new DERun();
+                    WfResult result = runner.Start(param, logger, cts.Token);
+                    if (result.StatusCode != WfStatus.Succeeded)
+                    {
+                        throw new Exception(String.Format("DE returned Status: {0}", result.StatusCode.ToString()));
+                    }
                 }
 
             }

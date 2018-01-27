@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Xml.Serialization;
 using System.IO;
+using System.Threading;
 
 using Serilog;
 using ControllerRuntime;
@@ -39,7 +40,7 @@ namespace BIAS.Framework.DeltaExtractor
         private const string RUN_ID = "@RunId";
         private const string XML = "XML";
 
-        public WfResult Start(WorkflowActivityParameters args, ILogger logger)
+        public WfResult Start(WorkflowActivityParameters args, ILogger logger, CancellationToken token)
         {
             WfResult result = WfResult.Succeeded;
             _logger = logger;
@@ -67,11 +68,12 @@ namespace BIAS.Framework.DeltaExtractor
 
                 logger.Information("Running DE v.{Version} ({Bit} bit)", v.ToString(), 8 * IntPtr.Size);
                 logger.Information("Executing as: {User}", WindowsIdentity.GetCurrent().Name.ToString());
+                logger.Debug("DE input parameter: {DeXml}", inputXml);
 
                 //logger.WriteDebug("DE XML: " + inputXml);
 
                 DEController controller = new DEController();
-                controller.Execute(parameters, logger);
+                controller.Execute(parameters, logger, token);
 
             }
             catch (Exception ex)
@@ -104,7 +106,7 @@ namespace BIAS.Framework.DeltaExtractor
                     //sb.Replace("\"","\\\"");
                     //sb.Insert(0, '\"').Append('\"');
 
-                    _logger.Debug("CommandText : {Command}", cmd.CommandText);
+                    //_logger.Debug("DE Parameter : {Xml}", sb.ToString());
                     //_logger.WriteDebug(String.Format("sb : {0}", sb.ToString()));
 
                     return sb.ToString();

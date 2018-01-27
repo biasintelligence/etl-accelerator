@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 
 using Serilog;
 using ControllerRuntime;
@@ -74,6 +75,9 @@ namespace DefaultActivities
         {
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
+
+            int processId = Process.GetCurrentProcess().Id;
+            _logger.Debug("Host process Id: {ProcessId}", processId);
 
             using (SqlConnection cn = new SqlConnection(_attributes[CONNECTION_STRING]))
             {

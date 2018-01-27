@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Xml;
 using System.Collections;
 using System.Threading;
+using task = System.Threading.Tasks;
 using System.Data;
 using Microsoft.SqlServer.Dts.Runtime;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
@@ -28,26 +29,26 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region Methods
 
-        public delegate void DEAction<in T, in L>(T obj, L logger);
+        public delegate void DEAction<in T, in L, in C>(T obj, L logger, C CancellationToken);
 
-        public void Execute(Parameters p, ILogger logger)
+        public void Execute(Parameters p, ILogger logger, CancellationToken token)
         {
             System.Diagnostics.Debug.Assert(p != null);
 
-            Dictionary<string, DEAction<Parameters, ILogger>> actions =
-                 new Dictionary<string, DEAction<Parameters, ILogger>>(StringComparer.InvariantCultureIgnoreCase) {
+            Dictionary<string, DEAction<Parameters, ILogger, CancellationToken>> actions =
+                 new Dictionary<string, DEAction<Parameters, ILogger,CancellationToken>>(StringComparer.InvariantCultureIgnoreCase) {
                 {"MoveData", MoveDataRun },
                 {"RunPackage", ExecPackageRun }
                  };
 
             if (actions.ContainsKey(p.Action))
             {
-                actions[p.Action](p, logger);
+                actions[p.Action](p, logger, token);
             }
 
         }
 
-        private void MoveDataRun(Parameters p, ILogger logger)
+        private void MoveDataRun(Parameters p, ILogger logger,CancellationToken token)
         {
 
             System.Diagnostics.Debug.Assert(p != null);
@@ -79,7 +80,7 @@ namespace BIAS.Framework.DeltaExtractor
                 throw new DeltaExtractorBuildException("Failed to Load or Build the SSIS Package");
             }
 
-            ExecutePackageWithEvents(pkg, logger);
+            ExecutePackageWithEvents(pkg, logger, token);
 
             int rowCount = Convert.ToInt32(pkg.Variables["RowCount"].Value, CultureInfo.InvariantCulture);
             logger.Information("DE extracted {Count} rows from the Source.", rowCount.ToString());
@@ -120,7 +121,7 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
 
-        private void ExecPackageRun(Parameters p, ILogger logger)
+        private void ExecPackageRun(Parameters p, ILogger logger, CancellationToken token)
         {
 
             System.Diagnostics.Debug.Assert(p != null);
@@ -149,7 +150,7 @@ namespace BIAS.Framework.DeltaExtractor
                 try
                 {
                     pkg.LoadFromXML(action.File, null);
-                    ExecutePackageWithEvents(pkg, logger);
+                    ExecutePackageWithEvents(pkg, logger, token);
                 }
                 catch (COMException cexp)
                 {
@@ -165,26 +166,59 @@ namespace BIAS.Framework.DeltaExtractor
 
         }
 
-        private void ExecutePackageWithEvents(Package pkg, ILogger logger)
+        private void ExecutePackageWithEvents(Package pkg, ILogger logger, CancellationToken token)
         {
-            // Throw an exception if we get an error
-            logger.Information("Executing DE Package...");
-            SSISEvents ev = new SSISEvents(logger);
-            DTSExecResult rc = pkg.Execute(null, null, ev, null, null);
-            if (rc != DTSExecResult.Success)
+            try
             {
-                logger.Error("Error: the DE failed to complete successfully {ErrorCode}.", 50000);
-                //StringBuilder dtserrors = new StringBuilder();
-                foreach (DtsError error in pkg.Errors)
-                {
-                    logger.Error("Error: {Desc}, {ErrorCode}",error.Description, error.ErrorCode);
-                    //dtserrors.AppendLine(error.Description);
-                }
-                throw new UnexpectedSsisException("SSIS Package execution failed");
-                //return false;
-            }
-        }
 
+                var runPkg =
+                task.Task.Factory.StartNew(() =>
+                {
+                    // Throw an exception if we get an error
+                    logger.Information("Executing DE Package...");
+                    SSISEvents ev = new SSISEvents(logger);
+                    DTSExecResult rc = pkg.Execute(null, null, ev, null, null);
+                    if (rc != DTSExecResult.Success)
+                    {
+                        logger.Error("Error: the DE failed to complete successfully {ErrorCode}.", 50000);
+                        //StringBuilder dtserrors = new StringBuilder();
+                        foreach (DtsError error in pkg.Errors)
+                        {
+                            logger.Error("Error: {Desc}, {ErrorCode}", error.Description, error.ErrorCode);
+                            //dtserrors.AppendLine(error.Description);
+                        }
+                        throw new UnexpectedSsisException("SSIS Package execution failed");
+                        //return false;
+                    }
+
+
+                }, token);
+
+                runPkg.Wait();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                var app = new Application();
+                var list = app.GetRunningPackages(".");
+
+                logger.Debug("builed package: {PackageId}, {Name}", pkg.ID,pkg.Name);
+                foreach (var p in list)
+                {
+
+                    logger.Debug("running package: {PackageId}, {Name}", p.PackageID,p.PackageName);
+                    if (p.PackageID == Guid.Parse(pkg.ID))
+                    {
+                        p.Stop();
+                        break;
+                    }
+                }
+            }
+
+        }   
         #endregion
 
     }

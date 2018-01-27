@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Data;
 using System.Data.SqlClient;
 using ControllerRuntime;
@@ -87,10 +88,12 @@ namespace DefaultActivities
             WfResult result = WfResult.Unknown;
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
+            int processId = Process.GetCurrentProcess().Id;
+            _logger.Debug("Host process Id: {ProcessId}", processId);
             _logger.Debug("Running DeltaExtractor...");
 
             DERun runner = new DERun();
-            return runner.Start(_parameters,_logger);
+            return runner.Start(_parameters,_logger,token);
         }
         #endregion
 

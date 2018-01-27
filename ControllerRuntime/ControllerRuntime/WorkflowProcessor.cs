@@ -228,10 +228,13 @@ namespace ControllerRuntime
                             result = WfResult.Failed;
                             if (timeoutCts.IsCancellationRequested)
                             {
-
                                 result = WfResult.Create(WfStatus.Failed, "Workflow timeout was reached", -10);
                                 _logger.Error(aex, result.Message);
-
+                            }
+                            else if (cancelCts.IsCancellationRequested)
+                            {
+                                result = WfResult.Create(WfStatus.Failed, "Workflow was cancelled", -10);
+                                _logger.Error(aex, result.Message);
                             }
 
                         }
@@ -246,7 +249,7 @@ namespace ControllerRuntime
                             {
                                 WfResult wfResult = _wfg.WorkflowCompleteStatus;
                                 _db.WorkflowFinalize(_wf, _wfg.WorkflowCompleteStatus);
-                                _logger.Information("Finish Processing Workflow {ItemName} with result - {WfStatus} {Message} ({ErrorCode})"
+                                _logger.Information("Finish Processing Workflow {ItemName} with result: {WfStatus}, exit code: {ErrorCode}"
                                     , _wf.WorkflowName,wfResult.StatusCode.ToString(),wfResult.Message, wfResult.ErrorCode);
                             }
 
