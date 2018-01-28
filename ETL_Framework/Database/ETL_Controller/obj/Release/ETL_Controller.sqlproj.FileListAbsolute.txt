@@ -1,0 +1,4 @@
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\release\ETL_Controller.dacpac
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\release\ETL_Controller.dll
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Release\ETL_Controller.dll
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\release\Scripts\Post-Deployment\Environment.sql

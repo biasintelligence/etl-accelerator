@@ -1,0 +1,31 @@
+﻿** Highlights
+     Tables that will be rebuilt
+       None
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Create
+       [dbo].[FileList] (User-Defined Table Type)
+       [dbo].[Audit] (Table)
+       [dbo].[FileProcessProgress] (Table)
+       [dbo].[ProgressStatus] (Table)
+       Default Constraint: unnamed constraint on [dbo].[FileProcessProgress] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[FileProcessProgress] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[FileProcessProgress] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[FileProcessProgress] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[ProgressStatus] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[ProgressStatus] (Default Constraint)
+       Default Constraint: unnamed constraint on [dbo].[ProgressStatus] (Default Constraint)
+       [dbo].[prc_Audit] (Procedure)
+       [dbo].[prc_FileProcessGetNext] (Procedure)
+       [dbo].[prc_FileProcessProgressUpdate] (Procedure)
+       [dbo].[prc_FileProcessRegisterNew] (Procedure)
+       [dbo].[prc_StagingTablePrepare] (Procedure)
+       [dbo].[prc_StagingTableUpload] (Procedure)
+
+** Supporting actions

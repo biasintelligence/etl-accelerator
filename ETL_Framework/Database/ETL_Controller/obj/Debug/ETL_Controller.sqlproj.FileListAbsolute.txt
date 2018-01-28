@@ -1,0 +1,14 @@
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\debug\ETL_Controller.dacpac
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\debug\Scripts\Post-Deployment\Environment.sql
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\debug\ETL_Controller.dll
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\debug\ETL_Controller.pdb
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\debug\master.dacpac
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Debug\ETL_Controller.sqlprojResolveAssemblyReference.cache
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Debug\ETL_Controller.dll
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Debug\ETL_Controller.pdb
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\debug\ControllerClrExtensions.dll
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\sql\debug\ControllerClrExtensions.pdb
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Debug\Model.xml
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Debug\refactor.xml
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Debug\postdeploy.sql
+C:\github\etl-accelerator\ETL_Framework\Database\ETL_Controller\obj\Debug\predeploy.sql

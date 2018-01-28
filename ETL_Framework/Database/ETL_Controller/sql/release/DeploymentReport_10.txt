@@ -1,0 +1,29 @@
+﻿** Highlights
+     Tables that will be rebuilt
+       [dbo].[ETLBatchConstraint]
+       [dbo].[ETLStepConstraint]
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Drop
+       [dbo].[SystemParametersEnvironmentNameCK] (Check Constraint)
+     Table rebuild
+       [dbo].[ETLBatchConstraint] (Table)
+       [dbo].[ETLStepConstraint] (Table)
+     Create
+       [dbo].[SystemParametersEnvironmentNameCK] (Check Constraint)
+     Alter
+       [dbo].[prc_ExportMetadataScript] (Procedure)
+       [dbo].[prc_PersistContext] (Procedure)
+
+** Supporting actions
+     Refresh
+       [dbo].[prc_CreateContext] (Procedure)
+       [dbo].[prc_ETLAttributeSet] (Procedure)
+       [dbo].[prc_RemoveContext] (Procedure)
+       [dbo].[prc_AttributeSet] (Procedure)

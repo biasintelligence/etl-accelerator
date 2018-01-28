@@ -1,0 +1,5 @@
+C:\github\etl-accelerator\ETL_Framework\Tools\DeSqlClr\bin\Debug\DeSqlClr.dll
+C:\github\etl-accelerator\ETL_Framework\Tools\DeSqlClr\bin\Debug\DeSqlClr.pdb
+C:\github\etl-accelerator\ETL_Framework\Tools\DeSqlClr\obj\Debug\DeSqlClr.csprojResolveAssemblyReference.cache
+C:\github\etl-accelerator\ETL_Framework\Tools\DeSqlClr\obj\Debug\DeSqlClr.dll
+C:\github\etl-accelerator\ETL_Framework\Tools\DeSqlClr\obj\Debug\DeSqlClr.pdb
