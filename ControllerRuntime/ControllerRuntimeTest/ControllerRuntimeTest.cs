@@ -6,15 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using ControllerRuntime;
-using WorkflowConsoleRunner;
-using DefaultActivities;
 using Serilog;
-using ControllerRuntime.Logging;
 
 namespace ControllerRuntimeTest
 {
     [TestClass]
-    public class DBControllerTest
+    public class ControllerRuntimeTest
     {
 
         const string connectionString = @"Server=localhost;Database=etl_controller;Trusted_Connection=True;Connection Timeout=120;";
@@ -116,28 +113,6 @@ namespace ControllerRuntimeTest
             Assert.IsTrue(wr.StatusCode == WfStatus.Succeeded);
         }
 
-
-        [TestMethod]
-        public void Test_Log_Ok()
-        {
-            ILogger logger = new LoggerConfiguration()
-                  .MinimumLevel.Debug()
-                  .WriteTo.Console()
-                  .WriteTo.WorkflowLogger(connectionString: connectionString)
-                  .CreateLogger();
-
-            logger = logger
-                .ForContext("RunId", 1)
-                .ForContext("WorkflowId", 1)
-                .ForContext("StepId", 1);
-
-
-            logger.Information("Test Info Message");
-            logger.Debug("Test Debug Message");
-            logger.Error("Test Error Message: {ErrorCode}", 555);
-
-        }
-
         [TestMethod]
         public void Test_Workflow_Attributes_Get_Ok()
         {
@@ -146,6 +121,20 @@ namespace ControllerRuntimeTest
             Assert.IsTrue(attributes.Count > 0);
         }
 
+        [TestMethod]
+        public void DeserializeParameter_Ok()
+        {
+            string json = @"
+[{'Name':'Attr1','Override':['Over1','Over2','Attr1'],'Default':'Na trasse vse spokoyno'}
+,{'Name':'Attr2','Override':['Over1','Attr2'],'Default':'no'}
+,{'Name':'Attr2','Override':['Attr2']}]
+";
+            WorkflowProcess p = new WorkflowProcess();
+            p.Param = json;
+
+            Assert.IsTrue(p.Parameters != null && p.Parameters.Count > 0);
+
+        }
     }
 }
 
