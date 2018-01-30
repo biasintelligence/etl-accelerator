@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerRuntimeTest", "ControllerRuntimeTest\ControllerRuntimeTest.csproj", "{CF83FCBC-72F1-4E66-9474-986B36C3B32D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultActivities", "DefaultActivities\DefaultActivities.csproj", "{B358B4BF-3F25-4D1E-8F89-594A8437AA73}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowConsoleRunner", "WorkflowConsoleRunner\WorkflowConsoleRunner.csproj", "{44E4AF0A-34FE-4253-917C-DC52B4FC847F}"
@@ -31,18 +29,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Debug|x64.ActiveCfg = Debug|x64
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Debug|x64.Build.0 = Debug|x64
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Debug|x86.ActiveCfg = Debug|x86
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Debug|x86.Build.0 = Debug|x86
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Release|x64.ActiveCfg = Release|Any CPU
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Release|x64.Build.0 = Release|Any CPU
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Release|x86.ActiveCfg = Release|Any CPU
-		{CF83FCBC-72F1-4E66-9474-986B36C3B32D}.Release|x86.Build.0 = Release|Any CPU
 		{B358B4BF-3F25-4D1E-8F89-594A8437AA73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B358B4BF-3F25-4D1E-8F89-594A8437AA73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B358B4BF-3F25-4D1E-8F89-594A8437AA73}.Debug|x64.ActiveCfg = Debug|x64

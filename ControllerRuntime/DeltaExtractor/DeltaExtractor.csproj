@@ -99,7 +99,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ControllerRuntime, Version=1.0.1.1, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ControllerRuntime.1.0.1.28\lib\net461\ControllerRuntime.dll</HintPath>
+      <HintPath>..\packages\ControllerRuntime.1.0.1.33\lib\net461\ControllerRuntime.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.OData.Core">
