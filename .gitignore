@@ -35,3 +35,5 @@
 /ControllerRuntime/AzureActivities/bin/Debug
 /ControllerRuntime/AwsActivities/bin/Debug
 /ControllerRuntime/.vs/config
+/ControllerRuntime/WorkflowConsoleRunner/bin/Debug/WorkflowConsoleRunner.pdb
+/ControllerRuntime/.vs/ControllerRuntime/v15
