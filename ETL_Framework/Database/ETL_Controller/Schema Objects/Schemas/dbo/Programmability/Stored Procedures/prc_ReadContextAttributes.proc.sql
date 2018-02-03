@@ -28,6 +28,9 @@ As
 *******************************************************************
 **  Date:            Author:            Description:
 **  05/21/2008       andreys            add etl namespace to system attributes
+**  02/02/2018       andrey             add evaluate counter <ctr:Name:stepid>. example <ctr:MyCounter;2>
+                                        would return MyCounter value from step 2, stepId = 0 - batch level
+										if counter dosnt exist return unresolved
 ******************************************************************/
 SET NOCOUNT ON
 DECLARE @Err INT
@@ -58,8 +61,14 @@ SET @ProcName = OBJECT_NAME(@@PROCID)
 SET @Err = 0
 SET @ProcErr = 0
 
-declare @attr table(id int identity(1,1),AttributeName nvarchar(100),AttributeValue nvarchar(max) null,CompleteFlag tinyint null)
-declare @ab table (aid int,bid int,isexec tinyint)
+declare @attr table(
+id int identity(1,1)
+,AttributeName nvarchar(100)
+,AttributeValue nvarchar(max) null
+,CompleteFlag bit null default 0
+,exportFlag bit null default 1);
+
+declare @ab table (aid int,bid int,isexec bit)
 
 begin try
 exec @ProcErr = dbo.[prc_ReadProcessRequest] @pProcessRequest,@Header out,@Context out,@Handle out
@@ -173,6 +182,13 @@ union select '@Options',cast(@inputoptions as nvarchar(100))
 union select '@Handle',cast(@handle as nvarchar(100))
 union select 'etl:RunID',cast(@RunID as nvarchar(100))
 
+-------------------------------------------------------------------
+--add counters
+-------------------------------------------------------------------
+insert @attr (AttributeName,AttributeValue,exportFlag)
+select 'ctr:' + c.counterName + ':' + cast(c.stepId as nvarchar(30)),c.counterValue,0
+  from dbo.etlStepRunCounter c
+ where batchId = @batchId and runId = @runId
 
 -------------------------------------------------------------------
 --relationship table
@@ -195,9 +211,9 @@ BEGIN
                  ,@Name = t.AttributeName
                  ,@Value1 = t.AttributeValue
       FROM @attr t
-      WHERE t.CompleteFlag IS NULL
+      WHERE t.CompleteFlag = 0
         AND NOT EXISTS(SELECT 1 FROM @ab t1
-                         JOIN @attr t2 ON t1.aid = t2.id WHERE  t.id = t1.bid AND t2.CompleteFlag IS NULL) --no parents
+                         JOIN @attr t2 ON t1.aid = t2.id WHERE  t.id = t1.bid AND t2.CompleteFlag = 0) --no parents
         AND EXISTS(SELECT 1 FROM @ab t2 WHERE  t.id = t2.aid) --have children
       order by t.id
 
@@ -235,10 +251,10 @@ BEGIN
    update @attr set CompleteFlag = 1 where id = @id
 END
 
-
 ;with xmlnamespaces('ETLController.XSD' as etl)
 select @pAttributes = 
  (select a.AttributeName as '@Name',a.AttributeValue as '*' from @attr a
+   where exportFlag = 1
      for xml path('etl:Attribute'),root('etl:Attributes'),type)
 
 if @pAttributes is null
