@@ -1,7 +1,0 @@
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\sql\release\ETL_Event.dacpac
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\sql\release\ETL_Event.dll
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Release\ETL_Event.dll
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Release\Model.xml
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Release\refactor.xml
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Release\postdeploy.sql
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Release\predeploy.sql

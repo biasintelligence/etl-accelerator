@@ -1,9 +1,0 @@
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\sql\debug\ETL_Event.dacpac
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\sql\debug\ETL_Event.dll
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\sql\debug\ETL_Event.pdb
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Debug\ETL_Event.dll
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Debug\ETL_Event.pdb
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Debug\Model.xml
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Debug\refactor.xml
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Debug\postdeploy.sql
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Event\obj\Debug\predeploy.sql

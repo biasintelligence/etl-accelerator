@@ -1,9 +1,0 @@
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\sql\release\ETL_Staging.dacpac
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\sql\release\
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\sql\release\ETL_Staging.dll
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\sql\release\master.dacpac
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\obj\Release\Model.xml
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\obj\Release\refactor.xml
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\obj\Release\postdeploy.sql
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\obj\Release\predeploy.sql
-C:\github\etl-accelerator\ETL_Framework\Database\ETL_Staging\obj\Release\ETL_Staging.dll
