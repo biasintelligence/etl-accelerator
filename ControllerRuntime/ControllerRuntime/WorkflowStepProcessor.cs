@@ -10,6 +10,8 @@
 **  Date:            Author:            Description:
 *******************************************************************/
 // 2017-01-25       andrey              add delay logic to retries
+// 2018-02-03       andrey              allow to skip Step process on processId = 0
+//                                      to enable attribute re-evaluation only (set batch attributes from counters for example) 
 
 using System;
 using System.Collections.Generic;
@@ -62,8 +64,11 @@ namespace ControllerRuntime
                 {
                     foreach (WorkflowConstraint wfc in _step.StepConstraints)
                     {
-                        if (wfc.IsDisabled)
+                        if (wfc.IsDisabled || wfc.Process.ProcessId == 0)
+                        {
+                            _logger.Debug("Constraint process is not defined or disabled {ItemKey}:{ItemName}", _step.Key, _step.StepName);
                             continue;
+                        }
 
                         if ((wfc.Process.ScopeId & 12) == 0)
                             throw new ArgumentException(String.Format("Constraint Process is not of correct scope 0011 = {0}", wfc.Process.ScopeId));
@@ -83,17 +88,23 @@ namespace ControllerRuntime
                 }
 
                 WorkflowAttributeCollection attributes = null;
-                if (_step.StepProcess != null)
+                //always evaluate step attributes
+                attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.RunId);
+                attributes.Merge(_wfp.Attributes);
+
+                if (_step.StepProcess.ProcessId != 0)
                 {
                     if ((_step.StepProcess.ScopeId & 3) == 0)
                         throw new ArgumentException(String.Format("Step Process is not of correct scope 1100 = {0}", _step.StepProcess.ScopeId));
 
                     //Run Step Activity here
-                    attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.RunId);
-                    attributes.Merge(_wfp.Attributes);
                     WorkflowActivity step_activity = new WorkflowActivity(_step.StepProcess, attributes, _logger);
                     IWorkflowActivity step_runner = step_activity.Activate();
                     result = (ProcessRunAsync(step_runner, extToken, _step.StepRetry, _step.StepDelayOnRetry, _step.StepTimeout, _logger)).Result;
+                }
+                else
+                {
+                    _logger.Debug("Step process is not defined. Skipped {ItemKey}", _step.Key);
                 }
 
 
@@ -109,8 +120,9 @@ namespace ControllerRuntime
                         throw new ArgumentException(String.Format("OnSuccess Process is not of correct scope 1100 = {0}", _step.StepOnSuccessProcess.ScopeId));
 
                     //Run OnSuccess Activity here
-                    if (attributes == null)
-                        attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.StepId);
+                    //re-evaluate attribites
+                    //if (attributes == null)
+                    attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.StepId);
                     WorkflowActivity success_activity = new WorkflowActivity(_step.StepOnSuccessProcess, attributes, _logger);
                     IWorkflowActivity success_runner = success_activity.Activate();
 
@@ -129,8 +141,9 @@ namespace ControllerRuntime
                         throw new ArgumentException(String.Format("OnFailure Process is not of correct scope 1100 = {0}", _step.StepOnFailureProcess.ScopeId));
 
                     //Run OnFailure Activity here
-                    if (attributes == null)
-                        attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.StepId);
+                    //re-evaluate attribites
+                    //if (attributes == null)
+                    attributes = _db.WorkflowAttributeCollectionGet(_step.WorkflowId, _step.StepId, 0, _step.StepId);
                     WorkflowActivity failure_activity = new WorkflowActivity(_step.StepOnFailureProcess, attributes, _logger);
                     IWorkflowActivity failure_runner = failure_activity.Activate();
 

@@ -29,6 +29,7 @@ As
 **  Date:            Author:            Description:
 **  5/20/2008        andreys            remove context resolution
 **  10/15/2011       andreys            add controller and node globals
+**  2/3/2018         andrey             set unknown process default to 0
 ******************************************************************/
 SET NOCOUNT ON
 DECLARE @Err INT
@@ -266,7 +267,7 @@ select @pContext =
 ,bc.WaitPeriod as '@WaitPeriod'
 ,(select top 1 bca1.AttributeValue from dbo.[ETLBatchConstraintAttribute] bca1 where bc.BatchID = bca1.BatchID and bc.ConstID = bca1.ConstID and bca1.AttributeName in ('Disabled','etl:Disabled')) as '@Disabled'
 ,(select top 1 bca2.AttributeValue from dbo.[ETLBatchConstraintAttribute] bca2 where bc.BatchID = bca2.BatchID and bc.ConstID = bca2.ConstID and bca2.AttributeName in ('Ping','etl:Ping')) as '@Ping'
-,p0.ProcessID as 'etl:Process/@ProcessID', p0.ScopeID as 'etl:Process/@ScopeID',p0.Process as 'etl:Process/etl:Process',p0.Param as 'etl:Process/etl:Param'
+,isnull(p0.ProcessID,0) as 'etl:Process/@ProcessID', isnull(p0.ScopeID,0) as 'etl:Process/@ScopeID',isnull(p0.Process,'Undefined') as 'etl:Process/etl:Process',isnull(p0.Param,'') as 'etl:Process/etl:Param'
 --batch constraint attributes
 --,(select bca.AttributeName as '@Name',bca.AttributeValue as '*'
 --    from dbo.ETLBatchConstraintAttribute bca
@@ -299,7 +300,7 @@ select @pContext =
 ,(select top 1 sa7.AttributeValue from dbo.[ETLStepAttribute] sa7 where s.BatchID = sa7.BatchID and s.StepID = sa7.StepID and sa7.AttributeName in ('LoopGroup','etl:LoopGroup')) as '@LoopGroup'
 ,(select top 1 sa8.AttributeValue from dbo.[ETLStepAttribute] sa8 where s.BatchID = sa8.BatchID and s.StepID = sa8.StepID and sa8.AttributeName in ('Timeout','etl:Timeout')) as '@Timeout'
 --,s.StepDesc as 'Desc'
-,p0.ProcessID as 'etl:Process/@ProcessID', p0.ScopeID as 'etl:Process/@ScopeID',p0.Process as 'etl:Process/etl:Process',p0.Param as 'etl:Process/etl:Param'
+,isnull(p0.ProcessID,0) as 'etl:Process/@ProcessID', isnull(p0.ScopeID,0) as 'etl:Process/@ScopeID',isnull(p0.Process,'Undefined') as 'etl:Process/etl:Process',isnull(p0.Param,'') as 'etl:Process/etl:Param'
 ,p1.ProcessID as 'etl:OnSuccess/@ProcessID', p1.ScopeID as 'etl:OnSuccess/@ScopeID',p1.Process as 'etl:OnSuccess/etl:Process',p1.Param as 'etl:OnSuccess/etl:Param'
 ,p2.ProcessID as 'etl:OnFailure/@ProcessID', p2.ScopeID as 'etl:OnFailure/@ScopeID',p2.Process as 'etl:OnFailure/etl:Process',p2.Param as 'etl:OnFailure/etl:Param'
 --step attributes
@@ -320,7 +321,7 @@ select @pContext =
 ,sc.WaitPeriod as '@WaitPeriod'
 ,(select top 1 sca1.AttributeValue from dbo.[ETLStepConstraintAttribute] sca1 where sc.BatchID = sca1.BatchID and sc.StepID = sca1.StepID and sc.ConstID = sca1.ConstID and sca1.AttributeName in ('DISABLED','etl:Disabled')) as '@Disabled'
 ,(select top 1 sca2.AttributeValue from dbo.[ETLStepConstraintAttribute] sca2 where sc.BatchID = sca2.BatchID and sc.StepID = sca2.StepID and sc.ConstID = sca2.ConstID and sca2.AttributeName in ('Ping','etl:Ping')) as '@Ping'
-,p0.ProcessID as 'etl:Process/@ProcessID', p0.ScopeID as 'etl:Process/@ScopeID',p0.Process as 'etl:Process/etl:Process',p0.Param as 'etl:Process/etl:Param'
+,isnull(p0.ProcessID,0) as 'etl:Process/@ProcessID', isnull(p0.ScopeID,0) as 'etl:Process/@ScopeID',isnull(p0.Process,'Undefind') as 'etl:Process/etl:Process',isnull(p0.Param,'') as 'etl:Process/etl:Param'
 --step constraint attributes
 --,(select sca.AttributeName as '@Name',sca.AttributeValue as '*'
 --    from dbo.ETLStepConstraintAttribute sca where sc.BatchID = sca.BatchID and sc.StepID = sca.StepID and sc.ConstID = sca.ConstID
