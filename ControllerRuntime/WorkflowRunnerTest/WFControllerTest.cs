@@ -38,7 +38,7 @@ namespace ControllerRuntimeTest
                 .WriteTo.WorkflowLogger(connectionString: connectionString)
                 .CreateLogger();
 
-            string WFName = "test103";
+            string WFName = "test105";
 
             WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
             attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);

@@ -98,9 +98,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ControllerRuntime, Version=1.0.1.1, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ControllerRuntime.1.0.1.33\lib\net461\ControllerRuntime.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.OData.Core">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft SQL Server\130\DTS\Extensions\ODataSource\References\Microsoft.OData.Core.dll</HintPath>
@@ -226,6 +223,12 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ControllerRuntime\ControllerRuntime.csproj">
+      <Project>{236758d4-9381-4ac9-87de-909f89dfba73}</Project>
+      <Name>ControllerRuntime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ControllerRuntime, Version=1.0.1.1, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ControllerRuntime.1.0.1.33\lib\net461\ControllerRuntime.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Azure.KeyVault.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Azure.KeyVault.Core.2.0.4\lib\net45\Microsoft.Azure.KeyVault.Core.dll</HintPath>
     </Reference>
@@ -85,6 +82,12 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ControllerRuntime\ControllerRuntime.csproj">
+      <Project>{236758d4-9381-4ac9-87de-909f89dfba73}</Project>
+      <Name>ControllerRuntime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

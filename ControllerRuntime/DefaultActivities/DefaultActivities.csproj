@@ -69,9 +69,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ControllerRuntime, Version=1.0.1.1, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\ControllerRuntime.1.0.1.33\lib\net461\ControllerRuntime.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
@@ -117,6 +114,10 @@
     <Compile Include="WaitActivity.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ControllerRuntime\ControllerRuntime.csproj">
+      <Project>{236758d4-9381-4ac9-87de-909f89dfba73}</Project>
+      <Name>ControllerRuntime</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DeltaExtractor\DeltaExtractor.csproj">
       <Project>{3e531402-d292-4e5b-9f46-9cab914c5cd7}</Project>
       <Name>DeltaExtractor</Name>
