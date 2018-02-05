@@ -34,7 +34,6 @@ namespace ControllerRuntimeTest
                 //             rollingInterval: RollingInterval.Hour,
                 //             fileSizeLimitBytes: 1024000
                 //            )
-                //.WriteTo.Console()
                 .WriteTo.WorkflowLogger(connectionString: connectionString)
                 .CreateLogger();
 
@@ -47,6 +46,7 @@ namespace ControllerRuntimeTest
             attributes.Add(WorkflowConstants.ATTRIBUTE_FORCESTART, "true");
             attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
             attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, WFName);
+            attributes.Add(WorkflowConstants.ATTRIBUTE_REQUEST_ID, Guid.NewGuid().ToString());
 
 
             WfResult wr = WfResult.Unknown;

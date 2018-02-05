@@ -55,16 +55,21 @@ namespace ControllerRuntime
         { get; private set; } = "Default";
 
         public DBController DBController
-        { get { return _db; } }
+        { get => _db; }
 
         public Workflow Workflow
-        { get { return _wf; } }
+        { get => _wf; }
 
         public string ConnectionString
         { get; private set; } = string.Empty;
 
         public string WorkflowName
         { get; private set; } = string.Empty;
+        public Guid RequestId
+        { get; private set; } = Guid.NewGuid();
+
+        public ILogger Logger
+        { get => _logger; }
 
 
         private readonly WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
@@ -87,7 +92,10 @@ namespace ControllerRuntime
             {
                 _db = DBController.Create(ConnectionString, _debug, _verbose);
                 _wf = _db.WorkflowMetadataGet(WorkflowName);
-                _logger = _logger.ForContext("WorkflowId", _wf.WorkflowId);
+
+                _logger = _logger
+                    .ForContext("WorkflowId", _wf.WorkflowId)
+                    .ForContext("RequestId", RequestId);
 
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
@@ -307,6 +315,11 @@ namespace ControllerRuntime
             if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, out attributeValue))
             {
                 ConnectionString = attributeValue;
+            }
+
+            if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_REQUEST_ID, out attributeValue))
+            {
+                RequestId = Guid.Parse(attributeValue);
             }
 
         }

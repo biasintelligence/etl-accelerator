@@ -14,6 +14,7 @@ namespace ControllerRuntime
         public const string ATTRIBUTE_DEBUG = "etl:Debug";
         public const string ATTRIBUTE_FORCESTART = "etl:ForceStart";
         public const string ATTRIBUTE_VERBOSE = "etl:Verbose";
+        public const string ATTRIBUTE_REQUEST_ID = "etl:RequestId";
 
         public const string ATTRIBUTE_BATCH_ID = "@BatchId";
         public const string ATTRIBUTE_STEP_ID = "@StepId";
