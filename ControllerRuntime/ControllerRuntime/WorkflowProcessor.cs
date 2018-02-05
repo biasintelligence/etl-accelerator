@@ -291,20 +291,36 @@ namespace ControllerRuntime
             {
                 ProcessorName = attributeValue;
             }
+            else
+            {
+                _attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, ProcessorName);
+            }
 
             if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_DEBUG, out attributeValue))
             {
                 _debug = Boolean.Parse(attributeValue);
+            }
+            else
+            {
+                _attributes.Add(WorkflowConstants.ATTRIBUTE_DEBUG, _debug.ToString());
             }
 
             if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_VERBOSE, out attributeValue))
             {
                 _verbose = Boolean.Parse(attributeValue);
             }
+            else
+            {
+                _attributes.Add(WorkflowConstants.ATTRIBUTE_VERBOSE, _verbose.ToString());
+            }
 
             if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_FORCESTART, out attributeValue))
             {
                 _forcestart = Boolean.Parse(attributeValue);
+            }
+            else
+            {
+                _attributes.Add(WorkflowConstants.ATTRIBUTE_FORCESTART, _forcestart.ToString());
             }
 
             if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, out attributeValue))
@@ -320,6 +336,10 @@ namespace ControllerRuntime
             if (_attributes.TryGetValue(WorkflowConstants.ATTRIBUTE_REQUEST_ID, out attributeValue))
             {
                 RequestId = Guid.Parse(attributeValue);
+            }
+            else
+            {
+                _attributes.Add(WorkflowConstants.ATTRIBUTE_REQUEST_ID, RequestId.ToString());
             }
 
         }

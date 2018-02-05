@@ -40,13 +40,13 @@ namespace ControllerRuntimeTest
             string WFName = "test105";
 
             WorkflowAttributeCollection attributes = new WorkflowAttributeCollection();
-            attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);
-            attributes.Add(WorkflowConstants.ATTRIBUTE_DEBUG, "true");
+            //attributes.Add(WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME, runnerName);
+            attributes.Add(WorkflowConstants.ATTRIBUTE_DEBUG, "false");
             attributes.Add(WorkflowConstants.ATTRIBUTE_VERBOSE, "true");
             attributes.Add(WorkflowConstants.ATTRIBUTE_FORCESTART, "true");
             attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
             attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, WFName);
-            attributes.Add(WorkflowConstants.ATTRIBUTE_REQUEST_ID, Guid.NewGuid().ToString());
+            //attributes.Add(WorkflowConstants.ATTRIBUTE_REQUEST_ID, Guid.NewGuid().ToString());
 
 
             WfResult wr = WfResult.Unknown;

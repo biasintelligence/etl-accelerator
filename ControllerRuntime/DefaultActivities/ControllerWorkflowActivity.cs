@@ -31,6 +31,7 @@ namespace DefaultActivities
     /// </summary>
     public class ControllerWorkflowActivity : IWorkflowActivity
     {
+        protected const string REQUEST_ID = WorkflowConstants.ATTRIBUTE_REQUEST_ID;
         protected const string CONNECTION_STRING = WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING;
         protected const string PROCESSOR_NAME = WorkflowConstants.ATTRIBUTE_PROCESSOR_NAME;
         protected const string PROCESSOR_MODE_DEBUG = WorkflowConstants.ATTRIBUTE_DEBUG;
@@ -43,7 +44,15 @@ namespace DefaultActivities
         protected WorkflowAttributeCollection _attributes = new WorkflowAttributeCollection();
         protected ILogger _logger;
         protected List<string> _required_attributes = new List<string>()
-        { WORKFLOW_NAME, CONNECTION_STRING, TIMEOUT, PROCESSOR_NAME,PROCESSOR_MODE_DEBUG,PROCESSOR_MODE_VERBOSE,PROCESSOR_MODE_FORCESTART};
+        { WORKFLOW_NAME,
+            CONNECTION_STRING,
+            TIMEOUT,
+            PROCESSOR_NAME,
+            PROCESSOR_MODE_DEBUG,
+            PROCESSOR_MODE_VERBOSE,
+            PROCESSOR_MODE_FORCESTART,
+            REQUEST_ID
+        };
 
 
         public IEnumerable<string> RequiredAttributes
@@ -90,6 +99,7 @@ namespace DefaultActivities
                 attributes.Add(PROCESSOR_MODE_FORCESTART, _attributes[PROCESSOR_MODE_FORCESTART]);
                 attributes.Add(WorkflowConstants.ATTRIBUTE_WORKFLOW_NAME, _attributes[WORKFLOW_NAME]);
                 attributes.Add(CONNECTION_STRING, _attributes[CONNECTION_STRING]);
+                attributes.Add(REQUEST_ID, _attributes[REQUEST_ID]);
 
                 WorkflowProcessor wfp = new WorkflowProcessor(attributes);
                 result = wfp.Run(token);
