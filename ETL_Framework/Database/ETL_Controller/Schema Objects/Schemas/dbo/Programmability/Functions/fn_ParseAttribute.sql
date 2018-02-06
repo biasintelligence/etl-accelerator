@@ -10,7 +10,7 @@ AS
 BEGIN
 
 	insert @returntable
-	select left(t.value, t.endChar -1)
+	select distinct left(t.value, t.endChar -1)
 	from 
 	(
 	--look for space,/n/r,/t (whitespaces) inside the attributeName
