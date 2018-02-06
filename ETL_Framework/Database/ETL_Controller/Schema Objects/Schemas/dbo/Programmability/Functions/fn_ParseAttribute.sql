@@ -13,8 +13,9 @@ BEGIN
 	select left(t.value, t.endChar -1)
 	from 
 	(
+	--look for space,/n/r,/t (whitespaces) inside the attributeName
 	select value,charindex('>',value) as endChar,patindex('%[ 
-		]%',value) as whiteChar
+	]%',value) as whiteChar
 	 from string_split(@AttributeValue,'<')
 	 ) t
 	 where t.endChar > 1
