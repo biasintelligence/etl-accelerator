@@ -22,11 +22,10 @@ namespace BIAS.Framework.DeltaExtractor
     public abstract class SSISModule
     {
         protected MainPipe _pipe;
-        protected int _id;
         private string _moduleName = String.Empty;
         private string _moduleClsid = String.Empty;
         protected ILogger _logger;
-        private IDTSComponentMetaData100 _collection;
+        private IDTSComponentMetaData100 _metadata = null;
         protected Application _app;
 
 
@@ -44,31 +43,29 @@ namespace BIAS.Framework.DeltaExtractor
         {
         }
 
-        public IDTSComponentMetaData100 MetadataCollection {get => _collection; }
+        public IDTSComponentMetaData100 MetadataCollection {get => _metadata; }
 
         public virtual IDTSComponentMetaData100 Initialize()
         {
             //create SSIS component
 
-            IDTSComponentMetaData100 comp = _pipe.ComponentMetaDataCollection.New();
-            _id = comp.ID;
-            comp.ComponentClassID = (String.IsNullOrEmpty(_moduleClsid)) ? _app.PipelineComponentInfos[_moduleName].CreationName : _moduleClsid;
-            CManagedComponentWrapper dcomp = comp.Instantiate();
+            _metadata = _pipe.ComponentMetaDataCollection.New();
+            _metadata.ComponentClassID = (String.IsNullOrEmpty(_moduleClsid)) ? _app.PipelineComponentInfos[_moduleName].CreationName : _moduleClsid;
+            CManagedComponentWrapper dcomp = _metadata.Instantiate();
             dcomp.ProvideComponentProperties();
 
             //set common SSIS module properties
-            comp.Name = $"{_moduleName}-{_id}";
+            _metadata.Name = $"{_moduleName}-{_metadata.ID}";
 
-            _logger.Debug("DE added {CompName}", comp.Name);
-            _collection = _pipe.ComponentMetaDataCollection.GetObjectByID(_id);
-            return comp;
+            _logger.Debug("DE added {CompName}", _metadata.Name);
+            return _metadata;
 
         }
 
         public virtual IDTSComponentMetaData100 Connect(IDTSComponentMetaData100 src, int outputID = 0)
         {
             ConnectComponents(src, outputID);
-            return _collection;
+            return _metadata;
         }
 
         public virtual IDTSComponentMetaData100 ConnectDestination(IDTSComponentMetaData100 src, int outputID = 0)
@@ -91,7 +88,7 @@ namespace BIAS.Framework.DeltaExtractor
 
             ConnectComponents(src, outputID);
             MatchInputColumns(map, true);
-            return _collection;
+            return _metadata;
         }
 
 
