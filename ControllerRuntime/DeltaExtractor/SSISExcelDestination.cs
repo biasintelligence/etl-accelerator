@@ -19,18 +19,28 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISExcelDestination : SSISModule
+    public class SSISExcelDestination : SSISModule,ISSISModule
     {
 
-        public SSISExcelDestination(ExcelDestination dbdst, MainPipe pipe, IDTSComponentMetaData100 src, int outputID, ConnectionManager cm, ILogger logger)
-            : base(pipe, "Excel Destination", outputID, logger)
-        {
+        private ExcelDestination _dst;
+        private ConnectionManager _cm;
 
-            //create ole db destination component           
-            //set connection properties
-            cm.Name = String.Format(CultureInfo.InvariantCulture, "Excel Destination Connection Manager {0}", outputID);
-            cm.ConnectionString = dbdst.ConnectionString;
-            cm.Description = dbdst.Description;
+        public SSISExcelDestination(ExcelDestination dst, MainPipe pipe, ConnectionManager cm, ILogger logger,Application app)
+            : base(pipe, "Excel Destination", logger, app)
+        {
+            _dst = dst;
+            _cm = cm;
+
+        }
+        public override IDTSComponentMetaData100 Initialize()
+        {
+            //create excel destination component           
+            IDTSComponentMetaData100 comp = base.Initialize();
+
+             //set connection properties
+            _cm.Name = $"Excel Destination Connection Manager {comp.ID}";
+            _cm.ConnectionString = _dst.ConnectionString;
+            _cm.Description = _dst.Description;
 
 
             //mwrt.IDTSConnectionManagerExcel100 ecm = cm.InnerObject as mwrt.IDTSConnectionManagerExcel100;
@@ -39,40 +49,26 @@ namespace BIAS.Framework.DeltaExtractor
             //ecm.ExcelVersionNumber = mwrt.DTSExcelVersion.DTSExcelVer_2007;
 
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
             // Set oledb destination custom properties
             //default to openrowset
             dcomp.SetComponentProperty("AccessMode", 0);
             //foreach (KeyValuePair<string, object> prop in dbdst.CustomProperties.CustomPropertyCollection.InnerArrayList)
-            foreach (KeyValuePair<string, object> prop in dbdst.CustomProperties.CustomPropertyCollection.InnerArrayList)
+            foreach (KeyValuePair<string, object> prop in _dst.CustomProperties.CustomPropertyCollection.InnerArrayList)
             {
                 dcomp.SetComponentProperty(prop.Key, prop.Value);
             }
 
             if (comp.RuntimeConnectionCollection.Count > 0)
             {
-                comp.RuntimeConnectionCollection[0].ConnectionManagerID = cm.ID;
-                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(cm);
+                comp.RuntimeConnectionCollection[0].ConnectionManagerID = _cm.ID;
+                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(_cm);
             }
 
             this.Reinitialize(dcomp);
+            return comp;
 
-            //Create datatype converter if needed
-            Dictionary<int, int> map = new Dictionary<int, int>();
-            IDTSVirtualInput100 vInput = src.InputCollection[0].GetVirtualInput();
-            IDTSExternalMetadataColumnCollection100 exColumns = comp.InputCollection[0].ExternalMetadataColumnCollection;
-            if (this.needDataTypeChange(vInput, exColumns))
-            {
-                SSISDataConverter ssisdc = new SSISDataConverter(pipe, src, outputID, exColumns, logger);
-                src = ssisdc.MetadataCollection;
-                map = ssisdc.ConvertedColumns;
-                outputID = 0;
-            }
-
-            this.ConnectComponents(src, outputID);
-            this.MatchInputColumns(map, true, logger);
         }
 
     }

@@ -19,36 +19,46 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISOdbcSource : SSISModule
+    public class SSISOdbcSource : SSISModule,ISSISModule
     {
-        public SSISOdbcSource(OdbcSource dbsrc, MainPipe pipe, ConnectionManager cm, ILogger logger)
-            : base(pipe, "ODBC Source", logger)
+        private OdbcSource _src;
+        private ConnectionManager _cm;
+
+        public SSISOdbcSource(OdbcSource src, MainPipe pipe, ConnectionManager cm, ILogger logger,Application app)
+            : base(pipe, "ODBC Source", logger,app)
+        {
+            _src = src;
+            _cm = cm;
+
+        }
+        public override IDTSComponentMetaData100 Initialize()
         {
             // create the odbc source
+            IDTSComponentMetaData100 comp = base.Initialize();
             //set connection properies
-            cm.Name = "ODBC Source Connection Manager";
-            cm.ConnectionString = dbsrc.ConnectionString;
-            cm.Description = dbsrc.Description;
+            _cm.Name = "ODBC Source Connection Manager";
+            _cm.ConnectionString = _src.ConnectionString;
+            _cm.Description = _src.Description;
             //do not require Qualifier
             //cm.Qualifier = dbsrc.DBConnection.Qualifier;
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
             //set Component Custom Properties
-            foreach (KeyValuePair<string, object> prop in dbsrc.CustomProperties.CustomPropertyCollection.InnerArrayList)
+            foreach (KeyValuePair<string, object> prop in _src.CustomProperties.CustomPropertyCollection.InnerArrayList)
             {
                 dcomp.SetComponentProperty(prop.Key, prop.Value);
             }
 
             if (comp.RuntimeConnectionCollection.Count > 0)
             {
-                comp.RuntimeConnectionCollection[0].ConnectionManagerID = cm.ID;
-                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(cm);
+                comp.RuntimeConnectionCollection[0].ConnectionManagerID = _cm.ID;
+                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(_cm);
             }
 
             // Finalize
-            this.Reinitialize(dcomp);
+            Reinitialize(dcomp);
+            return comp;
 
         }
     }

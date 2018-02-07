@@ -19,17 +19,19 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISDataConverter : SSISModule
+    public class SSISDataConverter : SSISModule,ISSISModule
     {
-        //exColId-vInputColId
-        private Dictionary<int, int> m_converted = new Dictionary<int, int>();
-
-        public SSISDataConverter(MainPipe pipe, IDTSComponentMetaData100 src, int outputID, IDTSExternalMetadataColumnCollection100 exColumns, ILogger logger)
-            : base(pipe, "Data Conversion", outputID, logger)
+        public SSISDataConverter(MainPipe pipe, ILogger logger,Application app)
+            : base(pipe, "Data Conversion", logger,app)
         {
+
+        }
+
+        public override IDTSComponentMetaData100 Initialize()
+        {
+            IDTSComponentMetaData100 comp = base.Initialize();
             //create datatype converter component
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
             IDTSInput100 input = comp.InputCollection[0];
@@ -37,20 +39,14 @@ namespace BIAS.Framework.DeltaExtractor
             comp.InputCollection[0].HasSideEffects = false;
 
             this.Reinitialize(dcomp);
-            this.ConnectComponents(src, outputID);
-
-            this.PropagateInputColumns(exColumns);
+            return comp;
         }
 
-        public Dictionary<int, int> ConvertedColumns
-        {
-            get { return m_converted; }
-        }
-
-        private void PropagateInputColumns(IDTSExternalMetadataColumnCollection100 exColumns)
+        public IDictionary<int, int> PropagateInputColumns(IDTSExternalMetadataColumnCollection100 exColumns)
         {
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
+            Dictionary<int, int> converted = new Dictionary<int, int>();
+            IDTSComponentMetaData100 comp = MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
             IDTSInput100 input = comp.InputCollection[0];
@@ -106,7 +102,7 @@ namespace BIAS.Framework.DeltaExtractor
 
 
                         //set of derived columns
-                        m_converted.Add(exColumn.ID, oColumn.LineageID);
+                        converted.Add(exColumn.ID, oColumn.LineageID);
                     }
                     //else
                     //{
@@ -119,6 +115,7 @@ namespace BIAS.Framework.DeltaExtractor
                     //PrintOutput.PrintToOutput("Converter: Could not map external column " + exColumn.Key + ". Skipping column.");
                 }
             }
+            return converted;
         }
     }
 }

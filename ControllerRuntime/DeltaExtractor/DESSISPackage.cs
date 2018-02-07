@@ -101,6 +101,8 @@ namespace BIAS.Framework.DeltaExtractor
 
 
                 IDTSComponentMetaData100 src = null;
+                IDTSComponentMetaData100 current = null;
+                ISSISModule module;
 
                 //create FlatFile source
                 if (m_movedata.DataSource.Type == SourceType.FlatFile)
@@ -122,8 +124,8 @@ namespace BIAS.Framework.DeltaExtractor
 
                     Dictionary<string, MyColumn> colCollection = (bFound) ? dsv.ColumnCollection : null;
                     SSISFlatFileConnection.ConfigureConnectionManager(cm, m_movedata.DataSource.FlatFileSource.CustomProperties.FlatFileConnectionProperties, colCollection, logger);
-                    SSISFlatFileSource ssissource = new SSISFlatFileSource(m_movedata.DataSource.FlatFileSource, pipe, cm, logger);
-                    src = ssissource.MetadataCollection;
+                    module = new SSISFlatFileSource(m_movedata.DataSource.FlatFileSource, pipe, cm, logger,app);
+                    src = module.Initialize();
                 }
                 //create Excel source
                 else if (m_movedata.DataSource.Type == SourceType.Excel)
@@ -131,14 +133,14 @@ namespace BIAS.Framework.DeltaExtractor
 
                     //Connection manager
                     ConnectionManager cm = package.Connections.Add("EXCEL");
-                    SSISExcelSource ssissource = new SSISExcelSource(m_movedata.DataSource.ExcelSource, pipe, cm, logger);
-                    src = ssissource.MetadataCollection;
+                    module = new SSISExcelSource(m_movedata.DataSource.ExcelSource, pipe, cm, logger,app);
+                    src = module.Initialize();
                 }
                 //create SharePoint source
                 else if (m_movedata.DataSource.Type == SourceType.SPList)
                 {
-                    SSISSharePointSource ssissource = new SSISSharePointSource(m_movedata.DataSource.SharePointSource, pipe, logger);
-                    src = ssissource.MetadataCollection;
+                    module = new SSISSharePointSource(m_movedata.DataSource.SharePointSource, pipe, logger,app);
+                    src = module.Initialize();
                 }
                 //create OleDb source
                 else if (m_movedata.DataSource.Type == SourceType.OleDb)
@@ -148,24 +150,24 @@ namespace BIAS.Framework.DeltaExtractor
 
                     //Connection manager
                     ConnectionManager cm = package.Connections.Add("OLEDB");
-                    SSISOleDbSource ssissource = new SSISOleDbSource(m_movedata.DataSource.OleDbSource, pipe, cm, logger);
-                    src = ssissource.MetadataCollection;
+                    module= new SSISOleDbSource(m_movedata.DataSource.OleDbSource, pipe, cm, logger,app);
+                    src = module.Initialize();
                 }
                 //create AdoNet source
                 else if (m_movedata.DataSource.Type == SourceType.AdoNet)
                 {
                     //Connection manager
                     ConnectionManager cm = package.Connections.Add("ADO.NET");
-                    SSISAdoNetSource ssissource = new SSISAdoNetSource(m_movedata.DataSource.AdoNetSource, pipe, cm, logger);
-                    src = ssissource.MetadataCollection;
+                    module = new SSISAdoNetSource(m_movedata.DataSource.AdoNetSource, pipe, cm, logger,app);
+                    src = module.Initialize();
                 }
                 //create Odbc source
                 else if (m_movedata.DataSource.Type == SourceType.Odbc)
                 {
                     //Connection manager
                     ConnectionManager cm = package.Connections.Add("ODBC");
-                    SSISOdbcSource ssissource = new SSISOdbcSource(m_movedata.DataSource.OdbcSource, pipe, cm, logger);
-                    src = ssissource.MetadataCollection;
+                    module = new SSISOdbcSource(m_movedata.DataSource.OdbcSource, pipe, cm, logger,app);
+                    src = module.Initialize();
                 }
                 //create OData source
                 else if (m_movedata.DataSource.Type == SourceType.OData)
@@ -173,8 +175,8 @@ namespace BIAS.Framework.DeltaExtractor
 
                     //Connection manager
                     ConnectionManager cm = package.Connections.Add("ODATA");
-                    SSISODataSource ssissource = new SSISODataSource(m_movedata.DataSource.ODataSource, pipe, cm, logger);
-                    src = ssissource.MetadataCollection;
+                    module = new SSISODataSource(m_movedata.DataSource.ODataSource, pipe, cm, logger,app);
+                    src = module.Initialize();
                 }
                 else
                 {
@@ -183,32 +185,33 @@ namespace BIAS.Framework.DeltaExtractor
 
 
                 //create and connect rowcount to the source
-                SSISRowCount ssiscount = new SSISRowCount(pipe, src, logger);
-                src = ssiscount.MetadataCollection;
-
+                module = new SSISRowCount(pipe, logger,app);
+                current = module.Initialize();
+                src = module.Connect(src);
 
                 if (m_movedata.Partition == null || String.IsNullOrEmpty(m_movedata.Partition.Function) || m_movedata.Partition.Function == "NONE")
                 {
                     //create and connect multicast to the rowcount
-                    SSISMultiCast ssissplit = new SSISMultiCast(pipe, src, logger);
-                    src = ssissplit.MetadataCollection;
+                    module = new SSISMultiCast(pipe, logger,app);
+                    current = module.Initialize();
+                    src = module.Connect(src);
                 }
                 else
                 {
                     //create and connect partition data custom component
-                    SSISPartitionColumn ssispcol = new SSISPartitionColumn(pipe, src, m_movedata, logger);
-                    src = ssispcol.MetadataCollection;
+                    module = new SSISPartitionColumn(m_movedata, pipe, logger, app);
+                    current = module.Initialize();
+                    src = module.Connect(src);
 
                     //create  and connect a partition splitter
-                    SSISPartitionSplit ssissplit = new SSISPartitionSplit(pipe, src, m_movedata, logger);
-                    src = ssissplit.MetadataCollection;
+                    module = new SSISPartitionSplit(m_movedata, pipe, logger, app);
+                    current = module.Initialize();
+                    src = module.Connect(src);
                 }
 
                 //connect none partition destinations to multicast
                 //connect partition destinations to partition splitter
                 CManagedComponentWrapper dsrc = src.Instantiate();
-
-
 
                 foreach (object odst in m_movedata.DataDestination.Destinations)
                 {
@@ -236,7 +239,9 @@ namespace BIAS.Framework.DeltaExtractor
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "FlatFile Destination Connection Manager {0}", output.ID);
                         Dictionary<string, MyColumn> colCollection = (bFound) ? dsv.ColumnCollection : getColumnCollectionFromPipe(src);
                         SSISFlatFileConnection.ConfigureConnectionManager(cm, dst.CustomProperties.FlatFileConnectionProperties, colCollection, logger);
-                        SSISFlatFileDestination ssisdest = new SSISFlatFileDestination(dst, pipe, src, output.ID, cm, logger);
+                        module = new SSISFlatFileDestination(dst, pipe, cm, logger,app);
+                        current = module.Initialize();
+                        src = module.ConnectDestination(src, output.ID);
                     }
 
 
@@ -249,7 +254,10 @@ namespace BIAS.Framework.DeltaExtractor
                         //Connection manager
                         ConnectionManager cm = package.Connections.Add("OLEDB");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "OLEDB Destination Connection Manager {0}", output.ID);
-                        SSISOleDbDestination ssisdest = new SSISOleDbDestination(dst, pipe, src, output.ID, cm, logger);
+                        module = new SSISOleDbDestination(dst, pipe, cm, logger,app);
+                        current = module.Initialize();
+                        src = module.ConnectDestination(src, output.ID);
+
                     }
 
 
@@ -262,7 +270,9 @@ namespace BIAS.Framework.DeltaExtractor
                         //Connection manager
                         ConnectionManager cm = package.Connections.Add("EXCEL");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "Excel Destination Connection Manager {0}", output.ID);
-                        SSISExcelDestination ssisdest = new SSISExcelDestination(dst, pipe, src, output.ID, cm, logger);
+                        module = new SSISExcelDestination(dst, pipe, cm, logger,app);
+                        current = module.Initialize();
+                        src = module.ConnectDestination(src, output.ID);
 
                     }
 
@@ -272,7 +282,9 @@ namespace BIAS.Framework.DeltaExtractor
                     {
                         SharePointDestination dst = (SharePointDestination)odst;
                         IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
-                        SSISSharePointDestination ssisdest = new SSISSharePointDestination(dst, pipe, src, output.ID, logger);
+                        module = new SSISSharePointDestination(dst, pipe, logger, app);
+                        current = module.Initialize();
+                        src = module.ConnectDestination(src, output.ID);
                     }
 
                     // Ado Net Destinations
@@ -284,7 +296,9 @@ namespace BIAS.Framework.DeltaExtractor
                         //Connection manager
                         ConnectionManager cm = package.Connections.Add("ADO.NET");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "ADONET Destination Connection Manager {0}", output.ID);
-                        SSISAdoNetDestination ssisdest = new SSISAdoNetDestination(dst, pipe, src, output.ID, cm, logger);
+                        module = new SSISAdoNetDestination(dst, pipe, cm, logger,app);
+                        current = module.Initialize();
+                        src = module.ConnectDestination(src, output.ID);
                     }
 
                     // Odbc Destinations
@@ -296,7 +310,9 @@ namespace BIAS.Framework.DeltaExtractor
                         //Connection manager
                         ConnectionManager cm = package.Connections.Add("ODBC");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "ODBC Destination Connection Manager {0}", output.ID);
-                        SSISOdbcDestination ssisdest = new SSISOdbcDestination(dst, pipe, src, output.ID, cm, logger);
+                        module = new SSISOdbcDestination(dst, pipe, cm, logger, app);
+                        current = module.Initialize();
+                        src = module.ConnectDestination(src, output.ID);
                     }
 
                     // SqlBulk Destinations
@@ -308,7 +324,9 @@ namespace BIAS.Framework.DeltaExtractor
                         //Connection manager
                         ConnectionManager cm = package.Connections.Add("OLEDB");
                         //cm.Name = String.Format(CultureInfo.InvariantCulture, "OLEDB Destination Connection Manager {0}", output.ID);
-                        SSISSqlBulkDestination ssisdest = new SSISSqlBulkDestination(dst, pipe, src, output.ID, cm, logger);
+                        module = new SSISSqlBulkDestination(dst, pipe, cm, logger,app);
+                        current = module.Initialize();
+                        src = module.ConnectDestination(src, output.ID);
                     }
 
                 }

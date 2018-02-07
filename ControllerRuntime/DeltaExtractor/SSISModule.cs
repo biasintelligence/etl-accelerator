@@ -21,52 +21,79 @@ namespace BIAS.Framework.DeltaExtractor
 {
     public abstract class SSISModule
     {
-        protected MainPipe m_pipe;
-        private int m_ID;
+        protected MainPipe _pipe;
+        protected int _id;
+        private string _moduleName = String.Empty;
+        private string _moduleClsid = String.Empty;
+        protected ILogger _logger;
+        private IDTSComponentMetaData100 _collection;
+        protected Application _app;
 
 
-        protected SSISModule(MainPipe pipe, string module_name, int module_id, string module_clsid, ILogger logger)
+        protected SSISModule(MainPipe pipe, string moduleName, string moduleClsid, ILogger logger,Application app)
+        {
+            _pipe = pipe;
+            _moduleName = moduleName;
+            _moduleClsid = moduleClsid;
+            _logger = logger;
+            _app = app;
+        }
+
+        protected SSISModule(MainPipe pipe, string moduleName, ILogger logger,Application app)
+            : this(pipe, moduleName, String.Empty, logger,app)
+        {
+        }
+
+        public IDTSComponentMetaData100 MetadataCollection {get => _collection; }
+
+        public virtual IDTSComponentMetaData100 Initialize()
         {
             //create SSIS component
 
-            m_pipe = pipe;
-
-            IDTSComponentMetaData100 comp = pipe.ComponentMetaDataCollection.New();
-            m_ID = comp.ID;
-            Application app = new Application();
-            comp.ComponentClassID = (String.IsNullOrEmpty(module_clsid)) ? app.PipelineComponentInfos[module_name].CreationName : module_clsid;
+            IDTSComponentMetaData100 comp = _pipe.ComponentMetaDataCollection.New();
+            _id = comp.ID;
+            comp.ComponentClassID = (String.IsNullOrEmpty(_moduleClsid)) ? _app.PipelineComponentInfos[_moduleName].CreationName : _moduleClsid;
             CManagedComponentWrapper dcomp = comp.Instantiate();
             dcomp.ProvideComponentProperties();
 
             //set common SSIS module properties
-            if (module_id == 0)
+            comp.Name = $"{_moduleName}-{_id}";
+
+            _logger.Debug("DE added {CompName}", comp.Name);
+            _collection = _pipe.ComponentMetaDataCollection.GetObjectByID(_id);
+            return comp;
+
+        }
+
+        public virtual IDTSComponentMetaData100 Connect(IDTSComponentMetaData100 src, int outputID = 0)
+        {
+            ConnectComponents(src, outputID);
+            return _collection;
+        }
+
+        public virtual IDTSComponentMetaData100 ConnectDestination(IDTSComponentMetaData100 src, int outputID = 0)
+        {
+            //Create datatype converter if needed
+            IDTSComponentMetaData100 comp = MetadataCollection;
+            IDictionary<int, int> map = new Dictionary<int, int>();
+            IDTSVirtualInput100 vInput = src.InputCollection[0].GetVirtualInput();
+
+            var exColumns = comp.InputCollection[0].ExternalMetadataColumnCollection;
+            if (this.needDataTypeChange(vInput, exColumns))
             {
-                comp.Name = String.Format(CultureInfo.InvariantCulture, "{0}", module_name);
+                SSISDataConverter converter = new SSISDataConverter(_pipe, _logger, _app);
+                var convComp = converter.Initialize();
+                converter.Connect(src, outputID);
+                map = converter.PropagateInputColumns(exColumns);
+                src = convComp;
+                outputID = 0;
             }
-            else
-            {
-                comp.Name = String.Format(CultureInfo.InvariantCulture, "{0} - {1}", module_name, module_id);
-            }
 
-            logger.Debug("DE added {CompName}", comp.Name);
-
+            ConnectComponents(src, outputID);
+            MatchInputColumns(map, true);
+            return _collection;
         }
 
-        protected SSISModule(MainPipe pipe, string module_name, int module_id, ILogger logger)
-            : this(pipe, module_name, module_id, String.Empty, logger)
-        {
-        }
-
-        protected SSISModule(MainPipe pipe, string module_name, ILogger logger)
-            : this(pipe, module_name, 0, logger)
-        {
-        }
-
-
-        public IDTSComponentMetaData100 MetadataCollection
-        {
-            get { return m_pipe.ComponentMetaDataCollection.GetObjectByID(m_ID); }
-        }
 
         protected void Reinitialize(CManagedComponentWrapper dcomp)
         {
@@ -87,23 +114,17 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
 
-        protected void ConnectComponents(IDTSComponentMetaData100 src, int outputID)
+        protected void ConnectComponents(IDTSComponentMetaData100 src, int outputID = 0)
         {
             if (src != null)
             {
                 IDTSOutput100 output = (outputID == 0) ? src.OutputCollection[0] : src.OutputCollection.GetObjectByID(outputID);
                 IDTSInput100 input = MetadataCollection.InputCollection[0];
-                IDTSPath100 path = m_pipe.PathCollection.New();
+                IDTSPath100 path = _pipe.PathCollection.New();
 
                 path.AttachPathAndPropagateNotifications(output, input);
             }
         }
-
-        protected void ConnectComponents(IDTSComponentMetaData100 src)
-        {
-            ConnectComponents(src, 0);
-        }
-
 
         //Loop through the Virtual Input column Collection, and see if one matches the name
         protected int FindVirtualInputColumnId(IDTSVirtualInputColumnCollection100 in_ColumnCollection, string in_columnName)
@@ -155,10 +176,10 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
 
-        protected virtual void MatchInputColumns(Dictionary<int, int> map, bool needschema, ILogger logger)
+        protected virtual void MatchInputColumns(IDictionary<int, int> map, bool needschema)
         {
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
+            IDTSComponentMetaData100 comp = MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
             IDTSInput100 input = comp.InputCollection[0];
@@ -184,7 +205,7 @@ namespace BIAS.Framework.DeltaExtractor
                     if (inputColId == 0)
                     {
                         //the column wasn't found if the Id is 0, so we'll print out a message and skip this row.
-                        logger.Debug("DE could not map external column {ColName}. Skipping column.", exColumn.Name);
+                        _logger.Debug("DE could not map external column {ColName}. Skipping column.", exColumn.Name);
                     }
                     else
                     {

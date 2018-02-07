@@ -19,37 +19,47 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISAdoNetSource : SSISModule
+    public class SSISAdoNetSource : SSISModule,ISSISModule
     {
-        public SSISAdoNetSource(AdoNetSource dbsrc, MainPipe pipe, ConnectionManager cm, ILogger logger)
-            : base(pipe, "ADO NET Source", logger)
+        private AdoNetSource _src;
+        private ConnectionManager _cm;
+
+        public SSISAdoNetSource(AdoNetSource src, MainPipe pipe, ConnectionManager cm, ILogger logger,Application app)
+            : base(pipe, "ADO NET Source", logger,app)
         {
+            _src = src;
+            _cm = cm;
+        }
+
+        public override IDTSComponentMetaData100 Initialize()
+        {
+            IDTSComponentMetaData100 comp = base.Initialize();
             // create the adonet source
             //set connection properies
-            cm.Name = "AdoNet Source Connection Manager";
-            cm.ConnectionString = dbsrc.ConnectionString;
-            cm.Description = dbsrc.Description;
+            _cm.Name = "AdoNet Source Connection Manager";
+            _cm.ConnectionString = _src.ConnectionString;
+            _cm.Description = _src.Description;
             //cm.Qualifier = "System.Data.SqlClient.SqlConnection, System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
-            if (!String.IsNullOrEmpty(dbsrc.DBConnection.Qualifier))
-                cm.Qualifier = dbsrc.DBConnection.Qualifier;
+            if (!String.IsNullOrEmpty(_src.DBConnection.Qualifier))
+                _cm.Qualifier = _src.DBConnection.Qualifier;
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
             //set Component Custom Properties
-            foreach (KeyValuePair<string, object> prop in dbsrc.CustomProperties.CustomPropertyCollection.InnerArrayList)
+            foreach (KeyValuePair<string, object> prop in _src.CustomProperties.CustomPropertyCollection.InnerArrayList)
             {
                 dcomp.SetComponentProperty(prop.Key, prop.Value);
             }
 
             if (comp.RuntimeConnectionCollection.Count > 0)
             {
-                comp.RuntimeConnectionCollection[0].ConnectionManagerID = cm.ID;
-                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(cm);
+                comp.RuntimeConnectionCollection[0].ConnectionManagerID = _cm.ID;
+                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(_cm);
             }
 
             // Finalize
-            this.Reinitialize(dcomp);
+            Reinitialize(dcomp);
+            return comp;
 
         }
     }

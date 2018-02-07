@@ -145,6 +145,7 @@
   <ItemGroup>
     <Compile Include="DeNoSupportHelper.cs" />
     <Compile Include="DeSqlServerHelper.cs" />
+    <Compile Include="ISSISModule.cs" />
     <Compile Include="SSISAdoNetDestination.cs" />
     <Compile Include="SSISODataSource.cs" />
     <Compile Include="SSISOdbcDestination.cs" />

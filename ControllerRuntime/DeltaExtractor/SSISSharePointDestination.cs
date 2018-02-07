@@ -19,39 +19,32 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISSharePointDestination : SSISModule
+    public class SSISSharePointDestination : SSISModule, ISSISModule
     {
+        private SharePointDestination _dst;
+        private ConnectionManager _cm;
 
-        public SSISSharePointDestination(SharePointDestination spdst, MainPipe pipe, IDTSComponentMetaData100 src, int outputID, ILogger logger)
+        public SSISSharePointDestination(SharePointDestination dst, MainPipe pipe, ILogger logger,Application app)
         //: base(pipe, "SharePoint List Destination", outputID, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2012.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger)
-        : base(pipe, "SharePoint List Destination", outputID, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2016.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger)
+        : base(pipe, "SharePoint List Destination", "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2016.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger, app)
         {
-            //Create a new SharePointDestination component
-
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
+            _dst = dst;
+        }
+        public override IDTSComponentMetaData100 Initialize()
+        {
+            //create SharePoint destination component           
+            IDTSComponentMetaData100 comp = base.Initialize();
+ 
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
-            foreach (KeyValuePair<string, object> prop in spdst.CustomProperties.CustomPropertyCollection.InnerArrayList)
+            foreach (KeyValuePair<string, object> prop in _dst.CustomProperties.CustomPropertyCollection.InnerArrayList)
             {
                 dcomp.SetComponentProperty(prop.Key, prop.Value);
             }
 
             this.Reinitialize(dcomp);
+            return comp;
 
-            //Create datatype converter if needed
-            Dictionary<int, int> map = new Dictionary<int, int>();
-            IDTSVirtualInput100 vInput = src.InputCollection[0].GetVirtualInput();
-            IDTSExternalMetadataColumnCollection100 exColumns = comp.InputCollection[0].ExternalMetadataColumnCollection;
-            if (this.needDataTypeChange(vInput, exColumns))
-            {
-                SSISDataConverter ssisdc = new SSISDataConverter(pipe, src, outputID, exColumns, logger);
-                src = ssisdc.MetadataCollection;
-                map = ssisdc.ConvertedColumns;
-                outputID = 0;
-            }
-
-            this.ConnectComponents(src, outputID);
-            this.MatchInputColumns(map, true, logger);
         }
     }
 }

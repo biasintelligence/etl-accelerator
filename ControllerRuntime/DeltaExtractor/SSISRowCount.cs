@@ -18,18 +18,24 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISRowCount : SSISModule
+    public class SSISRowCount : SSISModule,ISSISModule
     {
 
         // Create row count component
-        public SSISRowCount(MainPipe pipe, IDTSComponentMetaData100 src, ILogger logger)
-            : base(pipe, "Row Count", logger)
+        public SSISRowCount(MainPipe pipe, ILogger logger,Application app)
+            : base(pipe, "Row Count", logger, app)
         {
-            CManagedComponentWrapper dcomp = this.MetadataCollection.Instantiate();
+
+        }
+        public override IDTSComponentMetaData100 Initialize()
+        {
+            // Create rowcount component
+            IDTSComponentMetaData100 comp = base.Initialize();
+            CManagedComponentWrapper dcomp = comp.Instantiate();
 
             dcomp.SetComponentProperty("VariableName", "RowCount");
             this.Reinitialize(dcomp);
-            this.ConnectComponents(src);
-        }        
+            return comp;
+        }
     }
 }

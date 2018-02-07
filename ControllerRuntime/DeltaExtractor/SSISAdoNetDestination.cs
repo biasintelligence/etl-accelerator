@@ -19,64 +19,57 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISAdoNetDestination : SSISModule
+    public class SSISAdoNetDestination : SSISModule,ISSISModule
     {
+        private AdoNetDestination _dst;
+        private ConnectionManager _cm;
 
-        public SSISAdoNetDestination(AdoNetDestination dbdst, MainPipe pipe, IDTSComponentMetaData100 src, int outputID, ConnectionManager cm, ILogger logger)
-            : base(pipe, "ADO NET Destination", outputID, logger)
+        public SSISAdoNetDestination(AdoNetDestination dst, MainPipe pipe, ConnectionManager cm, ILogger logger,Application app)
+            : base(pipe, "ADO NET Destination", logger,app)
         {
+            _dst = dst;
+            _cm = cm;
 
+        }
+        public override IDTSComponentMetaData100 Initialize()
+        {
             //create Ado Net destination component           
-            //set connection properties
-            cm.Name = String.Format(CultureInfo.InvariantCulture, "AdoNet Destination Connection Manager {0}", outputID);
-            cm.ConnectionString = dbdst.ConnectionString;
-            cm.Description = dbdst.Description;
-            if (!String.IsNullOrEmpty(dbdst.DBConnection.Qualifier))
-                cm.Qualifier = dbdst.DBConnection.Qualifier;
+            IDTSComponentMetaData100 comp = base.Initialize();
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
+            //set connection properties
+            _cm.Name = $"AdoNet Destination Connection Manager {comp.ID}";
+            _cm.ConnectionString = _dst.ConnectionString;
+            _cm.Description = _dst.Description;
+            if (!String.IsNullOrEmpty(_dst.DBConnection.Qualifier))
+                _cm.Qualifier = _dst.DBConnection.Qualifier;
+
             CManagedComponentWrapper dcomp = comp.Instantiate();
 
             // Set AdoNet destination custom properties
-            foreach (KeyValuePair<string, object> prop in dbdst.CustomProperties.CustomPropertyCollection.InnerArrayList)
+            foreach (KeyValuePair<string, object> prop in _dst.CustomProperties.CustomPropertyCollection.InnerArrayList)
             {
                 dcomp.SetComponentProperty(prop.Key, prop.Value);
             }
 
             //default - OpenRowset; ovveride OpenRowset with stagingtablename if staging is used
-            if (!(dbdst.StagingBlock == null) && dbdst.StagingBlock.Staging)
+            if (!(_dst.StagingBlock == null) && _dst.StagingBlock.Staging)
             {
-                dcomp.SetComponentProperty("TableOrViewName", dbdst.StagingBlock.StagingTableName.RemoveQuotes());
+                dcomp.SetComponentProperty("TableOrViewName", _dst.StagingBlock.StagingTableName.RemoveQuotes());
             }
             else
             {
-                dcomp.SetComponentProperty("TableOrViewName", dbdst.CustomProperties.TableOrViewName.RemoveQuotes());
+                dcomp.SetComponentProperty("TableOrViewName", _dst.CustomProperties.TableOrViewName.RemoveQuotes());
             }
 
             if (comp.RuntimeConnectionCollection.Count > 0)
             {
-                comp.RuntimeConnectionCollection[0].ConnectionManagerID = cm.ID;
-                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(cm);
+                comp.RuntimeConnectionCollection[0].ConnectionManagerID = _cm.ID;
+                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(_cm);
             }
 
             this.Reinitialize(dcomp);
-
-            //Create datatype converter if needed
-            Dictionary<int, int> map = new Dictionary<int, int>();
-            IDTSVirtualInput100 vInput = src.InputCollection[0].GetVirtualInput();
-            IDTSExternalMetadataColumnCollection100 exColumns = comp.InputCollection[0].ExternalMetadataColumnCollection;
-            if (this.needDataTypeChange(vInput, exColumns))
-            {
-                SSISDataConverter ssisdc = new SSISDataConverter(pipe, src, outputID, exColumns, logger);
-                src = ssisdc.MetadataCollection;
-                map = ssisdc.ConvertedColumns;
-                outputID = 0;
-            }
-
-            this.ConnectComponents(src, outputID);
-            this.MatchInputColumns(map, true, logger);
+            return comp;
         }
-
 
     }
 }

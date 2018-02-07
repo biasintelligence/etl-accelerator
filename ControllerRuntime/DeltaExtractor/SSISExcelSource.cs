@@ -19,16 +19,26 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISExcelSource : SSISModule
+    public class SSISExcelSource : SSISModule,ISSISModule
     {
-        public SSISExcelSource(ExcelSource dbsrc, MainPipe pipe, ConnectionManager cm, ILogger logger)
-            : base(pipe, "Excel Source", logger)
+        private ExcelSource _src;
+        private ConnectionManager _cm;
+
+        public SSISExcelSource(ExcelSource src, MainPipe pipe, ConnectionManager cm, ILogger logger,Application app)
+            : base(pipe, "Excel Source", logger,app)
+        {
+            _src = src;
+            _cm = cm;
+        }
+
+        public override IDTSComponentMetaData100 Initialize()
         {
             // create the oledb source
+            IDTSComponentMetaData100 comp = base.Initialize();
             //set connection properies
-            cm.Name = "Excel Source Connection Manager";
-            cm.ConnectionString = dbsrc.ConnectionString;
-            cm.Description = dbsrc.Description;
+            _cm.Name = "Excel Source Connection Manager";
+            _cm.ConnectionString = _src.ConnectionString;
+            _cm.Description = _src.Description;
 
             //set connection properties
             //mwrt.IDTSConnectionManagerExcel100 ecm = cm.InnerObject as mwrt.IDTSConnectionManagerExcel100;
@@ -36,10 +46,8 @@ namespace BIAS.Framework.DeltaExtractor
             //ecm.FirstRowHasColumnName = dbsrc.Header;
             //ecm.ExcelVersionNumber = mwrt.DTSExcelVersion.DTSExcelVer_2007;
 
-            IDTSComponentMetaData100 comp = this.MetadataCollection;
             CManagedComponentWrapper dcomp = comp.Instantiate();
-
-            foreach (KeyValuePair<string, object> prop in dbsrc.CustomProperties.CustomPropertyCollection.InnerArrayList)
+            foreach (KeyValuePair<string, object> prop in _src.CustomProperties.CustomPropertyCollection.InnerArrayList)
             {
                 dcomp.SetComponentProperty(prop.Key, prop.Value);
             }
@@ -47,12 +55,13 @@ namespace BIAS.Framework.DeltaExtractor
             /*Specify the connection manager for Src.The Connections class is a collection of the connection managers that have been added to that package and are available for use at run time*/
             if (comp.RuntimeConnectionCollection.Count > 0)
             {
-                comp.RuntimeConnectionCollection[0].ConnectionManagerID = cm.ID;
-                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(cm);
+                comp.RuntimeConnectionCollection[0].ConnectionManagerID = _cm.ID;
+                comp.RuntimeConnectionCollection[0].ConnectionManager = DtsConvert.GetExtendedInterface(_cm);
             }
 
             // Finalize
             this.Reinitialize(dcomp);
+            return comp;
 
         }
     }

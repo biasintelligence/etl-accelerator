@@ -18,20 +18,23 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISPartitionSplit : SSISModule
+    public class SSISPartitionSplit : SSISModule,ISSISModule
     {
-        public SSISPartitionSplit(MainPipe pipe, IDTSComponentMetaData100 src, MoveData parameters, ILogger logger)
-            : base(pipe, "Conditional Split", logger)
+        private MoveData _src;
+        public SSISPartitionSplit(MoveData src,MainPipe pipe, ILogger logger,Application app)
+            : base(pipe, "Conditional Split", logger, app)
+        {
+            _src = src;
+        }
+        public override IDTSComponentMetaData100 Initialize()
         {
             // Create split component
-            this.Reinitialize();
-            this.ConnectComponents(src);
-
-            //add partition column to input
-            SetPartitionFunctionInput(parameters.Partition.Output, logger);
+            IDTSComponentMetaData100 comp = base.Initialize();
+            Reinitialize();
+            return comp;
         }
 
-        private void SetPartitionFunctionInput(string ColumnName, ILogger logger)
+        private void SetPartitionFunctionInput(string ColumnName)
         {
 
             IDTSComponentMetaData100 comp = this.MetadataCollection;
@@ -44,12 +47,20 @@ namespace BIAS.Framework.DeltaExtractor
             if (inputColId == 0)
             {
                 //the column wasn't found if the Id is 0, so we'll print out a message and skip this row.
-                logger.Information("DE Could not find partition function input column in the source.", ColumnName);
+                _logger.Information("DE Could not find partition function input column in the source.", ColumnName);
             }
             else
             {
                 dcomp.SetUsageType(input.ID, vInput, inputColId, DTSUsageType.UT_READONLY);
             }
+        }
+        public override IDTSComponentMetaData100 Connect(IDTSComponentMetaData100 src, int outputID = 0)
+        {
+
+            ConnectComponents(src, outputID);
+            //add partition column to input
+            SetPartitionFunctionInput(_src.Partition.Output);
+            return MetadataCollection;
         }
     }
 }

@@ -18,14 +18,19 @@ using ControllerRuntime;
 
 namespace BIAS.Framework.DeltaExtractor
 {
-    public class SSISMultiCast : SSISModule
+    public class SSISMultiCast : SSISModule,ISSISModule
     {
-        public SSISMultiCast(MainPipe pipe, IDTSComponentMetaData100 src, ILogger logger)
-            : base(pipe, "Multicast", logger)
+        public SSISMultiCast(MainPipe pipe, ILogger logger,Application app)
+            : base(pipe, "Multicast", logger, app)
+        {
+
+        }
+        public override IDTSComponentMetaData100 Initialize()
         {
             // Create multicast component
-            this.Reinitialize();
-            this.ConnectComponents(src);
+            IDTSComponentMetaData100 comp = base.Initialize();
+            Reinitialize();
+            return comp;
 
         }
     }
