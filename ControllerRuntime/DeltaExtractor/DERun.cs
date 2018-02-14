@@ -35,10 +35,14 @@ namespace BIAS.Framework.DeltaExtractor
         private const string XML_HEADER = "<?xml version=\"1.0\"?>";
         private const string XML = "XML";
 
-        public WfResult Start(WorkflowAttributeCollection args, ILogger logger, CancellationToken token)
+        public DERun(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public WfResult Start(WorkflowAttributeCollection args, CancellationToken token)
         {
             WfResult result = WfResult.Succeeded;
-            _logger = logger;
             _args = args;
 
             Parameters parameters = new Parameters();
@@ -61,19 +65,19 @@ namespace BIAS.Framework.DeltaExtractor
 
                 parameters = Parameters.DeSerializefromXml(inputXml);
 
-                logger.Information("Running DE v.{Version} ({Bit} bit)", v.ToString(), 8 * IntPtr.Size);
-                logger.Information("Executing as: {User}", WindowsIdentity.GetCurrent().Name.ToString());
-                logger.Debug("DE input parameter: {DeXml}", inputXml);
+                _logger.Information("Running DE v.{Version} ({Bit} bit)", v.ToString(), 8 * IntPtr.Size);
+                _logger.Information("Executing as: {User}", WindowsIdentity.GetCurrent().Name.ToString());
+                _logger.Debug("DE input parameter: {DeXml}", inputXml);
 
                 //logger.WriteDebug("DE XML: " + inputXml);
 
-                DEController controller = new DEController();
-                controller.Execute(parameters, logger, token);
+                DEController controller = new DEController(_logger);
+                controller.Execute(parameters, token);
 
             }
             catch (Exception ex)
             {
-                logger.Error(ex,"Exception: {Message}",ex.Message);
+                _logger.Error(ex,"Exception: {Message}",ex.Message);
                 result = WfResult.Failed;
             }
 

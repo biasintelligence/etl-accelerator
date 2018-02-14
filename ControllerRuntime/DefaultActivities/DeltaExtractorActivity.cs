@@ -90,8 +90,8 @@ namespace DefaultActivities
             _logger.Debug("Host process Id: {ProcessId}", processId);
             _logger.Debug("Running DeltaExtractor...");
 
-            DERun runner = new DERun();
-            return runner.Start(_attributes,_logger,token);
+            DERun runner = new DERun(_logger);
+            return runner.Start(_attributes,token);
         }
         #endregion
 

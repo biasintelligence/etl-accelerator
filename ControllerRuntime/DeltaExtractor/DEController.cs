@@ -29,26 +29,32 @@ namespace BIAS.Framework.DeltaExtractor
 
         #region Methods
 
-        public delegate void DEAction<in T, in L, in C>(T obj, L logger, C CancellationToken);
+        public delegate void DEAction<in T, in C>(T obj, C CancellationToken);
+        private ILogger _logger;
 
-        public void Execute(Parameters p, ILogger logger, CancellationToken token)
+        public DEController(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public void Execute(Parameters p, CancellationToken token)
         {
             System.Diagnostics.Debug.Assert(p != null);
 
-            Dictionary<string, DEAction<Parameters, ILogger, CancellationToken>> actions =
-                 new Dictionary<string, DEAction<Parameters, ILogger,CancellationToken>>(StringComparer.InvariantCultureIgnoreCase) {
+            Dictionary<string, DEAction<Parameters, CancellationToken>> actions =
+                 new Dictionary<string, DEAction<Parameters,CancellationToken>>(StringComparer.InvariantCultureIgnoreCase) {
                 {"MoveData", MoveDataRun },
                 {"RunPackage", ExecPackageRun }
                  };
 
             if (actions.ContainsKey(p.Action))
             {
-                actions[p.Action](p, logger, token);
+                actions[p.Action](p, token);
             }
 
         }
 
-        private void MoveDataRun(Parameters p, ILogger logger,CancellationToken token)
+        private void MoveDataRun(Parameters p,CancellationToken token)
         {
 
             System.Diagnostics.Debug.Assert(p != null);
@@ -59,10 +65,10 @@ namespace BIAS.Framework.DeltaExtractor
             {
                 throw new UnknownSourceType();
             }
-            logger.Information(action.DataSource.Description);
+            _logger.Information(action.DataSource.Description);
 
             //Check destinations
-            int numValidDestinations = action.DataDestination.Test(logger);
+            int numValidDestinations = action.DataDestination.Test(_logger);
             if (numValidDestinations == 0)
             {
                 throw new InvalidDestinations("Error: No Valid destinations found");
@@ -73,18 +79,18 @@ namespace BIAS.Framework.DeltaExtractor
             }
 
             //create and configure the package
-            DESSISPackage Extractor = new DESSISPackage(action);
-            Package pkg = Extractor.LoadPackage(logger);
+            DESSISPackage Extractor = new DESSISPackage(action,_logger);
+            Package pkg = Extractor.LoadPackage();
             if (pkg == null)
             {
                 throw new DeltaExtractorBuildException("Failed to Load or Build the SSIS Package");
             }
 
-            ExecutePackageWithEvents(pkg, logger, token);
+            ExecutePackageWithEvents(pkg, token);
 
             int rowCount = Convert.ToInt32(pkg.Variables["RowCount"].Value, CultureInfo.InvariantCulture);
-            logger.Information("DE extracted {Count} rows from the Source.", rowCount.ToString());
-            logger.Information("DE Package completed.");
+            _logger.Information("DE extracted {Count} rows from the Source.", rowCount.ToString());
+            _logger.Information("DE Package completed.");
             //ETLController.CounterSet("RowsExtracted", rowCount.ToString());
 
 
@@ -106,12 +112,12 @@ namespace BIAS.Framework.DeltaExtractor
                         IDeStagingSupport supp = (IDeStagingSupport)dest.DbSupportObject;
                         if (String.IsNullOrEmpty(dest.StagingBlock.StagingTableName))
                         {
-                            if (!supp.CreateStagingTable(false, logger))
+                            if (!supp.CreateStagingTable(false, _logger))
                             {
                                 throw new CouldNotCreateStagingTableException(dest.StagingBlock.StagingTableName);
                             }
                         }
-                        if (!supp.UploadStagingTable(p.RunID, logger))
+                        if (!supp.UploadStagingTable(p.RunID, _logger))
                         {
                             throw new CouldNotUploadStagingTableException(dest.StagingBlock.StagingTableName);
                         }
@@ -121,7 +127,7 @@ namespace BIAS.Framework.DeltaExtractor
         }
 
 
-        private void ExecPackageRun(Parameters p, ILogger logger, CancellationToken token)
+        private void ExecPackageRun(Parameters p, CancellationToken token)
         {
 
             System.Diagnostics.Debug.Assert(p != null);
@@ -146,15 +152,15 @@ namespace BIAS.Framework.DeltaExtractor
             }
             else
             {
-                logger.Information("DE trying to load the Package {File}", action.File);
+                _logger.Information("DE trying to load the Package {File}", action.File);
                 try
                 {
                     pkg.LoadFromXML(action.File, null);
-                    ExecutePackageWithEvents(pkg, logger, token);
+                    ExecutePackageWithEvents(pkg, token);
                 }
                 catch (COMException cexp)
                 {
-                    logger.Error(cexp,"Exception occured: {Target}", cexp.TargetSite);
+                    _logger.Error(cexp,"Exception occured: {Target}", cexp.TargetSite);
                     throw;
                 }
             }
@@ -166,7 +172,7 @@ namespace BIAS.Framework.DeltaExtractor
 
         }
 
-        private void ExecutePackageWithEvents(Package pkg, ILogger logger, CancellationToken token)
+        private void ExecutePackageWithEvents(Package pkg, CancellationToken token)
         {
             try
             {
@@ -175,16 +181,16 @@ namespace BIAS.Framework.DeltaExtractor
                 task.Task.Factory.StartNew(() =>
                 {
                     // Throw an exception if we get an error
-                    logger.Information("Executing DE Package...");
-                    SSISEvents ev = new SSISEvents(logger);
+                    _logger.Information("Executing DE Package...");
+                    SSISEvents ev = new SSISEvents(_logger);
                     DTSExecResult rc = pkg.Execute(null, null, ev, null, null);
                     if (rc != DTSExecResult.Success)
                     {
-                        logger.Error("Error: the DE failed to complete successfully {ErrorCode}.", 50000);
+                        _logger.Error("Error: the DE failed to complete successfully {ErrorCode}.", 50000);
                         //StringBuilder dtserrors = new StringBuilder();
                         foreach (DtsError error in pkg.Errors)
                         {
-                            logger.Error("Error: {Desc}, {ErrorCode}", error.Description, error.ErrorCode);
+                            _logger.Error("Error: {Desc}, {ErrorCode}", error.Description, error.ErrorCode);
                             //dtserrors.AppendLine(error.Description);
                         }
                         throw new UnexpectedSsisException("SSIS Package execution failed");
@@ -200,7 +206,7 @@ namespace BIAS.Framework.DeltaExtractor
             {
 
                 pkg.Dispose();
-                logger.Error(ex,"Package was cancelled: {PackageId}, {Name}", pkg.ID, pkg.Name);
+                _logger.Error(ex,"Package was cancelled: {PackageId}, {Name}", pkg.ID, pkg.Name);
                 //var app = new Application();
                 //var list = app.GetRunningPackages(".");
 

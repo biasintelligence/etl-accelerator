@@ -61,8 +61,8 @@ namespace BIAS.Framework.DeltaExtractor.exe
 
                 using (CancellationTokenSource cts = new CancellationTokenSource())
                 {
-                    DERun runner = new DERun();
-                    WfResult result = runner.Start(param, logger, cts.Token);
+                    DERun runner = new DERun(logger);
+                    WfResult result = runner.Start(param, cts.Token);
                     if (result.StatusCode != WfStatus.Succeeded)
                     {
                         throw new Exception(String.Format("DE returned Status: {0}", result.StatusCode.ToString()));

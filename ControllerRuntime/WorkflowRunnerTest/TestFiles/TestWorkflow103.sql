@@ -63,31 +63,8 @@ union all select @BatchID,'WaitTimeout'		,'10'
 union all select @BatchID,'Test.Database','ETL_Staging'
 union all select @BatchID,'Test.ConnectionString','Server=<Control.Server>;Database=<Test.Database>;Trusted_Connection=True;Connection Timeout=30;'
 union all select @BatchID,'OLEDB.ConnectionString','Data Source=<Control.Server>;Initial Catalog=<Test.Database>;Integrated Security=SSPI;'--;Provider=SQLNCLI11.1;Auto Translate=False;
-union all select @BatchID,'Test.SrcTable','dbo.oledb_test'
-union all select @BatchID,'Test.DstTable','dbo.staging_oledb_test'
 
------------------------------------------------------
---create workflow steps 
------------------------------------------------------
---set identity_insert dbo.ETLStep on
-
-insert dbo.ETLStep
-	(StepID,BatchID,StepName,StepDesc,StepProcID
-	,OnSuccessID,OnFailureID,IgnoreErr,StepOrder
-)
-select 1,@BatchID,'ST01','create test tables',20,null,null,null,'01'
-union all
-select 2,@BatchID,'ST02','OLEDB test',24,null,null,null,'02'
-
---set identity_insert dbo.ETLStep off
-
--------------------------------------------------------
---Define step level system attributes
--------------------------------------------------------
-insert dbo.ETLStepAttribute
-(StepID,BatchID,AttributeName,AttributeValue)
-
-		  select 1,@BatchID,'Query','
+union all select @BatchID,'Query','
 if (object_id(''<Test.SrcTable>'') is not null)
 	drop table <Test.SrcTable>;
 
@@ -111,34 +88,192 @@ create table <Test.DstTable>
 ,val2 nvarchar(100) null)
 ;		  
 '
-union all select 1,@BatchID,'ConnectionString','<Test.ConnectionString>'
+
+
+-----------------------------------------------------
+--create workflow steps 
+-----------------------------------------------------
+--set identity_insert dbo.ETLStep on
+
+insert dbo.ETLStep
+	(StepID,BatchID,StepName,StepDesc,StepProcID
+	,OnSuccessID,OnFailureID,IgnoreErr,StepOrder
+)
+select 1,@BatchID,'ST01','create test table 1',20,null,null,null,'01'
+union all
+select 2,@BatchID,'ST02','create test table 2',20,null,null,null,'02'
+union all
+select 3,@BatchID,'ST03','create test table 3',20,null,null,null,'03'
+union all
+select 4,@BatchID,'ST04','create test table 4',20,null,null,null,'04'
+union all
+select 5,@BatchID,'ST05','create test table 5',20,null,null,null,'05'
+
+union all
+select 11,@BatchID,'ST11','OLEDB test 1',24,null,null,null,'11'
+union all
+select 12,@BatchID,'ST12','OLEDB test 2',24,null,null,null,'12'
+union all
+select 13,@BatchID,'ST13','OLEDB test 3',24,null,null,null,'13'
+union all
+select 14,@BatchID,'ST14','OLEDB test 4',24,null,null,null,'14'
+union all
+select 15,@BatchID,'ST15','OLEDB test 5',24,null,null,null,'15'
+
+--set identity_insert dbo.ETLStep off
+
+-------------------------------------------------------
+--Define step level system attributes
+-------------------------------------------------------
+insert dbo.ETLStepAttribute
+(StepID,BatchID,AttributeName,AttributeValue)
+
+		  select 1,@BatchID,'ConnectionString','<Test.ConnectionString>'
+union all select 1,@BatchID,'Test.SrcTable','dbo.oledb_test1'
+union all select 1,@BatchID,'Test.DstTable','dbo.staging_oledb_test1'
 union all select 1,@BatchID,'Timeout','20'
 
 union all select 1,@BatchID,'DISABLED','0'
-union all select 1,@BatchID,'SEQGROUP','1'
 union all select 1,@BatchID,'PRIGROUP','1'
 
-
-union all select 2,@BatchID,'Action','MoveData'
-union all select 2,@BatchID,'QueryTimeout','120'
-union all select 2,@BatchID,'Source.Component','OLEDB'
-union all select 2,@BatchID,'Source.OLEDB.AccessMode','SQL Command'			
-union all select 2,@BatchID,'Source.ConnectionString','<OLEDB.ConnectionString>'			
-union all select 2,@BatchID,'Source.Query','select * from <Test.SrcTable>'
-
-union all select 2,@BatchID,'Destination.Component','OLEDB'
-union all select 2,@BatchID,'Destination.OLEDB.AccessMode','OpenRowset Using FastLoad'			
-union all select 2,@BatchID,'Destination.ConnectionString','<OLEDB.ConnectionString>'
-union all select 2,@BatchID,'Destination.TableName','<Test.DstTable>'			
-union all select 2,@BatchID,'Destination.OLEDB.FastLoadOptions','TABLOCK,CHECK_CONSTRAINTS,ROWS_PER_BATCH = 10000'
-union all select 2,@BatchID,'Destination.Staging','0'
---union all select 2,@BatchID,'SavePackage','1'
---union all select 2,@BatchID,'PackageFileName','<Path*>\Test102_OLEDB.dtsx'
+union all select 2,@BatchID,'ConnectionString','<Test.ConnectionString>'
+union all select 2,@BatchID,'Test.SrcTable','dbo.oledb_test2'
+union all select 2,@BatchID,'Test.DstTable','dbo.staging_oledb_test2'
+union all select 2,@BatchID,'Timeout','20'
 
 union all select 2,@BatchID,'DISABLED','0'
-union all select 2,@BatchID,'SEQGROUP','1'
 union all select 2,@BatchID,'PRIGROUP','1'
 
+union all select 3,@BatchID,'ConnectionString','<Test.ConnectionString>'
+union all select 3,@BatchID,'Test.SrcTable','dbo.oledb_test3'
+union all select 3,@BatchID,'Test.DstTable','dbo.staging_oledb_test3'
+union all select 3,@BatchID,'Timeout','20'
+
+union all select 3,@BatchID,'DISABLED','0'
+union all select 3,@BatchID,'PRIGROUP','1'
+
+union all select 4,@BatchID,'ConnectionString','<Test.ConnectionString>'
+union all select 4,@BatchID,'Test.SrcTable','dbo.oledb_test4'
+union all select 4,@BatchID,'Test.DstTable','dbo.staging_oledb_test4'
+union all select 4,@BatchID,'Timeout','20'
+
+union all select 4,@BatchID,'DISABLED','0'
+union all select 4,@BatchID,'PRIGROUP','1'
+
+union all select 5,@BatchID,'ConnectionString','<Test.ConnectionString>'
+union all select 5,@BatchID,'Test.SrcTable','dbo.oledb_test5'
+union all select 5,@BatchID,'Test.DstTable','dbo.staging_oledb_test5'
+union all select 5,@BatchID,'Timeout','20'
+
+union all select 5,@BatchID,'DISABLED','0'
+union all select 5,@BatchID,'PRIGROUP','1'
+
+
+
+union all select 11,@BatchID,'Test.SrcTable','dbo.oledb_test1'
+union all select 11,@BatchID,'Test.DstTable','dbo.staging_oledb_test1'
+union all select 11,@BatchID,'Action','MoveData'
+union all select 11,@BatchID,'QueryTimeout','120'
+union all select 11,@BatchID,'Source.Component','OLEDB'
+union all select 11,@BatchID,'Source.OLEDB.AccessMode','SQL Command'			
+union all select 11,@BatchID,'Source.ConnectionString','<OLEDB.ConnectionString>'			
+union all select 11,@BatchID,'Source.Query','select * from <Test.SrcTable>'
+
+union all select 11,@BatchID,'Destination.Component','OLEDB'
+union all select 11,@BatchID,'Destination.OLEDB.AccessMode','OpenRowset Using FastLoad'			
+union all select 11,@BatchID,'Destination.ConnectionString','<OLEDB.ConnectionString>'
+union all select 11,@BatchID,'Destination.TableName','<Test.DstTable>'			
+union all select 11,@BatchID,'Destination.OLEDB.FastLoadOptions','TABLOCK,CHECK_CONSTRAINTS,ROWS_PER_BATCH = 10000'
+union all select 11,@BatchID,'Destination.Staging','0'
+--union all select 11,@BatchID,'SavePackage','1'
+--union all select 11,@BatchID,'PackageFileName','<Path*>\Test102_OLEDB.dtsx'
+
+union all select 11,@BatchID,'DISABLED','0'
+union all select 11,@BatchID,'PRIGROUP','11'
+
+union all select 12,@BatchID,'Test.SrcTable','dbo.oledb_test2'
+union all select 12,@BatchID,'Test.DstTable','dbo.staging_oledb_test2'
+union all select 12,@BatchID,'Action','MoveData'
+union all select 12,@BatchID,'QueryTimeout','120'
+union all select 12,@BatchID,'Source.Component','OLEDB'
+union all select 12,@BatchID,'Source.OLEDB.AccessMode','SQL Command'			
+union all select 12,@BatchID,'Source.ConnectionString','<OLEDB.ConnectionString>'			
+union all select 12,@BatchID,'Source.Query','select * from <Test.SrcTable>'
+
+union all select 12,@BatchID,'Destination.Component','OLEDB'
+union all select 12,@BatchID,'Destination.OLEDB.AccessMode','OpenRowset Using FastLoad'			
+union all select 12,@BatchID,'Destination.ConnectionString','<OLEDB.ConnectionString>'
+union all select 12,@BatchID,'Destination.TableName','<Test.DstTable>'			
+union all select 12,@BatchID,'Destination.OLEDB.FastLoadOptions','TABLOCK,CHECK_CONSTRAINTS,ROWS_PER_BATCH = 10000'
+union all select 12,@BatchID,'Destination.Staging','0'
+--union all select 12,@BatchID,'SavePackage','1'
+--union all select 12,@BatchID,'PackageFileName','<Path*>\Test102_OLEDB.dtsx'
+
+union all select 12,@BatchID,'DISABLED','0'
+union all select 12,@BatchID,'PRIGROUP','11'
+
+union all select 13,@BatchID,'Test.SrcTable','dbo.oledb_test3'
+union all select 13,@BatchID,'Test.DstTable','dbo.staging_oledb_test3'
+union all select 13,@BatchID,'Action','MoveData'
+union all select 13,@BatchID,'QueryTimeout','120'
+union all select 13,@BatchID,'Source.Component','OLEDB'
+union all select 13,@BatchID,'Source.OLEDB.AccessMode','SQL Command'			
+union all select 13,@BatchID,'Source.ConnectionString','<OLEDB.ConnectionString>'			
+union all select 13,@BatchID,'Source.Query','select * from <Test.SrcTable>'
+
+union all select 13,@BatchID,'Destination.Component','OLEDB'
+union all select 13,@BatchID,'Destination.OLEDB.AccessMode','OpenRowset Using FastLoad'			
+union all select 13,@BatchID,'Destination.ConnectionString','<OLEDB.ConnectionString>'
+union all select 13,@BatchID,'Destination.TableName','<Test.DstTable>'			
+union all select 13,@BatchID,'Destination.OLEDB.FastLoadOptions','TABLOCK,CHECK_CONSTRAINTS,ROWS_PER_BATCH = 10000'
+union all select 13,@BatchID,'Destination.Staging','0'
+--union all select 13,@BatchID,'SavePackage','1'
+--union all select 13,@BatchID,'PackageFileName','<Path*>\Test102_OLEDB.dtsx'
+
+union all select 13,@BatchID,'DISABLED','0'
+union all select 13,@BatchID,'PRIGROUP','11'
+
+union all select 14,@BatchID,'Test.SrcTable','dbo.oledb_test4'
+union all select 14,@BatchID,'Test.DstTable','dbo.staging_oledb_test4'
+union all select 14,@BatchID,'Action','MoveData'
+union all select 14,@BatchID,'QueryTimeout','120'
+union all select 14,@BatchID,'Source.Component','OLEDB'
+union all select 14,@BatchID,'Source.OLEDB.AccessMode','SQL Command'			
+union all select 14,@BatchID,'Source.ConnectionString','<OLEDB.ConnectionString>'			
+union all select 14,@BatchID,'Source.Query','select * from <Test.SrcTable>'
+
+union all select 14,@BatchID,'Destination.Component','OLEDB'
+union all select 14,@BatchID,'Destination.OLEDB.AccessMode','OpenRowset Using FastLoad'			
+union all select 14,@BatchID,'Destination.ConnectionString','<OLEDB.ConnectionString>'
+union all select 14,@BatchID,'Destination.TableName','<Test.DstTable>'			
+union all select 14,@BatchID,'Destination.OLEDB.FastLoadOptions','TABLOCK,CHECK_CONSTRAINTS,ROWS_PER_BATCH = 10000'
+union all select 14,@BatchID,'Destination.Staging','0'
+--union all select 14,@BatchID,'SavePackage','1'
+--union all select 14,@BatchID,'PackageFileName','<Path*>\Test102_OLEDB.dtsx'
+
+union all select 14,@BatchID,'DISABLED','0'
+union all select 14,@BatchID,'PRIGROUP','11'
+
+union all select 15,@BatchID,'Test.SrcTable','dbo.oledb_test5'
+union all select 15,@BatchID,'Test.DstTable','dbo.staging_oledb_test5'
+union all select 15,@BatchID,'Action','MoveData'
+union all select 15,@BatchID,'QueryTimeout','120'
+union all select 15,@BatchID,'Source.Component','OLEDB'
+union all select 15,@BatchID,'Source.OLEDB.AccessMode','SQL Command'			
+union all select 15,@BatchID,'Source.ConnectionString','<OLEDB.ConnectionString>'			
+union all select 15,@BatchID,'Source.Query','select * from <Test.SrcTable>'
+
+union all select 15,@BatchID,'Destination.Component','OLEDB'
+union all select 15,@BatchID,'Destination.OLEDB.AccessMode','OpenRowset Using FastLoad'			
+union all select 15,@BatchID,'Destination.ConnectionString','<OLEDB.ConnectionString>'
+union all select 15,@BatchID,'Destination.TableName','<Test.DstTable>'			
+union all select 15,@BatchID,'Destination.OLEDB.FastLoadOptions','TABLOCK,CHECK_CONSTRAINTS,ROWS_PER_BATCH = 10000'
+union all select 15,@BatchID,'Destination.Staging','0'
+--union all select 15,@BatchID,'SavePackage','1'
+--union all select 15,@BatchID,'PackageFileName','<Path*>\Test102_OLEDB.dtsx'
+
+union all select 15,@BatchID,'DISABLED','0'
+union all select 15,@BatchID,'PRIGROUP','11'
 
 end try
 begin catch
