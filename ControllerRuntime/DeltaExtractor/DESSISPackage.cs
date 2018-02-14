@@ -77,7 +77,7 @@ namespace BIAS.Framework.DeltaExtractor
         {
 
             Application app = new Application();
-            _logger.Information($"component store path: {app.ComponentStorePath}");
+            _logger.Debug($"component store path: {app.ComponentStorePath}");
             Package package = new Package();
             lock (_lockBuild)
             {
