@@ -20,7 +20,7 @@ using System.Configuration;
 
 using Serilog;
 using Serilog.Events;
-using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.Configuration;
 using ControllerRuntime;
 using ControllerRuntime.Logging;
 
@@ -72,15 +72,16 @@ namespace WorkflowRunner
             }
 
 
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
+            //var builder = new ConfigurationBuilder()
+            //    .AddJsonFile("appsettings.json")
+            //    .Build();
 
-            string runnerName = builder.GetSection("Data:Runner").Value;
-            string connectionString = builder.GetSection("Data:Controller").Value;
+            //string runnerName = builder.GetSection("Data:Runner").Value;
+            //string connectionString = builder.GetSection("Data:Controller").Value;
 
-            //var settings = ConfigurationManager.AppSettings;
-            //string connectionString = settings["Controller"];
+            var settings = ConfigurationManager.AppSettings;
+            string runnerName = settings["Runner"];
+            string connectionString = settings["Controller"];
 
             attributes.Add(WorkflowConstants.ATTRIBUTE_CONTROLLER_CONNECTIONSTRING, connectionString);
 
@@ -94,7 +95,8 @@ namespace WorkflowRunner
 
             if (verbose)
                 Log.Logger = new LoggerConfiguration()
-                        .ReadFrom.Configuration(builder)
+                        //.ReadFrom.Configuration(builder)
+                        .ReadFrom.AppSettings()
                         .MinimumLevel.Is(minLogLevel)
                         //.WriteTo.Console()
                         .WriteTo.WorkflowLogger(connectionString: connectionString)

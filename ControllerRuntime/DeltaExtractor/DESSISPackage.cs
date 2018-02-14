@@ -71,6 +71,9 @@ namespace BIAS.Framework.DeltaExtractor
         private Package BuildPackage(ILogger logger)
         {
             Application app = new Application();
+
+            logger.Information($"component store path: {app.ComponentStorePath}");
+
             Package package = new Package();
             try
             {
@@ -78,11 +81,14 @@ namespace BIAS.Framework.DeltaExtractor
 
                 //SSISEvents ev = new SSISEvents();
                 //m_p.DesignEvents = ev;
-
+                
+                //Executable ex = package.Executables.Add("SSIS.Pipeline");
                 Executable ex = package.Executables.Add("STOCK:PipelineTask");
                 TaskHost host = ex as TaskHost;
                 host.Name = "DE Data Flow Task";
                 MainPipe pipe = host.InnerObject as MainPipe;
+                logger.Debug($"host name: {host.CreationName}");
+
 
                 // Set the IDTSComponentEvent handler to capture the details from any 
                 // COMExceptions raised during package generation

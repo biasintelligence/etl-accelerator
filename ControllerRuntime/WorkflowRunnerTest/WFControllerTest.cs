@@ -6,8 +6,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 //using DefaultActivities;
 using ControllerRuntime;
 using ControllerRuntime.Logging;
-using Microsoft.Extensions.Configuration;
+//using Microsoft.Extensions.Configuration;
 using Serilog;
+using System.Configuration;
 
 namespace ControllerRuntimeTest
 {
@@ -20,14 +21,21 @@ namespace ControllerRuntimeTest
         public void WFRun_Ok()
         {
 
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build();
+            //var builder = new ConfigurationBuilder()
+            //    .AddJsonFile("appsettings.json")
+            //    .Build();
 
-            string runnerName = builder.GetSection("Data:Runner").Value;
-            string connectionString = builder.GetSection("Data:Controller").Value;
+            //string runnerName = builder.GetSection("Data:Runner").Value;
+            //string connectionString = builder.GetSection("Data:Controller").Value;
+
+            var settings = ConfigurationManager.AppSettings;
+            string runnerName = settings["Runner"];
+            string connectionString = settings["Controller"];
+
+
             Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(builder)
+                .ReadFrom.AppSettings()
+                //.ReadFrom.Configuration(builder)
                 .MinimumLevel.Debug()
                 //.WriteTo.File(path: @"c:\logs\log.txt",
                 //             rollOnFileSizeLimit: true,

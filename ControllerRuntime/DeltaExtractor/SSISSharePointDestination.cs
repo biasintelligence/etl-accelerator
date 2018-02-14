@@ -22,7 +22,6 @@ namespace BIAS.Framework.DeltaExtractor
     public class SSISSharePointDestination : SSISModule, ISSISModule
     {
         private SharePointDestination _dst;
-        private ConnectionManager _cm;
 
         public SSISSharePointDestination(SharePointDestination dst, MainPipe pipe, ILogger logger,Application app)
         //: base(pipe, "SharePoint List Destination", outputID, "Microsoft.Samples.SqlServer.SSIS.SharePointListAdapters.SharePointListDestination, SharePointListAdapters, Version=1.2012.0.0, Culture=neutral, PublicKeyToken=f4b3011e1ece9d47", logger)

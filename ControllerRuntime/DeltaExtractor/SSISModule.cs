@@ -48,16 +48,22 @@ namespace BIAS.Framework.DeltaExtractor
         public virtual IDTSComponentMetaData100 Initialize()
         {
             //create SSIS component
+            string clsid = (String.IsNullOrEmpty(_moduleClsid)) ? _app.PipelineComponentInfos[_moduleName].CreationName : _moduleClsid;
+            _logger.Debug("Adding component: {clsid}", clsid);
 
             _metadata = _pipe.ComponentMetaDataCollection.New();
-            _metadata.ComponentClassID = (String.IsNullOrEmpty(_moduleClsid)) ? _app.PipelineComponentInfos[_moduleName].CreationName : _moduleClsid;
+            _metadata.ComponentClassID = clsid;
+            string compName = $"{_moduleName}-{_metadata.ID}";
+            _metadata.Name = compName;
+
             CManagedComponentWrapper dcomp = _metadata.Instantiate();
             dcomp.ProvideComponentProperties();
 
             //set common SSIS module properties
-            _metadata.Name = $"{_moduleName}-{_metadata.ID}";
+            //need to do this after ProvideComponentProperties call
+            _metadata.Name = compName;
 
-            _logger.Debug("DE added {CompName}", _metadata.Name);
+            _logger.Debug("DE added {CompName}", compName);
             return _metadata;
 
         }
