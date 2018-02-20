@@ -129,15 +129,15 @@ and (b.StatusDT &gt; @TheDate and  r.RowId &lt;= @MaxRuns)
 order by b.batchId,b.runId</value>
   </data>
   <data name="QueryCounters" xml:space="preserve">
-    <value>select case StepID when 0 then '*' else '' end + CounterName as CounterName,CounterValue from dbo.ETLStepRunCounter with (nolock) where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID</value>
+    <value>select StepID, CounterName,CounterValue from dbo.ETLStepRunCounter with (nolock) where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID</value>
   </data>
   <data name="QueryLog" xml:space="preserve">
     <value>select LogID,Err,LogDT,LogMessage from dbo.ETLStepRunHistoryLog with (nolock) where BatchID = @BatchID and StepId = @StepID and RunID= @RunID and LogID &gt; @LogID</value>
   </data>
   <data name="QueryStepRun" xml:space="preserve">
-    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRun r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder</value>
+    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName,r.StepOrder,r.PriGroup,r.SeqGroup from dbo.ETLStepRun r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder</value>
   </data>
   <data name="QueryStepRunHistory" xml:space="preserve">
-    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRunHistory r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder</value>
+    <value>select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName,r.StepOrder,r.PriGroup,r.SeqGroup from dbo.ETLStepRunHistory r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder</value>
   </data>
 </root>

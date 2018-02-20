@@ -230,6 +230,9 @@ namespace ETL_Framework
                         dataGridStepRun.Rows[rIdx].Cells["StartTime"].Value = r["StartTime"];
                         dataGridStepRun.Rows[rIdx].Cells["EndTime"].Value = r["EndTime"];
                         dataGridStepRun.Rows[rIdx].Cells["SvcName"].Value = r["SvcName"];
+                        dataGridStepRun.Rows[rIdx].Cells["PriGroup"].Value = r["PriGroup"];
+                        dataGridStepRun.Rows[rIdx].Cells["SeqGroup"].Value = r["SeqGroup"];
+                        dataGridStepRun.Rows[rIdx].Cells["StepOrder"].Value = r["StepOrder"];
 
                     }
                     else
@@ -299,6 +302,9 @@ namespace ETL_Framework
                     dataGridStepRun.Rows[rIdx].Cells["StartTime"].Value = r["StartTime"];
                     dataGridStepRun.Rows[rIdx].Cells["EndTime"].Value = r["EndTime"];
                     dataGridStepRun.Rows[rIdx].Cells["SvcName"].Value = r["SvcName"];
+                    dataGridStepRun.Rows[rIdx].Cells["PriGroup"].Value = r["PriGroup"];
+                    dataGridStepRun.Rows[rIdx].Cells["SeqGroup"].Value = r["SeqGroup"];
+                    dataGridStepRun.Rows[rIdx].Cells["StepOrder"].Value = r["StepOrder"];
 
                     int iidx = Convert.ToInt32(r["StatusID"]);
                     dataGridStepRun.Rows[rIdx].Cells["Status"].Value = imageListStatus.Images[iidx];
@@ -332,6 +338,7 @@ namespace ETL_Framework
                 cmd.Parameters["@RunID"].Value = m_RunID;
 
                 dataGridCounters.Rows.Clear();
+                dataGridStepCounters.Rows.Clear();
 
                 //SqlDependency dependency = new SqlDependency(cmd);
                 //dependency.OnChange += new OnChangeEventHandler(dependency_OnCountersChange);
@@ -345,15 +352,31 @@ namespace ETL_Framework
                 //dataGridCounters.DataMember = "Counters";
                 foreach (DataRow r in m_DataSet.Tables["Counters"].Rows)
                 {
-                    int rIdx = dataGridCounters.Rows.Add();
-                    dataGridCounters.Rows[rIdx].Cells["CounterName"].Value = r["CounterName"];
-                    dataGridCounters.Rows[rIdx].Cells["CounterValue"].Value = r["CounterValue"];
+
+                    int rIdx;
+                    if (Convert.ToInt32(r["StepID"]) == 0)
+                    {
+                        rIdx = dataGridCounters.Rows.Add();
+                        dataGridCounters.Rows[rIdx].Cells["CounterName"].Value = r["CounterName"];
+                        dataGridCounters.Rows[rIdx].Cells["CounterValue"].Value = r["CounterValue"];
+                    }
+                    else
+                    {
+                        rIdx = dataGridStepCounters.Rows.Add();
+                        dataGridStepCounters.Rows[rIdx].Cells["StepCounterName"].Value = r["CounterName"];
+                        dataGridStepCounters.Rows[rIdx].Cells["StepCounterValue"].Value = r["CounterValue"];
+
+                    }
                 }
 
 
 
                 dataGridCounters.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.DisplayedCells);
                 dataGridCounters.ReadOnly = true;
+
+                dataGridStepCounters.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.DisplayedCells);
+                dataGridStepCounters.ReadOnly = true;
+
             }
         }
 
@@ -653,6 +676,11 @@ namespace ETL_Framework
         }
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void splitContainer3_Panel2_Paint(object sender, PaintEventArgs e)
         {
 
         }

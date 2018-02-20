@@ -19,7 +19,7 @@ namespace ETL_Framework.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -84,7 +84,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select case StepID when 0 then &apos;*&apos; else &apos;&apos; end + CounterName as CounterName,CounterValue from dbo.ETLStepRunCounter with (nolock) where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID.
+        ///   Looks up a localized string similar to select StepID, CounterName,CounterValue from dbo.ETLStepRunCounter with (nolock) where BatchID = @BatchID and StepId in (0,@StepID) and RunID= @RunID.
         /// </summary>
         internal static string QueryCounters {
             get {
@@ -102,7 +102,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRun r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder.
+        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName,r.StepOrder,r.PriGroup,r.SeqGroup from dbo.ETLStepRun r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and (r.EndTime is null or r.EndTime &gt; @StatusDT or @StatusDT is null) order by r.PriGroup,r.StepOrder.
         /// </summary>
         internal static string QueryStepRun {
             get {
@@ -111,7 +111,7 @@ namespace ETL_Framework.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName from dbo.ETLStepRunHistory r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder.
+        ///   Looks up a localized string similar to select r.RunID,s.StepDesc,r.StatusID,r.Err,r.StartTime,r.EndTime,r.StepID,r.SvcName,r.StepOrder,r.PriGroup,r.SeqGroup from dbo.ETLStepRunHistory r with (nolock) join dbo.ETLStep s with (nolock) on r.BatchID = s.BatchID and r.StepID = s.StepID where r.BatchID = @BatchID and r.RunID = @RunID order by r.PriGroup,r.StepOrder.
         /// </summary>
         internal static string QueryStepRunHistory {
             get {

@@ -39,16 +39,11 @@
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.dataGridStepRun = new System.Windows.Forms.DataGridView();
-            this.Status = new System.Windows.Forms.DataGridViewImageColumn();
-            this.StepDesc = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StartTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.EndTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.RunID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.StepID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.SvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.dataGridCounters = new System.Windows.Forms.DataGridView();
             this.CounterName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CounterValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridStepCounters = new System.Windows.Forms.DataGridView();
             this.dataGridLog = new System.Windows.Forms.DataGridView();
             this.LogDT = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Err = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -60,13 +55,25 @@
             this.databaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripTextBoxDatabase = new System.Windows.Forms.ToolStripTextBox();
             this.userToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripTextBoxUser = new System.Windows.Forms.ToolStripTextBox();
             this.passwordToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripTextBoxPassword = new System.Windows.Forms.ToolStripTextBox();
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.actionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cancelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageListStatus = new System.Windows.Forms.ImageList(this.components);
-            this.toolStripTextBoxPassword = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripTextBoxUser = new System.Windows.Forms.ToolStripTextBox();
+            this.StepID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Status = new System.Windows.Forms.DataGridViewImageColumn();
+            this.StepDesc = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StartTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.EndTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RunID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SvcName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StepOrder = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.PriGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.SeqGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StepCounterName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.StepCounterValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.statusBar.SuspendLayout();
             this.toolStripContainer1.BottomToolStripPanel.SuspendLayout();
             this.toolStripContainer1.ContentPanel.SuspendLayout();
@@ -85,7 +92,12 @@
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridStepRun)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).BeginInit();
+            this.splitContainer4.Panel1.SuspendLayout();
+            this.splitContainer4.Panel2.SuspendLayout();
+            this.splitContainer4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridCounters)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridStepCounters)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridLog)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -188,9 +200,10 @@
             // 
             // splitContainer3.Panel2
             // 
-            this.splitContainer3.Panel2.Controls.Add(this.dataGridCounters);
+            this.splitContainer3.Panel2.Controls.Add(this.splitContainer4);
+            this.splitContainer3.Panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer3_Panel2_Paint);
             this.splitContainer3.Size = new System.Drawing.Size(974, 172);
-            this.splitContainer3.SplitterDistance = 592;
+            this.splitContainer3.SplitterDistance = 800;
             this.splitContainer3.TabIndex = 13;
             // 
             // dataGridStepRun
@@ -199,67 +212,47 @@
             this.dataGridStepRun.AllowUserToDeleteRows = false;
             this.dataGridStepRun.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridStepRun.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.StepID,
             this.Status,
             this.StepDesc,
             this.StartTime,
             this.EndTime,
             this.RunID,
-            this.StepID,
-            this.SvcName});
+            this.SvcName,
+            this.StepOrder,
+            this.PriGroup,
+            this.SeqGroup});
             this.dataGridStepRun.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridStepRun.Location = new System.Drawing.Point(0, 0);
             this.dataGridStepRun.MultiSelect = false;
             this.dataGridStepRun.Name = "dataGridStepRun";
             this.dataGridStepRun.ReadOnly = true;
+            this.dataGridStepRun.RowHeadersVisible = false;
             this.dataGridStepRun.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridStepRun.Size = new System.Drawing.Size(592, 172);
+            this.dataGridStepRun.Size = new System.Drawing.Size(800, 172);
             this.dataGridStepRun.TabIndex = 13;
             this.dataGridStepRun.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridStepRun_Click);
             // 
-            // Status
+            // splitContainer4
             // 
-            this.Status.HeaderText = "Status";
-            this.Status.Name = "Status";
-            this.Status.ReadOnly = true;
+            this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer4.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer4.Name = "splitContainer4";
+            this.splitContainer4.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // StepDesc
+            // splitContainer4.Panel1
             // 
-            this.StepDesc.HeaderText = "StepDesc";
-            this.StepDesc.Name = "StepDesc";
-            this.StepDesc.ReadOnly = true;
+            this.splitContainer4.Panel1.Controls.Add(this.dataGridCounters);
+            this.splitContainer4.Panel1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             // 
-            // StartTime
+            // splitContainer4.Panel2
             // 
-            this.StartTime.HeaderText = "StartTime";
-            this.StartTime.Name = "StartTime";
-            this.StartTime.ReadOnly = true;
-            // 
-            // EndTime
-            // 
-            this.EndTime.HeaderText = "EndTime";
-            this.EndTime.Name = "EndTime";
-            this.EndTime.ReadOnly = true;
-            // 
-            // RunID
-            // 
-            this.RunID.HeaderText = "RunID";
-            this.RunID.Name = "RunID";
-            this.RunID.ReadOnly = true;
-            this.RunID.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.RunID.Visible = false;
-            // 
-            // StepID
-            // 
-            this.StepID.HeaderText = "StepID";
-            this.StepID.Name = "StepID";
-            this.StepID.ReadOnly = true;
-            this.StepID.Visible = false;
-            // 
-            // SvcName
-            // 
-            this.SvcName.HeaderText = "SvcName";
-            this.SvcName.Name = "SvcName";
-            this.SvcName.ReadOnly = true;
+            this.splitContainer4.Panel2.Controls.Add(this.dataGridStepCounters);
+            this.splitContainer4.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.splitContainer4.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.splitContainer4.Size = new System.Drawing.Size(170, 172);
+            this.splitContainer4.SplitterDistance = 86;
+            this.splitContainer4.TabIndex = 14;
             // 
             // dataGridCounters
             // 
@@ -274,21 +267,43 @@
             this.dataGridCounters.MultiSelect = false;
             this.dataGridCounters.Name = "dataGridCounters";
             this.dataGridCounters.ReadOnly = true;
+            this.dataGridCounters.RowHeadersVisible = false;
             this.dataGridCounters.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridCounters.Size = new System.Drawing.Size(378, 172);
-            this.dataGridCounters.TabIndex = 12;
+            this.dataGridCounters.Size = new System.Drawing.Size(170, 86);
+            this.dataGridCounters.TabIndex = 13;
             // 
             // CounterName
             // 
-            this.CounterName.HeaderText = "CounterName";
+            this.CounterName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.CounterName.HeaderText = "WF Counter";
             this.CounterName.Name = "CounterName";
             this.CounterName.ReadOnly = true;
+            this.CounterName.Width = 89;
             // 
             // CounterValue
             // 
+            this.CounterValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.CounterValue.HeaderText = "Value";
             this.CounterValue.Name = "CounterValue";
             this.CounterValue.ReadOnly = true;
+            // 
+            // dataGridStepCounters
+            // 
+            this.dataGridStepCounters.AllowUserToAddRows = false;
+            this.dataGridStepCounters.AllowUserToDeleteRows = false;
+            this.dataGridStepCounters.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridStepCounters.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.StepCounterName,
+            this.StepCounterValue});
+            this.dataGridStepCounters.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridStepCounters.Location = new System.Drawing.Point(0, 0);
+            this.dataGridStepCounters.MultiSelect = false;
+            this.dataGridStepCounters.Name = "dataGridStepCounters";
+            this.dataGridStepCounters.ReadOnly = true;
+            this.dataGridStepCounters.RowHeadersVisible = false;
+            this.dataGridStepCounters.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridStepCounters.Size = new System.Drawing.Size(170, 82);
+            this.dataGridStepCounters.TabIndex = 14;
             // 
             // dataGridLog
             // 
@@ -304,6 +319,7 @@
             this.dataGridLog.MultiSelect = false;
             this.dataGridLog.Name = "dataGridLog";
             this.dataGridLog.ReadOnly = true;
+            this.dataGridLog.RowHeadersVisible = false;
             this.dataGridLog.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridLog.Size = new System.Drawing.Size(974, 174);
             this.dataGridLog.TabIndex = 16;
@@ -322,6 +338,7 @@
             // 
             // LogMessage
             // 
+            this.LogMessage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.LogMessage.HeaderText = "Message";
             this.LogMessage.Name = "LogMessage";
             this.LogMessage.ReadOnly = true;
@@ -356,7 +373,7 @@
             this.serverToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripTextBoxServer});
             this.serverToolStripMenuItem.Name = "serverToolStripMenuItem";
-            this.serverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.serverToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.serverToolStripMenuItem.Text = "Server";
             // 
             // toolStripTextBoxServer
@@ -369,7 +386,7 @@
             this.databaseToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripTextBoxDatabase});
             this.databaseToolStripMenuItem.Name = "databaseToolStripMenuItem";
-            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.databaseToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.databaseToolStripMenuItem.Text = "Database";
             // 
             // toolStripTextBoxDatabase
@@ -382,21 +399,31 @@
             this.userToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripTextBoxUser});
             this.userToolStripMenuItem.Name = "userToolStripMenuItem";
-            this.userToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.userToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.userToolStripMenuItem.Text = "User";
+            // 
+            // toolStripTextBoxUser
+            // 
+            this.toolStripTextBoxUser.Name = "toolStripTextBoxUser";
+            this.toolStripTextBoxUser.Size = new System.Drawing.Size(100, 23);
             // 
             // passwordToolStripMenuItem
             // 
             this.passwordToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripTextBoxPassword});
             this.passwordToolStripMenuItem.Name = "passwordToolStripMenuItem";
-            this.passwordToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.passwordToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.passwordToolStripMenuItem.Text = "Password";
+            // 
+            // toolStripTextBoxPassword
+            // 
+            this.toolStripTextBoxPassword.Name = "toolStripTextBoxPassword";
+            this.toolStripTextBoxPassword.Size = new System.Drawing.Size(100, 23);
             // 
             // refreshToolStripMenuItem
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
             // 
@@ -430,15 +457,97 @@
             this.imageListStatus.Images.SetKeyName(8, "err02.gif");
             this.imageListStatus.Images.SetKeyName(9, "err02.gif");
             // 
-            // toolStripTextBoxPassword
+            // StepID
             // 
-            this.toolStripTextBoxPassword.Name = "toolStripTextBoxPassword";
-            this.toolStripTextBoxPassword.Size = new System.Drawing.Size(100, 23);
+            this.StepID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StepID.HeaderText = "Id";
+            this.StepID.Name = "StepID";
+            this.StepID.ReadOnly = true;
+            this.StepID.Width = 41;
             // 
-            // toolStripTextBoxUser
+            // Status
             // 
-            this.toolStripTextBoxUser.Name = "toolStripTextBoxUser";
-            this.toolStripTextBoxUser.Size = new System.Drawing.Size(100, 23);
+            this.Status.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Status.HeaderText = "Status";
+            this.Status.Name = "Status";
+            this.Status.ReadOnly = true;
+            this.Status.Width = 43;
+            // 
+            // StepDesc
+            // 
+            this.StepDesc.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.StepDesc.HeaderText = "StepDesc";
+            this.StepDesc.Name = "StepDesc";
+            this.StepDesc.ReadOnly = true;
+            // 
+            // StartTime
+            // 
+            this.StartTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StartTime.HeaderText = "StartTime";
+            this.StartTime.Name = "StartTime";
+            this.StartTime.ReadOnly = true;
+            this.StartTime.Width = 77;
+            // 
+            // EndTime
+            // 
+            this.EndTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.EndTime.HeaderText = "EndTime";
+            this.EndTime.Name = "EndTime";
+            this.EndTime.ReadOnly = true;
+            this.EndTime.Width = 74;
+            // 
+            // RunID
+            // 
+            this.RunID.HeaderText = "RunId";
+            this.RunID.Name = "RunID";
+            this.RunID.ReadOnly = true;
+            this.RunID.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.RunID.Visible = false;
+            // 
+            // SvcName
+            // 
+            this.SvcName.HeaderText = "SvcName";
+            this.SvcName.Name = "SvcName";
+            this.SvcName.ReadOnly = true;
+            // 
+            // StepOrder
+            // 
+            this.StepOrder.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StepOrder.HeaderText = "Order";
+            this.StepOrder.Name = "StepOrder";
+            this.StepOrder.ReadOnly = true;
+            this.StepOrder.Width = 58;
+            // 
+            // PriGroup
+            // 
+            this.PriGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.PriGroup.HeaderText = "Priority";
+            this.PriGroup.Name = "PriGroup";
+            this.PriGroup.ReadOnly = true;
+            this.PriGroup.Width = 63;
+            // 
+            // SeqGroup
+            // 
+            this.SeqGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.SeqGroup.HeaderText = "Sequence";
+            this.SeqGroup.Name = "SeqGroup";
+            this.SeqGroup.ReadOnly = true;
+            this.SeqGroup.Width = 81;
+            // 
+            // StepCounterName
+            // 
+            this.StepCounterName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StepCounterName.HeaderText = "Step Counter";
+            this.StepCounterName.Name = "StepCounterName";
+            this.StepCounterName.ReadOnly = true;
+            this.StepCounterName.Width = 94;
+            // 
+            // StepCounterValue
+            // 
+            this.StepCounterValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.StepCounterValue.HeaderText = "Value";
+            this.StepCounterValue.Name = "StepCounterValue";
+            this.StepCounterValue.ReadOnly = true;
             // 
             // ETLMonitor
             // 
@@ -474,7 +583,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridStepRun)).EndInit();
+            this.splitContainer4.Panel1.ResumeLayout(false);
+            this.splitContainer4.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
+            this.splitContainer4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridCounters)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridStepCounters)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridLog)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -495,12 +609,6 @@
         private System.Windows.Forms.SplitContainer splitContainer3;
         private System.Windows.Forms.DataGridView dataGridLog;
         private System.Windows.Forms.DataGridView dataGridStepRun;
-        private System.Windows.Forms.DataGridView dataGridCounters;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LogDT;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Err;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LogMessage;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CounterName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CounterValue;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem connectStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem serverToolStripMenuItem;
@@ -508,19 +616,32 @@
         private System.Windows.Forms.ToolStripMenuItem databaseToolStripMenuItem;
         private System.Windows.Forms.ToolStripTextBox toolStripTextBoxDatabase;
         private System.Windows.Forms.ToolStripMenuItem userToolStripMenuItem;
-        private System.Windows.Forms.DataGridViewImageColumn Status;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StepDesc;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StartTime;
-        private System.Windows.Forms.DataGridViewTextBoxColumn EndTime;
-        private System.Windows.Forms.DataGridViewTextBoxColumn RunID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn StepID;
-        private System.Windows.Forms.DataGridViewTextBoxColumn SvcName;
         private System.Windows.Forms.ToolStripMenuItem actionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cancelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem passwordToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
         private System.Windows.Forms.ToolStripTextBox toolStripTextBoxPassword;
         private System.Windows.Forms.ToolStripTextBox toolStripTextBoxUser;
+        private System.Windows.Forms.SplitContainer splitContainer4;
+        private System.Windows.Forms.DataGridView dataGridCounters;
+        private System.Windows.Forms.DataGridView dataGridStepCounters;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CounterName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CounterValue;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LogDT;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Err;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LogMessage;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StepID;
+        private System.Windows.Forms.DataGridViewImageColumn Status;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StepDesc;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StartTime;
+        private System.Windows.Forms.DataGridViewTextBoxColumn EndTime;
+        private System.Windows.Forms.DataGridViewTextBoxColumn RunID;
+        private System.Windows.Forms.DataGridViewTextBoxColumn SvcName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StepOrder;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PriGroup;
+        private System.Windows.Forms.DataGridViewTextBoxColumn SeqGroup;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StepCounterName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn StepCounterValue;
     }
 }
 
