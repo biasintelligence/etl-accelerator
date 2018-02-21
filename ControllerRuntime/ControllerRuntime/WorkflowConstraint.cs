@@ -86,7 +86,7 @@ namespace ControllerRuntime
             set { this.wait_period = (value < 0) ? 10 : value; }
         }
 
-        private bool is_disabled;
+        private bool is_disabled = false;
         [XmlAttribute("Disabled")]
         public bool IsDisabled
         {

@@ -178,7 +178,7 @@ namespace ControllerRuntime
         }
 
 
-        private bool is_disabled;
+        private bool is_disabled = false;
         [XmlAttribute("Disabled")]
         public bool IsDisabled
         {

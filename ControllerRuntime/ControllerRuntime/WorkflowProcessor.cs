@@ -97,6 +97,12 @@ namespace ControllerRuntime
                     .ForContext("WorkflowId", _wf.WorkflowId)
                     .ForContext("RequestId", RequestId);
 
+                if (_wf.IsDisabled)
+                {
+                    _logger.Information("Workflow {WFName} is disabled.", _wf.WorkflowName);
+                    return WfResult.Succeeded;
+                }
+
                 Version v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
                 //workflow level retries

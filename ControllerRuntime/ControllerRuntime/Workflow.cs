@@ -125,7 +125,7 @@ namespace ControllerRuntime
             set { this.wf_restart_on_err = value; }
         }
 
-        private bool is_disabled;
+        private bool is_disabled = false;
         [XmlAttribute("Disabled")]
         public bool IsDisabled
         {

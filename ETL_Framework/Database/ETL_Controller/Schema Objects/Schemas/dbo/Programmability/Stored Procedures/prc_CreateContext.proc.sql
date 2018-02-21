@@ -30,6 +30,7 @@ As
 **  5/20/2008        andreys            remove context resolution
 **  10/15/2011       andreys            add controller and node globals
 **  2/3/2018         andrey             set unknown process default to 0
+**  2/20/2018        andrey             add Disabled to batch level
 ******************************************************************/
 SET NOCOUNT ON
 DECLARE @Err INT
@@ -245,6 +246,7 @@ select @pContext =
 ,(select top 1 ba5.AttributeValue from dbo.[ETLBatchAttribute] ba5 where b.BatchID = ba5.BatchID and ba5.AttributeName in ('Lifetime','etl:Lifetime')) as '@Lifetime'
 ,(select top 1 ba6.AttributeValue from dbo.[ETLBatchAttribute] ba6 where b.BatchID = ba6.BatchID and ba6.AttributeName in ('Retry','etl:Retry')) as '@Retry'
 ,(select top 1 ba7.AttributeValue from dbo.[ETLBatchAttribute] ba7 where b.BatchID = ba7.BatchID and ba7.AttributeName in ('Delay','etl:Delay')) as '@Delay'
+,(select top 1 ba8.AttributeValue from dbo.[ETLBatchAttribute] ba8 where b.BatchID = ba8.BatchID and ba8.AttributeName in ('Disabled','etl:Disabled')) as '@Disabled'
 --,b.BatchDesc as 'Desc'
 ,p1.ProcessID as 'etl:OnSuccess/@ProcessID', p1.ScopeID as 'etl:OnSuccess/@ScopeID',p1.Process as 'etl:OnSuccess/etl:Process',p1.Param as 'etl:OnSuccess/etl:Param'
 ,p2.ProcessID as 'etl:OnFailure/@ProcessID', p2.ScopeID as 'etl:OnFailure/@ScopeID',p2.Process as 'etl:OnFailure/etl:Process',p2.Param as 'etl:OnFailure/etl:Param'
@@ -255,8 +257,8 @@ select @pContext =
 --     for xml path('etl:Attribute'),type) as 'etl:Attributes'
 ,(select ba.AttributeName as '@Name',ba.AttributeValue as '*' from @a ba
    where b.BatchID = ba.BatchID and ba.StepID is null and ba.ConstID is null
-     and ba.AttributeName not in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY',
-     'etl:HISTRET','etl:MAXTHREAD','etl:PING','etl:TIMEOUT','etl:LIFETIME','etl:RETRY','etl:DELAY')
+     and ba.AttributeName not in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY','DISABLED',
+     'etl:HISTRET','etl:MAXTHREAD','etl:PING','etl:TIMEOUT','etl:LIFETIME','etl:RETRY','etl:DELAY','etl:DISABLED')
      for xml path('etl:Attribute'),type) as 'etl:Attributes'
 
 --
