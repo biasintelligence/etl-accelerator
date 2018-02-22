@@ -30,54 +30,66 @@ begin
 ** ****************************************************************************
 ** Date				Author	version	4	#bug			Description
 ** ----------------------------------------------------------------------------------------------------------
+** 2018-02-22       andrey                              etl: prefix
 
 */
-   declare @v nvarchar(4000)
+	declare @v nvarchar(4000)
+	declare @shortName nvarchar(100);
+	declare @fullName nvarchar(100);
+	declare @sys nvarchar(4) = 'etl:'
+
+   if (left(@attributeName,4) = @sys)
+      set @shortName = right(@attributeName,len(@attributeName) - 4);
+   else
+      set @shortName = @attributeName;
+
+	set @fullName = @sys + @shortName;
+
 
    if (@ConstId is not null and @StepID is null)
-      if (@AttributeName = 'ConstOrder')
-         select @v = ConstOrder from dbo.[ETLBatchConstraint] where BatchID = @BatchID and ConstId = @ConstID;
-      else if (@AttributeName = 'WaitPeriod')
-         select @v = WaitPeriod from dbo.[ETLBatchConstraint] where BatchID = @BatchID and ConstId = @ConstID;
+      if (@shortName = 'ConstOrder')
+         select top 1 @v = ConstOrder from dbo.[ETLBatchConstraint] where BatchID = @BatchID and ConstId = @ConstID;
+      else if (@shortName = 'WaitPeriod')
+         select top 1 @v = WaitPeriod from dbo.[ETLBatchConstraint] where BatchID = @BatchID and ConstId = @ConstID;
       else 
-         select @v = AttributeValue
+         select top 1 @v = AttributeValue
            from dbo.[ETLBatchConstraintAttribute]
-          where BatchID = @BatchID and ConstId = @ConstID and AttributeName = @AttributeName;
+          where BatchID = @BatchID and ConstId = @ConstID and AttributeName in (@shortName,@fullName);
    else if (@ConstId is not null and @StepID is not null)
-      if (@AttributeName = 'ConstOrder')
-         select @v = ConstOrder from dbo.[ETLStepConstraint] where BatchID = @BatchID and StepID = @StepID and ConstId = @ConstID;
-      else if (@AttributeName = 'WaitPeriod')
-         select @v = WaitPeriod from dbo.[ETLStepConstraint] where BatchID = @BatchID and StepID = @StepID and ConstId = @ConstID;
+      if (@shortName = 'ConstOrder')
+         select top 1 @v = ConstOrder from dbo.[ETLStepConstraint] where BatchID = @BatchID and StepID = @StepID and ConstId = @ConstID;
+      else if (@shortName = 'WaitPeriod')
+         select top 1 @v = WaitPeriod from dbo.[ETLStepConstraint] where BatchID = @BatchID and StepID = @StepID and ConstId = @ConstID;
       else 
-         select @v = AttributeValue
+         select top 1 @v = AttributeValue
            from dbo.[ETLStepConstraintAttribute]
-          where BatchID = @BatchID and StepID = @StepID and ConstId = @ConstID and AttributeName = @AttributeName
+          where BatchID = @BatchID and StepID = @StepID and ConstId = @ConstID and AttributeName  in (@shortName,@fullName)
    else if (@StepID is not null)
-       if (@AttributeName = 'StepName')
-         select @v = StepName from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
-       else if (@AttributeName = 'StepDesc')
-         select @v = StepDesc from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
-       else if (@AttributeName = 'IgnoreErr')
-         select @v = IgnoreErr from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
-       else if (@AttributeName = 'StepOrder')
-         select @v = StepOrder from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
+       if (@shortName = 'StepName')
+         select top 1 @v = StepName from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
+       else if (@shortName = 'StepDesc')
+         select top 1 @v = StepDesc from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
+       else if (@shortName = 'IgnoreErr')
+         select top 1 @v = IgnoreErr from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
+       else if (@shortName = 'StepOrder')
+         select top 1 @v = StepOrder from dbo.[ETLStep] where BatchID = @BatchID and StepID = @StepID;
        else
-         select @v = AttributeValue
+         select top 1 @v = AttributeValue
            from dbo.[ETLStepAttribute]
-          where BatchID = @BatchID and StepID = @StepID and AttributeName = @AttributeName
+          where BatchID = @BatchID and StepID = @StepID and AttributeName  in (@shortName,@fullName)
    else 
-       if (@AttributeName = 'BatchName')
-         select @v = BatchName from dbo.[ETLBatch] where BatchID = @BatchID;
-       else if (@AttributeName = 'BatchDesc')
-         select @v = BatchDesc from dbo.[ETLBatch] where BatchID = @BatchID;
-       else if (@AttributeName = 'IgnoreErr')
-         select @v = IgnoreErr from dbo.[ETLBatch] where BatchID = @BatchID;
-       else if (@AttributeName = 'RestartOnErr')
-         select @v = RestartOnErr from dbo.[ETLBatch] where BatchID = @BatchID;
+       if (@shortName = 'BatchName')
+         select top 1 @v = BatchName from dbo.[ETLBatch] where BatchID = @BatchID;
+       else if (@shortName = 'BatchDesc')
+         select top 1 @v = BatchDesc from dbo.[ETLBatch] where BatchID = @BatchID;
+       else if (@shortName = 'IgnoreErr')
+         select top 1 @v = IgnoreErr from dbo.[ETLBatch] where BatchID = @BatchID;
+       else if (@shortName = 'RestartOnErr')
+         select top 1 @v = RestartOnErr from dbo.[ETLBatch] where BatchID = @BatchID;
        else
-         select @v = AttributeValue
+         select top 1 @v = AttributeValue
            from dbo.[ETLBatchAttribute]
-          where BatchID = @BatchID and AttributeName = @AttributeName
+          where BatchID = @BatchID and AttributeName  in (@shortName,@fullName)
 
    return (@v)
 end
