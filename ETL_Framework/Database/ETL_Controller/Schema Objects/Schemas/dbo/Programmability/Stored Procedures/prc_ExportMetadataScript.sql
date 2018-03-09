@@ -67,7 +67,7 @@ where batchId = @bid;
 
 set @Script = '
 ---------------------------------------------------------
---' + @batchDesc + '
+--workflow: ' + @batchDesc + '
 ---------------------------------------------------------
 set quoted_identIfier on;
 set nocount on;
@@ -109,7 +109,9 @@ select @sql += ',(@batchId,''' + ba.attributeName + ''',''' + replace(ba.attribu
 '
 from dbo.ETLBatchAttribute ba
 where ba.batchId = @batchId
-and  ba.AttributeName in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY');
+and  (left(ba.AttributeName,4) = 'etl:'
+or ba.AttributeName in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY','DISABLED')
+);
 
 if (len(@sql) > 0)
 set @Script += '
@@ -129,7 +131,9 @@ select @sql += ',(@batchId,''' + ba.attributeName + ''',''' + replace(ba.attribu
 '
 from dbo.ETLBatchAttribute ba
 where ba.batchId = @batchId
-and  ba.AttributeName not in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY');
+and not (left(ba.AttributeName,4) = 'etl:'
+or ba.AttributeName in ('HISTRET','MAXTHREAD','PING','TIMEOUT','LIFETIME','RETRY','DELAY','DISABLED')
+);
 
 if (len(@sql) > 0)
 set @Script += '
@@ -179,7 +183,9 @@ select @sql += ',(@batchId,' + cast(bca.ConstId as nvarchar(10)) + ',''' + bca.a
 '
 from dbo.ETLBatchConstraintAttribute bca
 where bca.batchId = @batchId
-and  bca.AttributeName in ('DISABLED','PING')
+and(left(bca.AttributeName,4) = 'etl:'
+or   bca.AttributeName in ('DISABLED','PING')
+)
 order by bca.constId;
 
 if (len(@sql) > 0)
@@ -199,7 +205,9 @@ select @sql += ',(@batchId,' + cast(bca.ConstId as nvarchar(10)) + ',''' + bca.a
 '
 from dbo.ETLBatchConstraintAttribute bca
 where bca.batchId = @batchId
-and  bca.AttributeName not in ('DISABLED','PING')
+and  not (left(bca.AttributeName,4) = 'etl:'
+or bca.AttributeName in ('DISABLED','PING')
+)
 order by bca.constId;
 
 
@@ -269,7 +277,9 @@ select @sql += ',(@batchId,@stepId,''' + sa.attributeName + ''',''' + replace(sa
 '
 from dbo.ETLStepAttribute sa
 where sa.batchId = @batchId and sa.stepId = @stepId
-and  sa.AttributeName in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP');
+and (left(sa.AttributeName,4) = 'etl:'
+or   sa.AttributeName in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP')
+);
 
 if (len(@sql) > 0)
 set @Script += '
@@ -289,7 +299,9 @@ select @sql += ',(@batchId,@stepId,''' + sa.attributeName + ''',''' + replace(sa
 '
 from dbo.ETLStepAttribute sa
 where sa.batchId = @batchId and sa.stepId = @stepId
-and  sa.AttributeName not in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP');
+and not (left(sa.AttributeName,4) = 'etl:'
+or   sa.AttributeName in ('DISABLED','SEQGROUP','PRIGROUP','RETRY','DELAY','RESTART','LOOPGROUP')
+);
 
 if (len(@sql) > 0)
 set @Script += '
@@ -337,7 +349,9 @@ select @sql += ',(@batchId,@stepId,' + cast(sca.ConstId as nvarchar(10)) + ','''
 '
 from dbo.ETLStepConstraintAttribute sca
 where sca.batchId = @batchId and sca.stepId = @stepId
-and  sca.AttributeName in ('DISABLED','PING')
+and  (left(sca.AttributeName,4) = 'etl:'
+or sca.AttributeName in ('DISABLED','PING')
+)
 order by sca.constId;
 
 if (len(@sql) > 0)
@@ -357,7 +371,9 @@ select @sql += ',(@batchId,@stepId,' + cast(sca.ConstId as nvarchar(10)) + ','''
 '
 from dbo.ETLStepConstraintAttribute sca
 where sca.batchId = @batchId
-and  sca.AttributeName not in ('DISABLED','PING')
+and not (left(sca.AttributeName,4) = 'etl:'
+or   sca.AttributeName not in ('DISABLED','PING')
+)
 order by sca.constId;
 
 set @Script += '
