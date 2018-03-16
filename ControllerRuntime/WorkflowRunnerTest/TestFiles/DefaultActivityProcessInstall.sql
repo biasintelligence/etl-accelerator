@@ -27,7 +27,7 @@ begin
 	,(39,'DefaultActivities.DefaultActivities.FileListToCounterActivity','Timeout=>Timeout,etl:Timeout',15)
 	,(40,'DefaultActivities.DefaultActivities.PostWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"EventArgs","Default":""},{"Name":"ConnectionString","Override":["Event.ConnectionString"]}]',15)
 	,(41,'DefaultActivities.DefaultActivities.CheckWorkflowEventActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"ConnectionString","Override":["Event.ConnectionString"]}]',12)
-	,(43,'DefaultActivities.DefaultActivities.TableControlToCounterActivity','[{"Name":"ConnectionString","Override":["Controller.ConnectionString"]},{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"CounterName","Default":"ControlValue"}]',15)
+	,(43,'DefaultActivities.DefaultActivities.TableControlToCounterActivity','[{"Name":"ConnectionString","Override":["Controller.ConnectionString"]},{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"CounterName","Default":"ControlValue"},{"Name":"DefaultValue","Default":""}]',15)
 	,(44,'DefaultActivities.DefaultActivities.ControllerWorkflowActivity','[{"Name":"Timeout","Override":["Timeout","etl:Timeout"]},{"Name":"etl:Debug","Default":"false"},{"Name":"etl:Verbose","Default":"false"},{"Name":"etl:ForceStart","Default":"false"}]',15)
 
 

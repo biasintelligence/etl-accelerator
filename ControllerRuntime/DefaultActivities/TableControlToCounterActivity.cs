@@ -35,6 +35,7 @@ namespace DefaultActivities
         protected const string TABLE_NAME = "SourceTableName";
         protected const string TABLE_CONTROL_COLUMN = "ControlColumn";
         protected const string COUNTER_NAME = "CounterName";
+        protected const string DEFAULT_VALUE = "DefaultValue";
         protected const string TIMEOUT = "Timeout";
         protected const string ETL_RUNID = "@RunId";
         protected const string ETL_BATCHID = "etl:BatchId";
@@ -48,6 +49,7 @@ namespace DefaultActivities
           TABLE_NAME,
           TABLE_CONTROL_COLUMN,
           COUNTER_NAME,
+          DEFAULT_VALUE,
           TIMEOUT,
           ETL_RUNID,
           ETL_BATCHID,
@@ -130,7 +132,7 @@ namespace DefaultActivities
                     using (token.Register(cmd.Cancel))
                     {
                         var value = cmd.ExecuteScalar();
-                        return (value == null) ? String.Empty : value.ToString();
+                        return (value == DBNull.Value) ? _attributes[DEFAULT_VALUE] : value.ToString();
                     }
                 }
             }
