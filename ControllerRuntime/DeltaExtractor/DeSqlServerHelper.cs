@@ -145,7 +145,7 @@ namespace BIAS.Framework.DeltaExtractor
 
                 if (dbsb.TryGetValue("Trusted_Connection", out prop))
                 {
-                    sqlsb.IntegratedSecurity = (bool)prop;
+                    sqlsb.IntegratedSecurity = bool.Parse(prop.ToString());
                 }
                 else if (dbsb.TryGetValue("Integrated Security", out prop))
                 {
@@ -176,7 +176,7 @@ namespace BIAS.Framework.DeltaExtractor
 
                 if (dbsb.TryGetValue("Connection Timeout", out prop))
                 {
-                    sqlsb.ConnectTimeout = (int)prop;
+                    sqlsb.ConnectTimeout = int.Parse(prop.ToString());
                 }
             }
             return sqlsb.ConnectionString;
