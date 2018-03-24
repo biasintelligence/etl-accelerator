@@ -154,7 +154,8 @@ select @pParameters =
       when (isnull((select top 1 AttributeValue from @attr where AttributeName = 'Source.Component' and AttributeValue = 'Excel'),'') <> '')
       then
     (select
-   (select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.FilePath') as 'de:ExcelSource/de:FilePath'
+   (select top 1 AttributeValue from @attr where AttributeName = 'Source.ConnectionString') as 'de:ExcelSource/de:ConnectionString'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.FilePath') as 'de:ExcelSource/de:FilePath'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.Header') as 'de:ExcelSource/de:Header'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.ExcelVersion') as 'de:ExcelSource/de:ExcelVersion'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.AccessMode') as 'de:ExcelSource/de:CustomProperties/de:AccessMode'
@@ -271,7 +272,8 @@ select @pParameters =
   for xml path('de:SharePointDestination'),type)
 -- Excel destination
    ,(select
-   (select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.Excel.FilePath') as 'de:FilePath'
+   (select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.ConnectionString') as 'de:ConnectionString'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.Excel.FilePath') as 'de:FilePath'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.Excel.Header') as 'de:Header'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.Excel.ExcelVersion') as 'de:ExcelVersion'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.MinPartitionID') as 'de:PartitionRange/@Min'

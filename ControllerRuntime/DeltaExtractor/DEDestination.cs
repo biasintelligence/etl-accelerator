@@ -683,8 +683,9 @@ namespace BIAS.Framework.DeltaExtractor
         private static Dictionary<string, List<string>> ExcelVersionList = new Dictionary<string, List<string>>
         {
             {"Microsoft Excel 97-2003", new List<string> {"Microsoft.Jet.OLEDB.4.0","Excel 8.0"}},
-            {"Microsoft Excel 2007",new List<string> {"Microsoft.ACE.OLEDB.12.0","Excel 12.0"}},
-            {"Microsoft Excel 2010",new List<string> {"Microsoft.ACE.OLEDB.12.0","Excel 12.0"}},
+            {"Microsoft Excel 2007-2010",new List<string> {"Microsoft.ACE.OLEDB.12.0","Excel 12.0 XML"}},
+            {"Microsoft Excel 2013",new List<string> {"Microsoft.ACE.OLEDB.15.0","Excel 12.0 XML"}},
+            {"Microsoft Excel 2016",new List<string> {"Microsoft.ACE.OLEDB.16.0","Excel 12.0 XML"}}
         };
 
         private static string connstr = "Provider={0};Data Source={1};Extended Properties=\"{2};HDR={3}\";";

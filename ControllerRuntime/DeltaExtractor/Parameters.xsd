@@ -73,9 +73,9 @@
   <xsd:simpleType name="ExcelVersion">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="Microsoft Excel 97-2003" />
-      <xsd:enumeration value="Microsoft Excel 2007" />
-      <xsd:enumeration value="Microsoft Excel 2010" />
+      <xsd:enumeration value="Microsoft Excel 2007-2010" />
       <xsd:enumeration value="Microsoft Excel 2013" />
+      <xsd:enumeration value="Microsoft Excel 2016" />
     </xsd:restriction>
   </xsd:simpleType>
 

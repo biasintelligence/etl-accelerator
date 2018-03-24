@@ -193,9 +193,9 @@
   &lt;xsd:simpleType name="ExcelVersion"&gt;
     &lt;xsd:restriction base="xsd:string"&gt;
       &lt;xsd:enumeration value="Microsoft Excel 97-2003" /&gt;
-      &lt;xsd:enumeration value="Microsoft Excel 2007" /&gt;
-      &lt;xsd:enumeration value="Microsoft Excel 2010" /&gt;
+      &lt;xsd:enumeration value="Microsoft Excel 2007-2010" /&gt;
       &lt;xsd:enumeration value="Microsoft Excel 2013" /&gt;
+      &lt;xsd:enumeration value="Microsoft Excel 2016" /&gt;
     &lt;/xsd:restriction&gt;
   &lt;/xsd:simpleType&gt;
 
