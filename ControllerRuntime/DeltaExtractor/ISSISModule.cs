@@ -13,6 +13,6 @@ namespace BIAS.Framework.DeltaExtractor
         IDTSComponentMetaData100 Initialize();
         IDTSComponentMetaData100 MetadataCollection { get; }
         IDTSComponentMetaData100 Connect(IDTSComponentMetaData100 src, int outputID = 0);
-        IDTSComponentMetaData100 ConnectDestination(IDTSComponentMetaData100 src, int outputID = 0);
+        IDTSComponentMetaData100 ConnectDestination(IDTSComponentMetaData100 src,bool AutoConvert, int outputID = 0);
     }
 }

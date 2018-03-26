@@ -402,6 +402,7 @@ namespace BIAS.Framework.DeltaExtractor
             }
         }
         public OleDBDestinationProperties CustomProperties {get; set;}
+        public bool DataTypeAutoConvert { get; set; } = true;
 
         #region IDeDestination
         public override bool Test(ILogger logger)
@@ -574,6 +575,7 @@ namespace BIAS.Framework.DeltaExtractor
 
         public string CompressionType {get; set;}
         public FlatFileDestinationProperties CustomProperties {get; set;}
+        public bool DataTypeAutoConvert { get; set; } = true;
         public string FullName
         {
         get {return this.CustomProperties.FileName;}
@@ -699,6 +701,7 @@ namespace BIAS.Framework.DeltaExtractor
         public bool Header { get; set; }
         public string ExcelVersion { get; set; }
         public string StagingAreaTableName { get; set; }
+        public bool DataTypeAutoConvert { get; set; } = true;
 
         #region IDeDestination
         public override DestinationType Type
@@ -780,6 +783,7 @@ namespace BIAS.Framework.DeltaExtractor
     public class SharePointDestination : DeDestination
     {
         public SharePointDestinationProperties CustomProperties { get; set; }
+        public bool DataTypeAutoConvert { get; set; } = true;
 
         #region IDeDestination
         public override DestinationType Type
@@ -839,6 +843,7 @@ namespace BIAS.Framework.DeltaExtractor
         private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=SSPI;";
 
         public AdoNetDestinationProperties CustomProperties { get; set; }
+        public bool DataTypeAutoConvert { get; set; } = true;
         public DBConnection DBConnection { get; set; }
 
         public bool IsView
@@ -1007,6 +1012,7 @@ namespace BIAS.Framework.DeltaExtractor
         private static string connstr = "server={0};database={1};Driver={SQL Server};trusted_connection=Yes;app=DE;";
         
         public OdbcDestinationProperties CustomProperties { get; set; }
+        public bool DataTypeAutoConvert { get; set; } = true;
         public DBConnection DBConnection { get; set; }
 
         public bool IsView
@@ -1164,6 +1170,7 @@ namespace BIAS.Framework.DeltaExtractor
         private static string connstr = "Data Source={0};Initial Catalog={1};Integrated Security=True;";
 
         public SqlBulkDestinationProperties CustomProperties { get; set; }
+        public bool DataTypeAutoConvert { get; set; } = true;
         public DBConnection DBConnection { get; set; }
 
         public bool IsView

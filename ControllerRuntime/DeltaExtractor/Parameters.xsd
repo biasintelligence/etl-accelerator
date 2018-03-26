@@ -179,6 +179,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -234,6 +235,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -279,6 +281,7 @@
       </xsd:element>
       <xsd:element name="DataCompression" type="CompressionMethod" minOccurs="0" maxOccurs="1"/>
       <xsd:element name="StagingAreaTableName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -309,6 +312,7 @@
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/>
             <xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
           </xsd:sequence>
@@ -325,6 +329,7 @@
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/>
             <xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="AllowImplicitStringConversion" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
@@ -342,6 +347,7 @@
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/>
             <xsd:element name="StatementTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/>
@@ -389,6 +395,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -408,6 +415,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -432,6 +440,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -461,6 +470,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
