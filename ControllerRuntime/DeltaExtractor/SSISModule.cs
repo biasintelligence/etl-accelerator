@@ -74,7 +74,7 @@ namespace BIAS.Framework.DeltaExtractor
             return _metadata;
         }
 
-        public virtual IDTSComponentMetaData100 ConnectDestination(IDTSComponentMetaData100 src, int outputID = 0)
+        public virtual IDTSComponentMetaData100 ConnectDestination(IDTSComponentMetaData100 src,bool AutoConvert, int outputID = 0)
         {
             //Create datatype converter if needed
             IDTSComponentMetaData100 comp = MetadataCollection;
@@ -82,7 +82,7 @@ namespace BIAS.Framework.DeltaExtractor
             IDTSVirtualInput100 vInput = src.InputCollection[0].GetVirtualInput();
 
             var exColumns = comp.InputCollection[0].ExternalMetadataColumnCollection;
-            if (this.needDataTypeChange(vInput, exColumns))
+            if (AutoConvert && this.needDataTypeChange(vInput, exColumns))
             {
                 SSISDataConverter converter = new SSISDataConverter(_pipe, _logger, _app);
                 var convComp = converter.Initialize();

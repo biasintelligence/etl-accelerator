@@ -299,6 +299,7 @@
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
     &lt;/xsd:sequence&gt;
   &lt;/xsd:complexType&gt;
 
@@ -354,6 +355,7 @@
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
     &lt;/xsd:sequence&gt;
   &lt;/xsd:complexType&gt;
 
@@ -399,6 +401,7 @@
       &lt;/xsd:element&gt;
       &lt;xsd:element name="DataCompression" type="CompressionMethod" minOccurs="0" maxOccurs="1"/&gt;
       &lt;xsd:element name="StagingAreaTableName" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
+      &lt;xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
     &lt;/xsd:sequence&gt;
   &lt;/xsd:complexType&gt;
 
@@ -429,6 +432,7 @@
         &lt;xsd:complexType&gt;
           &lt;xsd:sequence&gt;
             &lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
             &lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
           &lt;/xsd:sequence&gt;
@@ -445,6 +449,7 @@
         &lt;xsd:complexType&gt;
           &lt;xsd:sequence&gt;
             &lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
             &lt;xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="AllowImplicitStringConversion" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
@@ -462,6 +467,7 @@
         &lt;xsd:complexType&gt;
           &lt;xsd:sequence&gt;
             &lt;xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/&gt;
             &lt;xsd:element name="StatementTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
             &lt;xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/&gt;
@@ -509,6 +515,7 @@
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
     &lt;/xsd:sequence&gt;
   &lt;/xsd:complexType&gt;
 
@@ -528,6 +535,7 @@
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
     &lt;/xsd:sequence&gt;
   &lt;/xsd:complexType&gt;
 
@@ -552,6 +560,7 @@
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
     &lt;/xsd:sequence&gt;
   &lt;/xsd:complexType&gt;
 
@@ -581,6 +590,7 @@
           &lt;/xsd:sequence&gt;
         &lt;/xsd:complexType&gt;
       &lt;/xsd:element&gt;
+      &lt;xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/&gt;
     &lt;/xsd:sequence&gt;
   &lt;/xsd:complexType&gt;
 

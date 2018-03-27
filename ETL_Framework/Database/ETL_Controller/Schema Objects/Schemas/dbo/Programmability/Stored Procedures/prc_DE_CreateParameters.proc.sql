@@ -111,6 +111,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.QueryType') as 'de:OleDbSource/de:QueryType'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.OLEDB.AccessMode') as 'de:OleDbSource/de:CustomProperties/de:AccessMode'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Query') as 'de:OleDbSource/de:CustomProperties/de:SqlCommand'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.TableName') as 'de:OleDbSource/de:CustomProperties/de:OpenRowset'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:OleDbSource/de:CustomProperties/de:CommandTimeout'
   for xml path('de:DataSource'),type)
 --FlatFile source  
@@ -159,8 +160,8 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.Header') as 'de:ExcelSource/de:Header'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.ExcelVersion') as 'de:ExcelSource/de:ExcelVersion'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.AccessMode') as 'de:ExcelSource/de:CustomProperties/de:AccessMode'
-  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.OpenRowset') as 'de:ExcelSource/de:CustomProperties/de:OpenRowset'
-  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Excel.SqlCommand') as 'de:ExcelSource/de:CustomProperties/de:SqlCommand'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.TableName') as 'de:ExcelSource/de:CustomProperties/de:OpenRowset'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Query') as 'de:ExcelSource/de:CustomProperties/de:SqlCommand'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:ExcelSource/de:CustomProperties/de:CommandTimeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.CompressionType') as 'de:ExcelSource/de:DataCompression'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.StagingAreaTableName') as 'de:ExcelSource/de:StagingAreaTableName'
@@ -176,6 +177,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:AdoNetSource/de:DBConnection/de:QueryTimeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.ADONET.AccessMode') as 'de:AdoNetSource/de:CustomProperties/de:AccessMode'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Query') as 'de:AdoNetSource/de:CustomProperties/de:SqlCommand'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.TableName') as 'de:AdoNetSource/de:CustomProperties/de:OpenRowset'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:AdoNetSource/de:CustomProperties/de:CommandTimeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.ADONET.AllowImplicitStringConversion') as 'de:AdoNetSource/de:CustomProperties/de:AllowImplicitStringConversion'
   for xml path('de:DataSource'),type)
@@ -190,6 +192,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:OdbcSource/de:DBConnection/de:QueryTimeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.ODBC.AccessMode') as 'de:OdbcSource/de:CustomProperties/de:AccessMode'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.Query') as 'de:OdbcSource/de:CustomProperties/de:SqlCommand'
+  ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.TableName') as 'de:OdbcSource/de:CustomProperties/de:OpenRowset'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:OdbcSource/de:CustomProperties/de:StatementTimeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.ODBC.BatchSize') as 'de:OdbcSource/de:CustomProperties/de:BatchSize'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'Source.ODBC.LobChunkSize') as 'de:OdbcSource/de:CustomProperties/de:LobChunkSize'
@@ -234,6 +237,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.OLEDB.FastLoadKeepNulls') as 'de:CustomProperties/de:FastLoadKeepNulls'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.OLEDB.FastLoadMaxInsertCommitSize') as 'de:CustomProperties/de:FastLoadMaxInsertCommitSize'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:CustomProperties/de:CommandTimeout'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.DataTypeAutoConvert') as 'de:DataTypeAutoConvert'
   from @dst dst where dst.DestinationType = 'OLEDB'
   for xml path('de:OleDbDestination'),type)
 --FlatFile destination 
@@ -254,6 +258,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.FlatFile.Override') as 'de:CustomProperties/de:Override'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.CompressionType') as 'de:CustomProperties/de:DataCompression'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.StagingAreaTableName') as 'de:CustomProperties/de:StagingAreaTableName'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.DataTypeAutoConvert') as 'de:DataTypeAutoConvert'
   from @dst dst where dst.DestinationType = 'FlatFile'
   for xml path('de:FlatFileDestination'),type)
 --Sharepoint destination 
@@ -268,6 +273,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.SiteListViewName') as 'de:CustomProperties/de:SiteListViewName'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.SiteUrl') as 'de:CustomProperties/de:SiteUrl'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SPList.UseConnectionManager') as 'de:CustomProperties/de:UseConnectionManager'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.DataTypeAutoConvert') as 'de:DataTypeAutoConvert'
   from @dst dst where dst.DestinationType = 'SPList'
   for xml path('de:SharePointDestination'),type)
 -- Excel destination
@@ -279,10 +285,11 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.MinPartitionID') as 'de:PartitionRange/@Min'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.MaxPartitionID') as 'de:PartitionRange/@Max'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.Excel.AccessMode') as 'de:CustomProperties/de:AccessMode'
-  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.Excel.OpenRowset') as 'de:CustomProperties/de:OpenRowset'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.TableName') as 'de:CustomProperties/de:OpenRowset'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:CustomProperties/de:CommandTimeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.CompressionType') as 'de:CustomProperties/de:DataCompression'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.StagingAreaTableName') as 'de:CustomProperties/de:StagingAreaTableName'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.DataTypeAutoConvert') as 'de:DataTypeAutoConvert'
   from @dst dst where dst.DestinationType = 'Excel'
   for xml path('de:ExcelDestination'),type)
 -- ADONET destination
@@ -304,6 +311,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.ADONET.BatchSize') as 'de:CustomProperties/de:BatchSize'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.ADONET.UseBulkInsertWhenPossible') as 'de:CustomProperties/de:UseBulkInsertWhenPossible'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:CustomProperties/de:CommandTimeout'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.DataTypeAutoConvert') as 'de:DataTypeAutoConvert'
   from @dst dst where dst.DestinationType = 'ADONET'
   for xml path('de:AdoNetDestination'),type)
 -- ODBC destination
@@ -329,6 +337,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.ODBC.LobChunkSize') as 'de:CustomProperties/de:LobChunkSize'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:CustomProperties/de:StatementTimeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.ODBC.DefaultCodePage') as 'de:CustomProperties/de:DefaultCodePage'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.DataTypeAutoConvert') as 'de:DataTypeAutoConvert'
   from @dst dst where dst.DestinationType = 'ODBC'
   for xml path('de:OdbcDestination'),type)
 -- SqlBulk destination
@@ -358,6 +367,7 @@ select @pParameters =
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SQLBULK.BulkInsertTablock') as 'de:CustomProperties/de:BulkInsertTablock'
   ,(select top 1 AttributeValue from @attr where AttributeName = 'QueryTimeout') as 'de:CustomProperties/de:Timeout'
   ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.SQLBULK.MaxInsertCommitSize') as 'de:CustomProperties/de:MaxInsertCommitSize'
+  ,(select top 1 AttributeValue from @attr where AttributeName = dst.DestinationName + '.DataTypeAutoConvert') as 'de:DataTypeAutoConvert'
   from @dst dst where dst.DestinationType = 'SQLBULK'
   for xml path('de:SqlBulkDestination'),type)
   for xml path('de:DataDestination'),type)

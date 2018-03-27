@@ -84,6 +84,7 @@ union all select 'Destination%.Database',null,null
 union all select 'Destination%.TableName',null,null
 union all select 'Destination%.ConnectionString',null,null
 union all select 'Destination%.ConnectionQualifier',null,null
+union all select 'Destination%.DataTypeAutoConvert',null,null
 
 --Partition Control
 union all select 'Destination.PartitionFunction',null,null
@@ -129,8 +130,8 @@ union all select 'Source.Excel.FilePath',null,null
 union all select 'Source.Excel.Header',null,null
 union all select 'Source.Excel.ExcelVersion',null,null
 union all select 'Source.Excel.AccessMode',null,null
-union all select 'Source.Excel.OpenRowset',null,null
-union all select 'Source.Excel.SqlCommand',null,null
+union all select 'Source.Excel.OpenRowset','Excel.OpenRowset','TableName'
+union all select 'Source.Excel.SqlCommand','Excel.SqlCommand','Query'
 union all select 'Source.Excel.CommandTimeout',null,'QueryTimeout'
 --AdoNetSource
 union all select 'Source.ADONET.AccessMode',null,null
@@ -189,7 +190,7 @@ union all select 'Destination%.SPList.SiteUrl',null,null
 union all select 'Destination%.SPList.UseConnectionManager',null,null
 --ExcelDestination
 union all select 'Destination%.Excel.AccessMode',null,null
-union all select 'Destination%.Excel.OpenRowset',null,null
+union all select 'Destination%.Excel.OpenRowset','Excel.OpenRowset','TableName'
 union all select 'Destination%.Excel.CommandTimeout',null,'QueryTimeout'
 union all select 'Destination%.Excel.FilePath',null,null
 union all select 'Destination%.Excel.Header',null,null

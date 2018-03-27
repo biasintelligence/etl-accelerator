@@ -180,6 +180,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -235,6 +236,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -280,6 +282,7 @@
       </xsd:element>
       <xsd:element name="DataCompression" type="CompressionMethod" minOccurs="0" maxOccurs="1"/>
       <xsd:element name="StagingAreaTableName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -305,11 +308,12 @@
 	<xsd:complexType name="OleDbSource">
 		<xsd:sequence>
 			<xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/>
-      <xsd:element name="QueryType" type="QueryType" minOccurs="0" maxOccurs="1"/>
-      <xsd:element name="CustomProperties">
+			<xsd:element name="QueryType" type="QueryType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="CustomProperties">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 						<xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 						<xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
 					</xsd:sequence>
@@ -326,6 +330,7 @@
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/>
             <xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="AllowImplicitStringConversion" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
@@ -343,6 +348,7 @@
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="OpenRowset" type="xsd:string" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="SqlCommand" type="xsd:string" minOccurs="1" maxOccurs="1"/>
             <xsd:element name="StatementTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="BatchSize" type="xsd:int" minOccurs="0" maxOccurs="1"/>
@@ -376,20 +382,21 @@
 		<xsd:sequence>
 			<xsd:element name="DBConnection" type="DBConnection" minOccurs="1" maxOccurs="1"/>
 			<xsd:element name="StagingBlock" type="StagingBlock" maxOccurs="1" minOccurs="0" />
-      <xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/>
-      <xsd:element name="CustomProperties">
+			<xsd:element name="PartitionRange" type="PartitionRange" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="CustomProperties">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="AccessMode" type="AccessMode" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="OpenRowset" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-            <xsd:element name="FastLoadOptions" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="FastLoadKeepIdentity" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="FastLoadKeepNulls" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="FastLoadMaxInsertCommitSize" type="xsd:int" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="OpenRowset" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="FastLoadOptions" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="FastLoadKeepIdentity" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="FastLoadKeepNulls" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="FastLoadMaxInsertCommitSize" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="CommandTimeout" type="xsd:int" minOccurs="0" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
+			<xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
 		</xsd:sequence>
 	</xsd:complexType>
 
@@ -409,6 +416,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -433,6 +441,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -462,6 +471,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
+      <xsd:element name="DataTypeAutoConvert" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
   </xsd:complexType>
 
@@ -513,18 +523,18 @@
 			<xsd:element name="DataSource" type="DataSource" maxOccurs="1" minOccurs="1" />
 			<xsd:element name="DataDestination" type="DataDestination" minOccurs="1" maxOccurs="1" />
 			<xsd:element name="StagingAreaRoot" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-      <xsd:element name="Partition" type="PartitionBlock" maxOccurs="1" minOccurs="0" />
-      <xsd:element name="SavePackage" maxOccurs="1" minOccurs="0">
-        <xsd:complexType>
-          <xsd:simpleContent>
-            <xsd:extension base="xsd:string">
-              <xsd:attribute name="Save" type="xsd:boolean"  use="required"/>
-              <xsd:attribute name="Load" type="xsd:boolean"  use="optional"/>
-            </xsd:extension>
-          </xsd:simpleContent>
-        </xsd:complexType>
-      </xsd:element>
-    </xsd:sequence>
+			<xsd:element name="Partition" type="PartitionBlock" maxOccurs="1" minOccurs="0" />
+			<xsd:element name="SavePackage" maxOccurs="1" minOccurs="0">
+				<xsd:complexType>
+				  <xsd:simpleContent>
+					<xsd:extension base="xsd:string">
+					  <xsd:attribute name="Save" type="xsd:boolean"  use="required"/>
+					  <xsd:attribute name="Load" type="xsd:boolean"  use="optional"/>
+					</xsd:extension>
+				  </xsd:simpleContent>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
 	</xsd:complexType>
 
   <xsd:complexType name="RunPackage">
@@ -571,9 +581,9 @@
         </xsd:sequence>
       </xsd:choice>
       <xsd:choice>
-				<xsd:sequence>
-					<xsd:element name="MoveData" type="MoveData"  maxOccurs="1" minOccurs="0"/>
-				</xsd:sequence>
+		<xsd:sequence>
+			<xsd:element name="MoveData" type="MoveData"  maxOccurs="1" minOccurs="0"/>
+		</xsd:sequence>
         <xsd:sequence>
           <xsd:element name="RunPackage" type="RunPackage"  maxOccurs="1" minOccurs="0"/>
         </xsd:sequence>
