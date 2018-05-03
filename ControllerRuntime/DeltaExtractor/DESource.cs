@@ -902,9 +902,9 @@ namespace BIAS.Framework.DeltaExtractor
             get { return (string)this.property["Query"]; }
             set { this.property.Add("Query", value); }
         }
-        public bool ResourcePath
+        public string ResourcePath
         {
-            get { return (bool)this.property["ResourcePath"]; }
+            get { return (string)this.property["ResourcePath"]; }
             set { this.property.Add("ResourcePath", value); }
         }
         public int DefaultStringLength
