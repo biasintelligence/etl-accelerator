@@ -204,6 +204,7 @@ namespace ControllerRuntime
                         else
                         {
                             found.Add(name, curr_param.Default);
+                            ret = true;
                         }
                     }
                 }
