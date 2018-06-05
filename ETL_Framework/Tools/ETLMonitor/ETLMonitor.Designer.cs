@@ -41,13 +41,8 @@
             this.dataGridStepRun = new System.Windows.Forms.DataGridView();
             this.splitContainer4 = new System.Windows.Forms.SplitContainer();
             this.dataGridCounters = new System.Windows.Forms.DataGridView();
-            this.CounterName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CounterValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridStepCounters = new System.Windows.Forms.DataGridView();
             this.dataGridLog = new System.Windows.Forms.DataGridView();
-            this.LogDT = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Err = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.LogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.connectStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,6 +67,11 @@
             this.StepOrder = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.PriGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SeqGroup = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.LogDT = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Err = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.LogMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CounterName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CounterValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.StepCounterName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.StepCounterValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.statusBar.SuspendLayout();
@@ -272,21 +272,6 @@
             this.dataGridCounters.Size = new System.Drawing.Size(170, 86);
             this.dataGridCounters.TabIndex = 13;
             // 
-            // CounterName
-            // 
-            this.CounterName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            this.CounterName.HeaderText = "WF Counter";
-            this.CounterName.Name = "CounterName";
-            this.CounterName.ReadOnly = true;
-            this.CounterName.Width = 89;
-            // 
-            // CounterValue
-            // 
-            this.CounterValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.CounterValue.HeaderText = "Value";
-            this.CounterValue.Name = "CounterValue";
-            this.CounterValue.ReadOnly = true;
-            // 
             // dataGridStepCounters
             // 
             this.dataGridStepCounters.AllowUserToAddRows = false;
@@ -323,25 +308,6 @@
             this.dataGridLog.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridLog.Size = new System.Drawing.Size(974, 174);
             this.dataGridLog.TabIndex = 16;
-            // 
-            // LogDT
-            // 
-            this.LogDT.HeaderText = "LogDate";
-            this.LogDT.Name = "LogDT";
-            this.LogDT.ReadOnly = true;
-            // 
-            // Err
-            // 
-            this.Err.HeaderText = "Error";
-            this.Err.Name = "Err";
-            this.Err.ReadOnly = true;
-            // 
-            // LogMessage
-            // 
-            this.LogMessage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.LogMessage.HeaderText = "Message";
-            this.LogMessage.Name = "LogMessage";
-            this.LogMessage.ReadOnly = true;
             // 
             // menuStrip1
             // 
@@ -459,7 +425,7 @@
             // 
             // StepID
             // 
-            this.StepID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StepID.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
             this.StepID.HeaderText = "Id";
             this.StepID.Name = "StepID";
             this.StepID.ReadOnly = true;
@@ -467,7 +433,7 @@
             // 
             // Status
             // 
-            this.Status.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.Status.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.Status.HeaderText = "Status";
             this.Status.Name = "Status";
             this.Status.ReadOnly = true;
@@ -475,14 +441,15 @@
             // 
             // StepDesc
             // 
-            this.StepDesc.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.StepDesc.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
             this.StepDesc.HeaderText = "StepDesc";
             this.StepDesc.Name = "StepDesc";
             this.StepDesc.ReadOnly = true;
+            this.StepDesc.Width = 281;
             // 
             // StartTime
             // 
-            this.StartTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StartTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.StartTime.HeaderText = "StartTime";
             this.StartTime.Name = "StartTime";
             this.StartTime.ReadOnly = true;
@@ -490,7 +457,7 @@
             // 
             // EndTime
             // 
-            this.EndTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.EndTime.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.EndTime.HeaderText = "EndTime";
             this.EndTime.Name = "EndTime";
             this.EndTime.ReadOnly = true;
@@ -506,13 +473,15 @@
             // 
             // SvcName
             // 
+            this.SvcName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.SvcName.HeaderText = "SvcName";
             this.SvcName.Name = "SvcName";
             this.SvcName.ReadOnly = true;
+            this.SvcName.Width = 79;
             // 
             // StepOrder
             // 
-            this.StepOrder.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StepOrder.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.StepOrder.HeaderText = "Order";
             this.StepOrder.Name = "StepOrder";
             this.StepOrder.ReadOnly = true;
@@ -520,7 +489,7 @@
             // 
             // PriGroup
             // 
-            this.PriGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.PriGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.PriGroup.HeaderText = "Priority";
             this.PriGroup.Name = "PriGroup";
             this.PriGroup.ReadOnly = true;
@@ -528,15 +497,55 @@
             // 
             // SeqGroup
             // 
-            this.SeqGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.SeqGroup.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.SeqGroup.HeaderText = "Sequence";
             this.SeqGroup.Name = "SeqGroup";
             this.SeqGroup.ReadOnly = true;
             this.SeqGroup.Width = 81;
             // 
+            // LogDT
+            // 
+            this.LogDT.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.LogDT.HeaderText = "LogDate";
+            this.LogDT.Name = "LogDT";
+            this.LogDT.ReadOnly = true;
+            this.LogDT.Width = 73;
+            // 
+            // Err
+            // 
+            this.Err.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.Err.HeaderText = "Error";
+            this.Err.Name = "Err";
+            this.Err.ReadOnly = true;
+            this.Err.Width = 54;
+            // 
+            // LogMessage
+            // 
+            this.LogMessage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.LogMessage.HeaderText = "Message";
+            this.LogMessage.Name = "LogMessage";
+            this.LogMessage.ReadOnly = true;
+            this.LogMessage.Width = 771;
+            // 
+            // CounterName
+            // 
+            this.CounterName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.CounterName.HeaderText = "WF Counter";
+            this.CounterName.Name = "CounterName";
+            this.CounterName.ReadOnly = true;
+            this.CounterName.Width = 89;
+            // 
+            // CounterValue
+            // 
+            this.CounterValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.CounterValue.HeaderText = "Value";
+            this.CounterValue.Name = "CounterValue";
+            this.CounterValue.ReadOnly = true;
+            this.CounterValue.Width = 59;
+            // 
             // StepCounterName
             // 
-            this.StepCounterName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
+            this.StepCounterName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.StepCounterName.HeaderText = "Step Counter";
             this.StepCounterName.Name = "StepCounterName";
             this.StepCounterName.ReadOnly = true;
@@ -544,10 +553,11 @@
             // 
             // StepCounterValue
             // 
-            this.StepCounterValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.StepCounterValue.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
             this.StepCounterValue.HeaderText = "Value";
             this.StepCounterValue.Name = "StepCounterValue";
             this.StepCounterValue.ReadOnly = true;
+            this.StepCounterValue.Width = 59;
             // 
             // ETLMonitor
             // 
@@ -625,11 +635,6 @@
         private System.Windows.Forms.SplitContainer splitContainer4;
         private System.Windows.Forms.DataGridView dataGridCounters;
         private System.Windows.Forms.DataGridView dataGridStepCounters;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CounterName;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CounterValue;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LogDT;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Err;
-        private System.Windows.Forms.DataGridViewTextBoxColumn LogMessage;
         private System.Windows.Forms.DataGridViewTextBoxColumn StepID;
         private System.Windows.Forms.DataGridViewImageColumn Status;
         private System.Windows.Forms.DataGridViewTextBoxColumn StepDesc;
@@ -640,6 +645,11 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn StepOrder;
         private System.Windows.Forms.DataGridViewTextBoxColumn PriGroup;
         private System.Windows.Forms.DataGridViewTextBoxColumn SeqGroup;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LogDT;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Err;
+        private System.Windows.Forms.DataGridViewTextBoxColumn LogMessage;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CounterName;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CounterValue;
         private System.Windows.Forms.DataGridViewTextBoxColumn StepCounterName;
         private System.Windows.Forms.DataGridViewTextBoxColumn StepCounterValue;
     }
