@@ -39,7 +39,9 @@ namespace ControllerRuntime
             _db = wfp.DBController;
             _item = item;
 
-            _logger = wfp.Logger.ForContext("ConstId", item.ConstId);
+            _logger = wfp.Logger
+                .ForContext("ConstId", item.ConstId)
+                .ForContext("StepId", item.StepId);
 
         }
         public WfResult Run(CancellationToken extToken)
