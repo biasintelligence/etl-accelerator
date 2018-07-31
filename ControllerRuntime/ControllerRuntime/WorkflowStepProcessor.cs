@@ -71,6 +71,7 @@ namespace ControllerRuntime
 
 
                         wfc.WorkflowId = _step.WorkflowId;
+                        wfc.StepId = _step.StepId;
                         wfc.RunId = _step.RunId;
                         WorkflowConstraintProcessor wcp = new WorkflowConstraintProcessor(wfc, _wfp);
                         result = wcp.Run(extToken);
