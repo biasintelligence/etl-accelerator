@@ -67,7 +67,7 @@ namespace DefaultActivities
             //_logger.Write(String.Format("SqlServer: {0} query: {1}", _attributes[CONNECTION_STRING], _attributes[QUERY_STRING]));
 
             bool exist = System.IO.File.Exists(_attributes[FILE_PATH]);
-            result = (exist) ? WfResult.Succeeded : WfResult.Failed;
+            result = (exist) ? WfResult.Succeeded : WfResult.Waiting;
             return result;
         }
     }

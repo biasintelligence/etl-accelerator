@@ -66,9 +66,9 @@ namespace ControllerRuntime
 
                     Task<WfResult> task = Task.Factory.StartNew(() =>
                     {
-                        WfResult const_result = WfResult.Failed;
+                        WfResult const_result = WfResult.Unknown;
                         IWorkflowActivity runner = activity.Activate();
-                        while (const_result.StatusCode == WfStatus.Failed)
+                        while (true)
                         {
                             //Run constraint activity                        
                             using (linkedCts.Token.Register(Thread.CurrentThread.Abort))
@@ -80,7 +80,7 @@ namespace ControllerRuntime
                                     const_result = runner.Run(linkedCts.Token);
                                     _logger.Debug("Constraint {ItemKey} current status = {WfStatus}", _item.Key, const_result.StatusCode.ToString());
 
-                                    if (const_result.StatusCode == WfStatus.Succeeded)
+                                    if (const_result.StatusCode != WfStatus.Waiting)
                                         break;
                                 }
                                 catch (ThreadAbortException ex)
@@ -92,7 +92,10 @@ namespace ControllerRuntime
                             //cts.Token.ThrowIfCancellationRequested();
                             Task.Delay(sleep, linkedCts.Token).Wait();
                             if (linkedCts.IsCancellationRequested)
+                            {
+                                const_result = WfResult.Canceled;
                                 break;
+                            }
 
                         }
                         return const_result;

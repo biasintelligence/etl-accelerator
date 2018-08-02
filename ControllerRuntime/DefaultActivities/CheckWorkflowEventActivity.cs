@@ -93,7 +93,7 @@ namespace DefaultActivities
                             cmd.ExecuteNonQuery();
                             SqlBoolean Status = (SqlBoolean)cmd.Parameters["@Status"].SqlValue;
                             if (Status.IsNull || Status.IsFalse)
-                                result = WfResult.Failed;
+                                result = WfResult.Waiting;
                             else
                                 result = WfResult.Succeeded;
                         }

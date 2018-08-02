@@ -14,7 +14,8 @@ namespace ControllerRuntime
         Suspended,
         Succeeded,
         Failed,
-        Disabled
+        Disabled,
+        Waiting
     }
 
     /// <summary>
@@ -56,6 +57,8 @@ namespace ControllerRuntime
         { get { return new WfResult(WfStatus.Suspended, "Paused", 0); } }
         public static WfResult Unknown
         { get { return new WfResult(WfStatus.Unknown, "Not Started", 0); } }
+        public static WfResult Waiting
+        { get { return new WfResult(WfStatus.Waiting, "Waiting", 0); } }
 
         public void SetTo(WfResult result)
         {
