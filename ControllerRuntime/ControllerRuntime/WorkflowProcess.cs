@@ -35,8 +35,6 @@ namespace ControllerRuntime
     [XmlRoot(Namespace = "ETLController.XSD", ElementName = "Process")]
     public class WorkflowProcess
     {
-
-        IList<WorkflowParameter> parameters;
         
         #region Elements
         private string process;
@@ -56,13 +54,13 @@ namespace ControllerRuntime
             set
             {
                 this.param = value;
-                if (value.Trim().StartsWith("[{"))
+                if (!string.IsNullOrEmpty(value) && value.Trim().StartsWith("[{"))
                 {
                     try
                     {
                         JArray p = JArray.Parse(value);
                         if (p.HasValues)
-                            parameters = JsonConvert.DeserializeObject<IList<WorkflowParameter>>(value);
+                            Parameters = JsonConvert.DeserializeObject<IList<WorkflowParameter>>(value);
 
                     }
                     catch
@@ -72,10 +70,11 @@ namespace ControllerRuntime
                 }
                 else
                 {
-                    parameters = LegacyDeserialize(value);
+                    Parameters = LegacyDeserialize(value);
                 }
-                if (parameters == null)
-                    parameters = new List<WorkflowParameter>();
+
+                if (Parameters == null)
+                    Parameters = new List<WorkflowParameter>();
 
             }
         }
@@ -105,9 +104,7 @@ namespace ControllerRuntime
         /// </summary>
         /// <returns>list</returns>
         public IList<WorkflowParameter> Parameters
-        {
-            get { return parameters; }
-        }
+        { get; private set; } = new List<WorkflowParameter>();
         #endregion
 
         private List<WorkflowParameter> LegacyDeserialize(string param)
