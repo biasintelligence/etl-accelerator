@@ -31,7 +31,7 @@ namespace ControllerRuntime
     public class WorkflowParameter
     {
         public string Name { get; set; } 
-        public IList<string> Override { get; set; }
+        public List<string> Override { get; set; }
         public string Default { get; set; }
     }
 }

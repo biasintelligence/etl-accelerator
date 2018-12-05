@@ -60,7 +60,7 @@ namespace ControllerRuntime
                     {
                         JArray p = JArray.Parse(value);
                         if (p.HasValues)
-                            Parameters = JsonConvert.DeserializeObject<IList<WorkflowParameter>>(value);
+                            Parameters = JsonConvert.DeserializeObject<List<WorkflowParameter>>(value);
 
                     }
                     catch
@@ -103,7 +103,7 @@ namespace ControllerRuntime
         /// json array format [{Name:attr,Override:[attr1,attr2],Default:Value}...]
         /// </summary>
         /// <returns>list</returns>
-        public IList<WorkflowParameter> Parameters
+        public List<WorkflowParameter> Parameters
         { get; private set; } = new List<WorkflowParameter>();
         #endregion
 

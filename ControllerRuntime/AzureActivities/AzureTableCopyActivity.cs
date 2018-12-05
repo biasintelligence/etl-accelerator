@@ -120,7 +120,7 @@ namespace AzureActivities
 
                 //get sql table schema to construct azure table query request
                 DataTable schema = GetSchema(_attributes[SQL_TABLE_NAME]);
-                IList<string> columnList = schema.Columns.OfType<DataColumn>()
+                List<string> columnList = schema.Columns.OfType<DataColumn>()
                     .Select(c => c.ColumnName)
                     //.Union(new string[]{ AZURE_TABLE_PARTITION_KEY_COL,AZURE_TABLE_ROW_KEY_COL,AZURE_TABLE_TIMESTAMP_COL})
                     .ToList();

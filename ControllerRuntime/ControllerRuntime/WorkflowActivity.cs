@@ -166,7 +166,7 @@ namespace ControllerRuntime
             if (required != null && required.Count > 0)
             {
 
-                IList<WorkflowParameter> list = _process.Parameters;
+                List<WorkflowParameter> list = _process.Parameters;
                 foreach (string name in required)
                 {
 
