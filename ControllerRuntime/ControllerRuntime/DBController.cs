@@ -92,6 +92,7 @@ namespace ControllerRuntime
     public class DBController
     {
 
+        private const int COMMAND_TIMEOUT = 120;
         private const string WORKFLOW_METADATA_QUERY = @"
 set transaction isolation level read uncommitted; 
 declare @batchName varchar(100) = '{0}';
@@ -393,7 +394,7 @@ ELSE
                         ((_debug) ? 1 : 0));
                     using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
                     {
-                        cmd.CommandTimeout = 30;
+                        cmd.CommandTimeout = COMMAND_TIMEOUT;
                         cmd.CommandType = CommandType.Text;
                         var xml = cmd.ExecuteScalar();
                         //xml_string = "<?xml version=\"1.0\"?>" + xml.ToString();
@@ -444,7 +445,7 @@ ELSE
                         ((forcestart) ? 1 : 0));
                     using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
                     {
-                        cmd.CommandTimeout = 30;
+                        cmd.CommandTimeout = COMMAND_TIMEOUT;
                         cmd.CommandType = CommandType.Text;
                         SqlDataReader reader = cmd.ExecuteReader();
 
@@ -640,7 +641,7 @@ ELSE
                         ((_debug) ? 1 : 0));
                     using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
                     {
-                        cmd.CommandTimeout = 30;
+                        cmd.CommandTimeout = COMMAND_TIMEOUT;
                         cmd.CommandType = CommandType.Text;
                         var xml = cmd.ExecuteScalar();
                         xml_string = xml.ToString();
@@ -674,7 +675,7 @@ ELSE
 
                     using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
                     {
-                        cmd.CommandTimeout = 30;
+                        cmd.CommandTimeout = COMMAND_TIMEOUT;
                         cmd.CommandType = CommandType.Text;
                         cmd.ExecuteNonQuery();
                     }
@@ -704,7 +705,7 @@ ELSE
 
                     using (SqlCommand cmd = new SqlCommand(cmd_text, cn))
                     {
-                        cmd.CommandTimeout = 30;
+                        cmd.CommandTimeout = COMMAND_TIMEOUT;
                         cmd.CommandType = CommandType.Text;
                         return cmd.ExecuteScalar();
                     }
