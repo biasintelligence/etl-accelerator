@@ -156,7 +156,7 @@
     <Compile Include="DERun.cs" />
     <Compile Include="DESource.cs" />
     <Compile Include="DESSISPackage.cs" />
-    <Compile Include="dsv.cs" />
+    <Compile Include="Dsv.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="MoveData.cs" />
     <Compile Include="MyColumn.cs" />

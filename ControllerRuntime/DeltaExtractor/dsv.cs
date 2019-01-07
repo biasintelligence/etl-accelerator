@@ -7,25 +7,28 @@ using System.Xml.Serialization;
 using System.Data;
 using System.IO;
 using System.Globalization;
+using Serilog;
 
 namespace BIAS.Framework.DeltaExtractor
 {
 
-    public class dsv
+    public class Dsv
     {
         private string sa;
         private string doc;
         public bool Valid { get; set;}
         private DataTable dsvtable;
         private Dictionary<string, MyColumn> m_columns = new Dictionary<string, MyColumn>();
+        private readonly ILogger _logger;
 
-        public dsv(string sa, string dsvfilename)
+        public Dsv(string sa, string dsvfilename, ILogger logger)
         {
             this.sa = sa;
             this.doc = String.IsNullOrEmpty(dsvfilename) ? String.Empty : Path.Combine(sa, dsvfilename);
+            _logger = logger;
         }
 
-        public dsv(string sa) :this (sa, String.Empty)
+        public Dsv(string sa, ILogger logger) :this (sa, String.Empty, logger)
         {
         }
 
@@ -154,9 +157,19 @@ namespace BIAS.Framework.DeltaExtractor
                     case ("DateTime"):
                         myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_DBTIMESTAMP;
                         break;
+                    case ("DateTime2"):
+                        myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_DBTIMESTAMP2;
+                        break;
+                    case ("DateTimeOffset"):
+                        myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_BYREF_DBTIMESTAMPOFFSET;
+                        break;
                     case ("DBTime"):
                     case ("Time"):
                         myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_DBTIME;
+                        break;
+                    case ("DBTime2"):
+                    case ("Time2"):
+                        myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_DBTIME2;
                         break;
                     case ("DBDate"):
                     case ("Date"):
@@ -187,6 +200,7 @@ namespace BIAS.Framework.DeltaExtractor
                         break;
 
                     default :
+                        _logger.Error("Dsv Unsupported datatype {datatype}", exDataType);
                         return false;
                 }
                 m_columns.Add(myCol.Name, myCol);

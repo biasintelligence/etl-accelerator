@@ -104,11 +104,11 @@ namespace BIAS.Framework.DeltaExtractor
                     pipe.Events = DtsConvert.GetExtendedInterface(events as IDTSComponentEvents);
 
                     // Add variable to point to staging area root
-                    dsv dsv = null;
+                    Dsv dsv = null;
                     if (!String.IsNullOrEmpty(_movedata.StagingAreaRoot))
                     {
                         package.Variables.Add("StagingAreaRoot", true, "", _movedata.StagingAreaRoot);
-                        dsv = new dsv(_movedata.StagingAreaRoot);
+                        dsv = new Dsv(_movedata.StagingAreaRoot,_logger);
                     }
                     // Add variable RowCount
                     package.Variables.Add("RowCount", false, "", 0);
