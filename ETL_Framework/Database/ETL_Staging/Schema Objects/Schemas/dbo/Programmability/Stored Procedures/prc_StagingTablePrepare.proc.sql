@@ -35,7 +35,8 @@ begin
 																isAction = 1 -- action column
 
   2017-03-13		andrey								add ident column back
-  2017-03-30		andrey								remove src/dst db if the same to support azure dbs 
+  2017-03-30		andrey								remove src/dst db if the same to support azure dbs
+  2019-01-08		andrey								type_name takes user_type_id as input
 */
 --exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
 
@@ -136,7 +137,7 @@ begin
    select objname, name, cast(value as nvarchar(30)) from <db>.sys.fn_listextendedproperty (NULL, ''schema'', @sch, ''table'', @tbl, ''column'', default);
 
    insert #srccol
-   select d.[name],d.system_type_id,d.max_length,d.[precision],d.[scale]
+   select d.[name],d.user_type_id,d.max_length,d.[precision],d.[scale]
        ,d.[is_identity],d.[is_nullable],d.[is_rowguidcol],d.[column_id]
        ,isnull(ipkc.[key_ordinal],0),isnull(spk.[propvalue],0),isnull(t2.[propvalue],0)
     from <db>.sys.columns d
@@ -153,7 +154,7 @@ else
 begin
 --use defaults
    insert #srccol
-   select d.[name],d.system_type_id,d.max_length,d.[precision],d.[scale]
+   select d.[name],d.user_type_id,d.max_length,d.[precision],d.[scale]
        ,d.[is_identity],d.[is_nullable],d.[is_rowguidcol],d.[column_id]
        ,isnull(ipkc.[key_ordinal],0),isnull(ispkc.[key_ordinal],0),isnull(ispkc.[is_included_column],0)
     from <db>.sys.columns d

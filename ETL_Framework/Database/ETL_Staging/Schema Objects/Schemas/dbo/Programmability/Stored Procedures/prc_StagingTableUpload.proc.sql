@@ -46,8 +46,8 @@ begin
   2013-05-21		andrey				move type2 filter from join to match clause
   2017-01-21		andrey				fix merge when table has only PK or SPK columns
   2017-03-13		andrey				comment audit calls + allow identity on pk
-  2017-03-30		andrey				remove src/dst db if the same to support azure dbs
-  2018-01-10		andrey				replace binary_checksum logic with intersect
+  2017-03-30		andrey				remove src/dst db if the same to support azure dbs 
+  2019-01-08		andrey				add support for new types like geometry and colputed columns 
 */
 --exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
   
@@ -144,7 +144,9 @@ begin
   ,[is_add] bit
   ,[pk] tinyint 
   ,[spk] tinyint
-  ,[is_type2] bit) 
+  ,[is_type2] bit
+  ,[use_hash] bit
+  ,[is_computed] bit) 
   
   
   create table #dstprop
@@ -172,7 +174,7 @@ begin try
   
    set @query = '  
       insert #srccol  
-      select s.[name],s.system_type_id,s.max_length,s.[precision],s.[scale],isnull(ispkc.[key_ordinal],0)  
+      select s.[name],s.user_type_id,s.max_length,s.[precision],s.[scale],isnull(ispkc.[key_ordinal],0)  
         from ' + @srcdb + 'sys.columns s
     left join ' + @srcdb + 'sys.indexes ispk on ispk.[object_id] = s.[object_id] and  ispk.name like ''UQ_SPK_%''
     left join ' + @srcdb + 'sys.index_columns ispkc
@@ -211,7 +213,7 @@ begin
   select 
       [name]     = d.[name]
      ,[src_name] = s.[src_name]
-     ,[type]     = d.system_type_id
+     ,[type]     = d.user_type_id
      ,[len]      = d.max_length
      ,[prec]     = d.[precision]
      ,[scale]    = d.[scale]  
@@ -219,10 +221,12 @@ begin
      ,[is_null]  = d.[is_nullable]
      ,[is_guid]  = d.[is_rowguidcol]
      ,[has_src]  = case when s.[src_name] is null then 0 else 1 end
-     ,[is_add]   = case when d.system_type_id in (48,52,56,59,60,62,106,108,122,127) then 1 else 0 end  
+     ,[is_add]   = case when d.user_type_id in (48,52,56,59,60,62,106,108,122,127) then 1 else 0 end  
      ,isnull(ipkc.[key_ordinal],0)
      ,isnull(spk.[propvalue],0)
      ,isnull(t2.[propvalue],0)
+     ,[use_hash]   = case when d.user_type_id in (129) then 1 else 0 end
+	 ,[is_computed] = d.[is_computed]
     from <db>.sys.columns d  
     left join #srccol s on d.[name] = s.[src_name]  
     left join <db>.sys.indexes ipk on ipk.[object_id] = d.[object_id] and  ipk.[is_primary_key] = 1
@@ -243,7 +247,7 @@ begin
   select 
       [name]     = d.[name]
      ,[src_name] = s.[src_name]
-     ,[type]     = d.system_type_id
+     ,[type]     = d.user_type_id
      ,[len]      = d.max_length
      ,[prec]     = d.[precision]
      ,[scale]    = d.[scale]  
@@ -251,10 +255,12 @@ begin
      ,[is_null]  = d.[is_nullable]
      ,[is_guid]  = d.[is_rowguidcol]
      ,[has_src]  = case when s.[src_name] is null then 0 else 1 end
-     ,[is_add]   = case when d.system_type_id in (48,52,56,59,60,62,106,108,122,127) then 1 else 0 end  
+     ,[is_add]   = case when d.user_type_id in (48,52,56,59,60,62,106,108,122,127) then 1 else 0 end  
      ,isnull(ipkc.[key_ordinal],0)
      ,isnull(ispkc.[key_ordinal],0)
      ,isnull(ispkc.[is_included_column],0)
+     ,[use_hash]   = case when d.user_type_id in (129) then 1 else 0 end
+	 ,[is_computed] = d.[is_computed]
     from <db>.sys.columns d  
     left join #srccol s on d.[name] = s.[src_name]  
     left join <db>.sys.indexes ipk on ipk.[object_id] = d.[object_id] and  ipk.[is_primary_key] = 1
@@ -274,7 +280,7 @@ end
    set @query = replace(@query,'<db>.',@dstdb)
    exec sp_executesql @query,N'@dst sysname',@dst = @dst
 
-   --if (@debug is not null)
+   --if (@debug = 1)
    --begin
    --   select * from #dstcol
    --end
@@ -320,7 +326,7 @@ begin
      from <src>
 
   set @rows = @@rowcount
-  --raiserror(''%d rows reloaded into <dst> table'',0,1,@rows) with nowait 
+  raiserror(''%d rows reloaded into <dst> table'',0,1,@rows) with nowait 
   <IdentityOff>
 
    --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
@@ -391,7 +397,7 @@ begin
 --OUTPUT $action;
 
   set @rows = @@rowcount
-  --raiserror(''%d rows merged into <dst> table'',0,1,@rows) with nowait 
+  raiserror(''%d rows merged into <dst> table'',0,1,@rows) with nowait 
   <IdentityOff>
 
   --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
@@ -467,7 +473,7 @@ begin
   update Set dst.' + @RecordEndCol + ' = @dt;
 
   set @rows = @@rowcount
-  --raiserror(''%d rows t2 closed recorded merged into <dst> table'',0,1,@rows) with nowait 
+  raiserror(''%d rows t2 closed recorded merged into <dst> table'',0,1,@rows) with nowait 
 
    merge <dst> as dst
    using (select <selectlist> from <src>) as src
@@ -481,7 +487,7 @@ begin
       values (<dstlist>);
 
   set @rows = @rows + @@rowcount
-  --raiserror(''%d rows t1 merged into <dst> table'',0,1,@rows) with nowait 
+  raiserror(''%d rows t1 merged into <dst> table'',0,1,@rows) with nowait 
 
   commit tran;
 
@@ -513,9 +519,11 @@ end catch
 --<type2checksum>
    set @sql1 = ''
    set @sql2 = ''
-   select @sql1 = @sql1 + ',src.' + quotename([src_name]) 
-       ,@sql2 = @sql2 + ',dst.' + quotename([name])  
-    from  #dstcol where [has_src] = 1 and [is_type2] = 1
+   select @sql1 = @sql1 +
+				+ case when [use_hash] = 1 then ',hashbytes(''MD5'',cast(src.' + quotename([src_name]) + ' as varbinary(max)))' else ',src.' + quotename([src_name]) end 
+       ,@sql2 = @sql2
+				+ case when [use_hash] = 1 then ',hashbytes(''MD5'',cast(dst.' + quotename([src_name]) + ' as varbinary(max)))' else ',dst.' + quotename([src_name]) end 
+    from  #dstcol where [has_src] = 1 and [is_type2] = 1 and [is_computed] = 0
       
    if (len(@sql1) > 0)
    begin
@@ -549,9 +557,11 @@ end catch
    set @sql2 = ''
    if (@check = 1)
    begin
-      select @sql1 = @sql1 + ',src.' + quotename([src_name]) 
-            ,@sql2 = @sql2 + ',dst.' + quotename([name])  
-      from  #dstcol where [has_src] = 1 and [spk] = 0 --and [is_type2] = 0
+   select @sql1 = @sql1 +
+				+ case when [use_hash] = 1 then ',hashbytes(''MD5'',cast(src.' + quotename([src_name]) + ' as varbinary(max)))' else ',src.' + quotename([src_name]) end 
+       ,@sql2 = @sql2
+				+ case when [use_hash] = 1 then ',hashbytes(''MD5'',cast(dst.' + quotename([src_name]) + ' as varbinary(max)))' else ',dst.' + quotename([src_name]) end 
+      from  #dstcol where [has_src] = 1 and [spk] = 0  and [is_computed] = 0 --and [is_type2] = 0
       
       if (len(@sql1) > 0)
 	  begin
@@ -578,7 +588,7 @@ end catch
              + case when @ActionCol is not null then ',dst.' + @ActionCol + ' = case dst.' + @ActionCol + ' when 3 then 1 else 2 end' else '' end  --insert if deleted else update
    select @sql1 = @sql1 + ',dst.' + quotename([name]) + ' = src.' + quotename([src_name]) 
          ,@sql2 = @sql2 + ',' + quotename([name])  
-   from  #dstcol where [has_src] = 1 and [spk] = 0 --and [is_type2] = 0
+   from  #dstcol where [has_src] = 1 and [spk] = 0  and [is_computed] = 0 --and [is_type2] = 0
 
    
    if (len(@sql1) > 0)
@@ -598,7 +608,7 @@ set @sql2 = case when @AuditCol is not null then ',' + @AuditCol else '' end
           + case when @is_type2 = 1 then ',' + @RecordStartCol + ',' + @RecordEndCol else '' end
 select @sql1 = @sql1 + ',' + quotename([src_name])  
       ,@sql2 = @sql2 + ',' + quotename([name])  
-from  #dstcol where [has_src] = 1 
+from  #dstcol where [has_src] = 1 and [is_computed] = 0
 
 set @sql1 = right(@sql1, len(@sql1)-1) -- remove leading comma
 set @sql2 = right(@sql2, len(@sql2)-1) -- remove leading comma  
