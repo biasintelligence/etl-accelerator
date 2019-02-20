@@ -1,4 +1,4 @@
-﻿create procedure [dbo].[prc_StagingTablePrepare] (
+﻿create procedure [stage].[prc_StagingTablePrepare] (
     @src           sysname
    ,@dst           sysname = null output
    ,@runid         int = null
@@ -15,7 +15,7 @@ begin
 ** Params:
 ** @src       -- table or view name to use as template
 ** @dst       -- returns delta table name
-** @options   -- supported: debug,rebuild,index,uniqueindex
+** @options   -- supported: debug,rebuild,index,uniqueindex,ignoreidentity
 ** Returns:
 **
 ** Author:	andreys
@@ -36,7 +36,7 @@ begin
 
   2017-03-13		andrey								add ident column back
   2017-03-30		andrey								remove src/dst db if the same to support azure dbs
-  2019-01-08		andrey								type_name takes user_type_id as input
+  2019-01-19		andrey								add ignoreidentity option
 */
 --exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
 
@@ -54,6 +54,7 @@ begin
    declare @quotename          tinyint
    declare @srcDB              sysname
    declare @srcSchema          sysname
+   declare @ignoreIdentity	   tinyint
 
    declare @AuditCol           sysname
    declare @ActionCol          sysname
@@ -70,6 +71,7 @@ begin
                       else 0
                     end
    set @quotename = case when @options like '%quotename%' then 1 else 0 end
+   set @ignoreIdentity = case when @options like '%ignoreidentity%' then 1 else 0 end
 
 -----------------------------------------------------------------------------------------------------
 --metadata defaults
@@ -231,7 +233,7 @@ end
       begin
          if exists(
             select 1 from (select d.[name] from sys.columns d where d.[object_id] = object_id(@dst)) d
-              full join (select s.[name] from #srccol s) s
+              full join (select s.[name] from #srccol s where not (is_ident = 1 and @ignoreIdentity = 1)) s
                 on s.[name] = d.[name]
              where (s.[name] is null or d.name is null))
          begin
@@ -259,9 +261,12 @@ end
    begin
       set @query = 'create table ' + @dst + '(<columnlist>)'
 
+
       --<columnlist>
       set @sql1 = ''
-      select @sql1 = @sql1 + ',' + quotename([name]) + ' ' + type_name([type])
+      select @sql1 = @sql1 + ',' + quotename([name])
+				--ssis ado.net destination doest support type geometry
+			    + case when [type] = 129 then 'varbinary(max)' else isnull(type_name([type]),'unknown') end
                 + case when [type] in (62) then '(' + cast(prec as nvarchar(10)) + ')'    
                        when [type] in (106,108) then '(' + cast(prec as nvarchar(10)) + ',' + cast(scale as nvarchar(10)) + ')'
                        when [type] in (165,167,173,175) then case when [len] = -1 then '(max)' else '(' + cast([len] as nvarchar(10)) + ')' end
@@ -271,6 +276,7 @@ end
                 --+ case when ([pk] = 0) then ' null' else ' not null' end --+ char(13) + char(10)
                 + case when ([is_null] = 0) then ' not null' else ' null' end --+ char(13) + char(10)
         from  #srccol
+		where not (is_ident = 1 and @ignoreIdentity = 1)
         order by [colid]
 
       set @sql1 = right(@sql1,len(@sql1) -1)
