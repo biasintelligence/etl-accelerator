@@ -255,7 +255,7 @@ namespace BIAS.Framework.DeltaExtractor
                             SSISFlatFileConnection.ConfigureConnectionManager(cm, dst.CustomProperties.FlatFileConnectionProperties, colCollection, _logger);
                             module = new SSISFlatFileDestination(dst, pipe, cm, _logger, app);
                             current = module.Initialize();
-                            src = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
+                            current = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
                         }
 
 
@@ -270,7 +270,7 @@ namespace BIAS.Framework.DeltaExtractor
                             //cm.Name = String.Format(CultureInfo.InvariantCulture, "OLEDB Destination Connection Manager {0}", output.ID);
                             module = new SSISOleDbDestination(dst, pipe, cm, _logger, app);
                             current = module.Initialize();
-                            src = module.ConnectDestination(src,dst.DataTypeAutoConvert, output.ID);
+                            current = module.ConnectDestination(src,dst.DataTypeAutoConvert, output.ID);
 
                         }
 
@@ -286,7 +286,7 @@ namespace BIAS.Framework.DeltaExtractor
                             //cm.Name = String.Format(CultureInfo.InvariantCulture, "Excel Destination Connection Manager {0}", output.ID);
                             module = new SSISExcelDestination(dst, pipe, cm, _logger, app);
                             current = module.Initialize();
-                            src = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
+                            current = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
 
                         }
 
@@ -298,7 +298,7 @@ namespace BIAS.Framework.DeltaExtractor
                             IDTSOutput100 output = ConfigureOutput(src, dst, dsrc);
                             module = new SSISSharePointDestination(dst, pipe, _logger, app);
                             current = module.Initialize();
-                            src = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
+                            current = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
                         }
 
                         // Ado Net Destinations
@@ -312,7 +312,7 @@ namespace BIAS.Framework.DeltaExtractor
                             //cm.Name = String.Format(CultureInfo.InvariantCulture, "ADONET Destination Connection Manager {0}", output.ID);
                             module = new SSISAdoNetDestination(dst, pipe, cm, _logger, app);
                             current = module.Initialize();
-                            src = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
+                            current = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
                         }
 
                         // Odbc Destinations
@@ -326,7 +326,7 @@ namespace BIAS.Framework.DeltaExtractor
                             //cm.Name = String.Format(CultureInfo.InvariantCulture, "ODBC Destination Connection Manager {0}", output.ID);
                             module = new SSISOdbcDestination(dst, pipe, cm, _logger, app);
                             current = module.Initialize();
-                            src = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
+                            current = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
                         }
 
                         // SqlBulk Destinations
@@ -340,7 +340,7 @@ namespace BIAS.Framework.DeltaExtractor
                             //cm.Name = String.Format(CultureInfo.InvariantCulture, "OLEDB Destination Connection Manager {0}", output.ID);
                             module = new SSISSqlBulkDestination(dst, pipe, cm, _logger, app);
                             current = module.Initialize();
-                            src = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
+                            current = module.ConnectDestination(src, dst.DataTypeAutoConvert, output.ID);
                         }
 
                     }
