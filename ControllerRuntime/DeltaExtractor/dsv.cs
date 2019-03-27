@@ -161,7 +161,7 @@ namespace BIAS.Framework.DeltaExtractor
                         myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_DBTIMESTAMP2;
                         break;
                     case ("DateTimeOffset"):
-                        myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_BYREF_DBTIMESTAMPOFFSET;
+                        myCol.DataType = Microsoft.SqlServer.Dts.Runtime.Wrapper.DataType.DT_DBTIMESTAMPOFFSET;
                         break;
                     case ("DBTime"):
                     case ("Time"):
