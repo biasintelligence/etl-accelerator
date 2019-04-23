@@ -47,7 +47,7 @@ begin
   2017-01-21		andrey				fix merge when table has only PK or SPK columns
   2017-03-13		andrey				comment audit calls + allow identity on pk
   2017-03-30		andrey				remove src/dst db if the same to support azure dbs 
-  2019-01-08		andrey				add support for new types like geometry and colputed columns 
+  2019-01-08		andrey				add support for new types like geometry and computed columns 
 */
 --exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
   
