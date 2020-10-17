@@ -142,7 +142,7 @@ namespace AwsActivities
                                                 token.ThrowIfCancellationRequested();
 
                                                 var bson = BsonSerializer.Deserialize<BsonDocument>(reader);
-                                                string json = bson.ToJson(new JsonWriterSettings() { OutputMode = JsonOutputMode.Strict });
+                                                string json = bson.ToJson(new JsonWriterSettings() { OutputMode = JsonOutputMode.CanonicalExtendedJson });
                                                 cmd.Parameters[PARAM_DOCUMENT].Value = json;
                                                 cmd.ExecuteNonQuery();
 

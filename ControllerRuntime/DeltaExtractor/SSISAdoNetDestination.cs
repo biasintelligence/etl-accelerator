@@ -11,8 +11,8 @@ using System.Data;
 using Microsoft.SqlServer.Dts.Runtime;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 
-using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
-using System.Runtime.InteropServices;
+//using mwrt = Microsoft.SqlServer.Dts.Runtime.Wrapper;
+//using System.Runtime.InteropServices;
 
 using Serilog;
 using ControllerRuntime;

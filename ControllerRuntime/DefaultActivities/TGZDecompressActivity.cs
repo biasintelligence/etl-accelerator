@@ -143,7 +143,7 @@ namespace DefaultActivities
 
                 using (Stream inStream = File.OpenRead(file))
                 using (Stream gzipStream = new GZipInputStream(inStream))
-                using (TarArchive tarArchive = TarArchive.CreateInputTarArchive(gzipStream))
+                using (TarArchive tarArchive = TarArchive.CreateInputTarArchive(gzipStream,Encoding.Unicode))
                 {
                     try
                     {
