@@ -210,7 +210,7 @@ or bca.AttributeName in ('DISABLED','PING')
 )
 order by bca.constId;
 
-
+if (len(@sql) > 0)
 set @Script += '
 
 -------------------------------------------------------
@@ -337,7 +337,7 @@ if (len(@sql) > 0)
 set @Script += '
 --set identity_insert dbo.ETLStepConstraint on
 insert dbo.ETLStepConstraint
-(BatchID,StepID,ConstID,,ProcessID,ConstOrder,WaitPeriod)
+(BatchID,StepID,ConstID,ProcessID,ConstOrder,WaitPeriod)
 values
 ' + right(@sql,len(@sql) - 1) + ';
 --set identity_insert dbo.ETLStepConstraint off;
@@ -376,6 +376,7 @@ or   sca.AttributeName not in ('DISABLED','PING')
 )
 order by sca.constId;
 
+if (len(@sql) > 0)
 set @Script += '
 
 -------------------------------------------------------

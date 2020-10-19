@@ -1,4 +1,4 @@
-﻿create procedure [stage].[prc_StagingTablePrepare] (
+﻿create procedure [dbo].[prc_StagingTablePrepare] (
     @src           sysname
    ,@dst           sysname = null output
    ,@runid         int = null
