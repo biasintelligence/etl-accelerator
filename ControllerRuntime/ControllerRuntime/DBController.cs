@@ -135,19 +135,26 @@ declare @LastStatusID tinyint;
 declare @LastRunID int;
 declare @RunId int;
 declare @BatchHeader xml;
+declare @now datetime = getdate();
+declare @isRunning bit = 0;
+declare @ping int = 30; --sec
+
 begin try
 	select top 1 @BatchId = BatchId from dbo.ETLBatch where BatchName = @batchName;
-
+    set @ping = isnull(cast([dbo].[fn_ETLAttributeGet] (@BatchID,null,null,'etl:Ping') as int),@ping);
 --cleanup part	
     SELECT @LastStatusID = StatusID
 		  ,@LastRunID    = RunID
+          ,@isRunning    = case when StatusID = 1 and datediff(second,StatusDT,@now) < @ping then 1 else 0 end
 	  FROM dbo.ETLBatchRun
 	 WHERE RunID = (SELECT MAX(RunID) FROM dbo.ETLStepRun
 					 WHERE BatchID = @BatchID)
 
     --abort if running and forcestart is not set
-    if(@forcestart = 0 and @LastStatusID = 1)
-        raiserror ('Workflow %s is already running, Use forestart option to cleanup',11,11,@batchName);
+    if(@isRunning = 1)
+        raiserror ('Workflow %s is already running',11,11,@batchName);
+    else if(@forcestart = 0 and @LastStatusID = 1)
+        raiserror ('Workflow %s is in running state, Use forestart option to cleanup',11,11,@batchName);
 
 	if (@LastRunId is not null)
 	begin
@@ -332,13 +339,19 @@ declare @BatchId int = {0};
 declare @StepId int = {1}
 declare @RunId int = {2}
 declare @StatusId smallint;
+declare @now datetime = getdate();
+
+--set running heartbeat
+update dbo.ETLBatchRun
+   set StatusDT = @now
+where RunID = @RunID AND BatchID = @BatchID and StatusId = 1;
 
 --check for exit event
 set @StatusId = isnull(dbo.fn_ETLCounterGet (@BatchId,@stepId,@RunId,'ExitEvent'),0);
 IF (@StatusId not in (0,1))
 BEGIN
     UPDATE s
-        SET s.StatusID = @StatusId,s.EndTime = getdate() ,s.Err = 0
+        SET s.StatusID = @StatusId,s.EndTime = @now ,s.Err = 0
     FROM dbo.ETLStepRun s
     WHERE s.RunID = @RunID AND s.BatchID = @BatchID and s.StatusId = 0
     AND (@StepId = 0 OR s.StepId = @StepId)  ;
