@@ -48,6 +48,7 @@ begin
   2017-03-13		andrey				comment audit calls + allow identity on pk
   2017-03-30		andrey				remove src/dst db if the same to support azure dbs 
   2019-01-08		andrey				add support for new types like geometry and computed columns 
+  2021-04-09		andrey				add tran on reload
 */
 --exec [prc_StagingTablePrepare] 'dbo.TestProperty','dbo.staging_TestProperty',0,'debug,rebuild,index'
   
@@ -310,12 +311,14 @@ begin
 -----------------------------------------------------------------------------------------------------  
 
    set @query =
- 'declare @AuditId int,@Err int,@Rows int,@dt date;
+ 'declare @AuditId int,@Err int,@Rows int,@dt date,@tran int;
 set @dt = getdate();
+set @tran = @@trancount;
 begin try
 if exists (select 1 from <src>)
 begin
    --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId out,@AuditMode = 1,@AuditObject = ''<dst>'',@Op = ''<op>'',@RunId = @RunID,@Options = @Options
+	begin tran;
 '
 + case when @reload = 1 then ' truncate table <dst> ' else '' end
 + '  
@@ -329,13 +332,17 @@ begin
   raiserror(''%d rows reloaded into <dst> table'',0,1,@rows) with nowait 
   <IdentityOff>
 
+   commit tran;
    --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 0,@RowCnt = @Rows,@Options = @Options
    --exec <dstdb>.dbo.prc_Audit @AuditId = @AuditId,@AuditMode = 2,@Options = @Options
 
 end  
 end try  
 begin catch
-  <IdentityOff>
+   if  (@tran < @@TRANCOUNT) 
+      rollback tran;
+
+  --<IdentityOff>
    declare @msg nvarchar(500)  
    set @msg = error_message()
    set @Err = error_number()
